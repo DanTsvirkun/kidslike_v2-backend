@@ -1,0 +1,39 @@
+parent {
+    email: string
+    password: string
+    username: string
+    children: child[]
+}
+
+child {
+    name: string
+    rewards: number
+    gender: "male" | "female"
+    habits: habit[]
+    tasks: task[]
+    gifts: gift[]
+    id: uuid
+}
+
+habit {
+    name: string,
+    rewardPerDay: number,
+    daysCompleted: boolean[] ................
+    id: uuid
+}
+
+task {
+    name: string
+    reward: number
+    isCompleted: boolean
+    daysToComplete?: number
+    id: uuid
+}
+
+gift {
+    name: string
+    price: number
+    imageUrl: string
+    isPurchased: boolean
+    id: uuid
+}
