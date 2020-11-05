@@ -1,7 +1,10 @@
+import { Document } from "mongoose";
+
 declare global {
   namespace Express {
     interface Request {
-      propertyName: string;
+      user: Document | null;
+      session: Document | null;
     }
   }
 }

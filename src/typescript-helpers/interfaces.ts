@@ -8,7 +8,7 @@ export interface IParent extends Document {
   children: IChild[];
 }
 
-export interface IChild {
+export interface IChild extends Document {
   name: string;
   rewards: number;
   gender: Gender;
@@ -39,4 +39,9 @@ export interface IGift {
   imageUrl: string;
   isPurchased: boolean;
   id: string;
+}
+
+export interface IJWTPayload {
+  uid: string;
+  sid: string;
 }
