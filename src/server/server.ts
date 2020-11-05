@@ -6,6 +6,7 @@ import mongoose from "mongoose";
 import authRouter from "../auth/auth.router";
 import childRouter from "../child/child.router";
 import taskRouter from "../task/task.router";
+import habitRouter from "../habit/habit.router";
 require("dotenv").config({ path: path.join(__dirname, "../../.env") });
 
 export default class Server {
@@ -52,6 +53,7 @@ export default class Server {
     this.app.use("/auth", authRouter);
     this.app.use("/child", childRouter);
     this.app.use("/task", taskRouter);
+    this.app.use("/habit", habitRouter);
   }
 
   private initErrorHandling() {

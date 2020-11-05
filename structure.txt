@@ -32,7 +32,7 @@ task {
 
 gift {
     name: string
-    price: number
+    price: number;
     imageUrl: string
     isPurchased: boolean
     id: uuid

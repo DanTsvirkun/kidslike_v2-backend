@@ -2,13 +2,12 @@ import { Router } from "express";
 import Joi from "joi";
 import validate from "../function-helpers/validate";
 import { authorize } from "../auth/auth.controller";
-import { addTask } from "./task.controller";
 import tryCatchWrapper from "../function-helpers/try-catch-wrapper";
+import { addGift } from "./gift.controller";
 
-const addTaskSchema = Joi.object({
+const addGiftSchema = Joi.object({
   name: Joi.string().required(),
-  reward: Joi.number().required(),
-  daysToComplete: Joi.number(),
+  price: Joi.number().required(),
 });
 
 const router = Router();
@@ -16,8 +15,8 @@ const router = Router();
 router.post(
   "/:childId",
   authorize,
-  validate(addTaskSchema),
-  tryCatchWrapper(addTask)
+  validate(addGiftSchema),
+  tryCatchWrapper(addGift)
 );
 
 export default router;

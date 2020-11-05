@@ -3,15 +3,7 @@ import Joi from "joi";
 import validate from "../function-helpers/validate";
 import { authorize } from "../auth/auth.controller";
 import { addChild } from "./child.controller";
-import { addTaskSchema } from "../task/task.router";
 import tryCatchWrapper from "../function-helpers/try-catch-wrapper";
-
-const addHabitSchema = Joi.object({
-  name: Joi.string().required(),
-  rewardPerDay: Joi.number().required(),
-  daysCompleted: Joi.number().required(),
-  childId: Joi.string().required(),
-});
 
 const addGiftSchema = Joi.object({
   name: Joi.string().required(),
