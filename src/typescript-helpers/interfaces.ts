@@ -6,6 +6,7 @@ export interface IParent extends Document {
   passwordHash: string;
   username: string;
   children: IChild[];
+  childToUpdate: IChild
 }
 
 export interface IChild extends Document {
