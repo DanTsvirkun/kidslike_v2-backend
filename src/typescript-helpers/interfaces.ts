@@ -1,48 +1,52 @@
 import { Document } from "mongoose";
 import { Gender } from "./enums";
+import { MongoDBObjectId } from "./types";
 
 export interface IParent extends Document {
   email: string;
   passwordHash: string;
   username: string;
-  children: IChild[];
-  childToUpdate: IChild
+  children: MongoDBObjectId[];
 }
 
 export interface IChild extends Document {
   name: string;
   rewards: number;
   gender: Gender;
-  habits: IHabit[];
-  tasks: ITask[];
-  gifts: IGift[];
-  id: string;
+  habits: MongoDBObjectId[];
+  tasks: MongoDBObjectId[];
+  gifts: MongoDBObjectId[];
 }
 
-export interface IHabit {
+export interface IHabit extends Document {
   name: string;
   rewardPerDay: number;
-  daysCompleted: boolean[];
-  id: string;
+  days: IHabitDays[];
+  childId: MongoDBObjectId;
 }
 
-export interface ITask {
+export interface ITask extends Document {
   name: string;
   reward: number;
   isCompleted: boolean;
-  id: string;
   daysToComplete?: number;
+  childId: MongoDBObjectId;
 }
 
-export interface IGift {
+export interface IGift extends Document {
   name: string;
   price: number;
   imageUrl: string;
   isPurchased: boolean;
-  id: string;
+  childId: MongoDBObjectId;
 }
 
 export interface IJWTPayload {
   uid: string;
   sid: string;
+}
+
+export interface IHabitDays {
+  date: string;
+  isCompleted: boolean;
 }

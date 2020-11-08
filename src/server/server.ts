@@ -7,6 +7,7 @@ import authRouter from "../auth/auth.router";
 import childRouter from "../child/child.router";
 import taskRouter from "../task/task.router";
 import habitRouter from "../habit/habit.router";
+import giftRouter from "../gift/gift.router";
 require("dotenv").config({ path: path.join(__dirname, "../../.env") });
 
 export default class Server {
@@ -54,6 +55,7 @@ export default class Server {
     this.app.use("/child", childRouter);
     this.app.use("/task", taskRouter);
     this.app.use("/habit", habitRouter);
+    this.app.use("/gift", giftRouter);
   }
 
   private initErrorHandling() {
@@ -75,7 +77,7 @@ export default class Server {
 
   private initListening() {
     this.app.listen(process.env.PORT || 3000, () =>
-      console.log("Started listening on port 3000")
+      console.log("Started listening on port", process.env.PORT)
     );
   }
 }

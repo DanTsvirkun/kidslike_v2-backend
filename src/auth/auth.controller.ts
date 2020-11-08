@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { IParent, IJWTPayload } from "../typescript-helpers/interfaces";
-import UserModel from "../user/user.model";
+import { UserModel } from "../user/user.model";
 import SessionModel from "../session/session.model";
 import { NextFunction } from "express-serve-static-core";
 import { Document } from "mongoose";
@@ -101,10 +101,7 @@ export const authorize = async (
   } else return res.status(400).send({ message: "No token provided" });
 };
 
-export const refreshTokens = async (
-  req: Request,
-  res: Response,
-) => {
+export const refreshTokens = async (req: Request, res: Response) => {
   const authorizationHeader = req.get("Authorization");
   if (authorizationHeader) {
     const reqRefreshToken = authorizationHeader.replace("Bearer", "");
