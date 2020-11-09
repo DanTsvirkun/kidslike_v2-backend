@@ -6,4 +6,5 @@ export type ControllerFunction = (
   res: Response,
   next: NextFunction
 ) => any;
+
 export type MongoDBObjectId = mongoose.Types.ObjectId;

@@ -1,4 +1,4 @@
-import { Request, Response } from "express";
+import { Request, Response, NextFunction } from "express";
 import { DateTime } from "luxon";
 import { Document, Types } from "mongoose";
 import {
@@ -200,7 +200,11 @@ export const habitDayCanceled = async (req: Request, res: Response) => {
   return res.status(200).send({ updatedHabit });
 };
 
-export const getHabits = async (req: Request, res: Response) => {
+export const getHabits = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
   const parent = req.user;
   return UserModel.findOne(parent as IParent)
     .populate({
@@ -208,13 +212,16 @@ export const getHabits = async (req: Request, res: Response) => {
       model: ChildModel,
       populate: [{ path: "habits", model: HabitModel }],
     })
-    .exec((err, data) =>
-      res
+    .exec((err, data) => {
+      if (err) {
+        next(err);
+      }
+      return res
         .status(200)
         .send(
           (data as IParent).children.map(
             (child) => ((child as unknown) as IChild).habits
           )
-        )
-    );
+        );
+    });
 };

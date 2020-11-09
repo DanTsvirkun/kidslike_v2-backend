@@ -1,4 +1,4 @@
-import { Request, Response } from "express";
+import { Request, Response, NextFunction } from "express";
 import { Types } from "mongoose";
 import { DateTime } from "luxon";
 import { IParent, IChild, ITask } from "../typescript-helpers/interfaces";
@@ -191,6 +191,9 @@ export const resetTask = async (req: Request, res: Response) => {
   if (!taskToReset) {
     return res.status(404).send({ message: "Task not found" });
   }
+  if ((taskToReset as ITask).isCompleted === TaskStatus.Unknown) {
+    return res.status(403).send({ message: "Task is already reset" });
+  }
   const childToUpdateId = (parent as IParent).children.find(
     (childId) =>
       childId.toString() === (taskToReset as ITask).childId.toString()
@@ -208,7 +211,11 @@ export const resetTask = async (req: Request, res: Response) => {
   res.status(200).send(resetTesk);
 };
 
-export const getTasks = async (req: Request, res: Response) => {
+export const getTasks = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
   const parent = req.user;
   return UserModel.findOne(parent as IParent)
     .populate({
@@ -216,13 +223,16 @@ export const getTasks = async (req: Request, res: Response) => {
       model: ChildModel,
       populate: [{ path: "tasks", model: TaskModel }],
     })
-    .exec((err, data) =>
-      res
+    .exec((err, data) => {
+      if (err) {
+        next(err);
+      }
+      return res
         .status(200)
         .send(
           (data as IParent).children.map(
             (child) => ((child as unknown) as IChild).tasks
           )
-        )
-    );
+        );
+    });
 };

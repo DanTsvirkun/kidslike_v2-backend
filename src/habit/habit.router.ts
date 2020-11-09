@@ -18,6 +18,11 @@ const addHabitSchema = Joi.object({
   rewardPerDay: Joi.number().required(),
 });
 
+const editHabitSchema = Joi.object({
+  name: Joi.string(),
+  rewardPerDay: Joi.number(),
+}).min(1);
+
 const addHabitIdSchema = Joi.object({
   childId: Joi.string()
     .custom((value, helpers) => {
@@ -29,11 +34,6 @@ const addHabitIdSchema = Joi.object({
     })
     .required(),
 });
-
-const editHabitSchema = Joi.object({
-  name: Joi.string(),
-  rewardPerDay: Joi.number(),
-}).min(1);
 
 const editOrDeleteHabitIdSchema = Joi.object({
   habitId: Joi.string()

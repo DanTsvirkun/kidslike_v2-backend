@@ -1,4 +1,4 @@
-import { Request, Response } from "express";
+import { Request, Response, NextFunction } from "express";
 import { Types } from "mongoose";
 import GiftModel from "./gift.model";
 import { uploadImage } from "../function-helpers/multer-config";
@@ -26,7 +26,6 @@ export const addGift = async (req: Request, res: Response) => {
   const imageUrl = await uploadImage(giftImage);
   const gift = await GiftModel.create({
     ...req.body,
-    isPurchased: false,
     imageUrl,
     childId: childToUpdateId,
   });
@@ -128,7 +127,11 @@ export const buyGift = async (req: Request, res: Response) => {
     .send({ message: "Not enough rewards for gaining this gift" });
 };
 
-export const getGifts = async (req: Request, res: Response) => {
+export const getGifts = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
   const parent = req.user;
   return UserModel.findOne(parent as IParent)
     .populate({
@@ -136,13 +139,16 @@ export const getGifts = async (req: Request, res: Response) => {
       model: ChildModel,
       populate: [{ path: "gifts", model: GiftModel }],
     })
-    .exec((err, data) =>
-      res
+    .exec((err, data) => {
+      if (err) {
+        next(err);
+      }
+      return res
         .status(200)
         .send(
           (data as IParent).children.map(
             (child) => ((child as unknown) as IChild).gifts
           )
-        )
-    );
+        );
+    });
 };
