@@ -72,7 +72,7 @@ router.delete(
   validate(editOrDeleteGiftIdSchema, "params"),
   tryCatchWrapper(deleteGift)
 );
-router.post(
+router.patch(
   "/buy/:giftId",
   authorize,
   validate(editOrDeleteGiftIdSchema, "params"),

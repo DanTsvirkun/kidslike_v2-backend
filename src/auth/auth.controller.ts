@@ -37,7 +37,11 @@ export const register = async (req: Request, res: Response) => {
   });
 };
 
-export const login = async (req: Request, res: Response) => {
+export const login = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
   const { email, password } = req.body;
   const user = await UserModel.findOne({ email });
   if (!user) {
@@ -79,11 +83,14 @@ export const login = async (req: Request, res: Response) => {
         { path: "gifts", model: GiftModel },
       ],
     })
-    .exec((err, data) =>
-      res
+    .exec((err, data) => {
+      if (err) {
+        next(err);
+      }
+      return res
         .status(200)
-        .send({ data, accessToken, refreshToken, sid: newSession._id })
-    );
+        .send({ data, accessToken, refreshToken, sid: newSession._id });
+    });
 };
 
 export const authorize = async (
@@ -179,7 +186,11 @@ export const googleAuth = async (req: Request, res: Response) => {
   );
 };
 
-export const googleRedirect = async (req: Request, res: Response) => {
+export const googleRedirect = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
   const fullUrl = `${req.protocol}://${req.get("host")}${req.originalUrl}`;
   const urlObj = new URL(fullUrl);
   const urlParams = queryString.parse(urlObj.search);
@@ -226,14 +237,24 @@ export const googleRedirect = async (req: Request, res: Response) => {
       expiresIn: process.env.JWT_REFRESH_EXPIRE_TIME,
     }
   );
-  return res.status(200).send({
-    id: ((existingParent as unknown) as IParent)._id,
-    sid: newSession._id,
-    username: ((existingParent as unknown) as IParent).username,
-    children: ((existingParent as unknown) as IParent).children,
-    accessToken,
-    refreshToken,
-  });
+  return UserModel.findOne({ email: (existingParent as IParent).email })
+    .populate({
+      path: "children",
+      model: ChildModel,
+      populate: [
+        { path: "habits", model: HabitModel },
+        { path: "tasks", model: TaskModel },
+        { path: "gifts", model: GiftModel },
+      ],
+    })
+    .exec((err, data) => {
+      if (err) {
+        next(err);
+      }
+      return res
+        .status(200)
+        .send({ data, accessToken, refreshToken, sid: newSession._id });
+    });
 };
 
 export const facebookAuth = async (req: Request, res: Response) => {
@@ -250,7 +271,11 @@ export const facebookAuth = async (req: Request, res: Response) => {
   );
 };
 
-export const facebookRedirect = async (req: Request, res: Response) => {
+export const facebookRedirect = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
   const fullUrl = `${req.protocol}://${req.get("host")}${req.originalUrl}`;
   const urlObj = new URL(fullUrl);
   const urlParams = queryString.parse(urlObj.search);
@@ -297,12 +322,22 @@ export const facebookRedirect = async (req: Request, res: Response) => {
       expiresIn: process.env.JWT_REFRESH_EXPIRE_TIME,
     }
   );
-  return res.status(200).send({
-    id: ((existingParent as unknown) as IParent)._id,
-    sid: newSession._id,
-    username: ((existingParent as unknown) as IParent).username,
-    children: ((existingParent as unknown) as IParent).children,
-    accessToken,
-    refreshToken,
-  });
+  return UserModel.findOne({ email: (existingParent as IParent).email })
+    .populate({
+      path: "children",
+      model: ChildModel,
+      populate: [
+        { path: "habits", model: HabitModel },
+        { path: "tasks", model: TaskModel },
+        { path: "gifts", model: GiftModel },
+      ],
+    })
+    .exec((err, data) => {
+      if (err) {
+        next(err);
+      }
+      return res
+        .status(200)
+        .send({ data, accessToken, refreshToken, sid: newSession._id });
+    });
 };

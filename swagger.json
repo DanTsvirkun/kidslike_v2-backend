@@ -9,8 +9,8 @@
       "url": "https://opensource.org/licenses/MIT"
     }
   },
-  "host": "localhost:3000",
-  "basePath": "/",
+  "host": "https://kidslikev2.herokuapp.com/",
+  "basePath": "",
   "tags": [
     {
       "name": "Child",
@@ -251,7 +251,7 @@
     "/habit/confirm/{habitId}": {
       "patch": {
         "tags": ["Habit"],
-        "summary": "Confirm that habit's current day was confirmed",
+        "summary": "Set habit's current day status to confirmed",
         "parameters": [
           {
             "name": "Habit's id",
@@ -318,7 +318,7 @@
           "200": {
             "description": "Successful operation",
             "schema": {
-              "$ref": "#/components/schemas/NewHabit"
+              "$ref": "#/components/schemas/HabitDayCanceled"
             }
           },
           "400": {
@@ -576,7 +576,7 @@
         "responses": {
           "200": {
             "description": "Successful operation",
-            "schema": { "$ref": "#/components/schemas/NewTask" }
+            "schema": { "$ref": "#/components/schemas/CancelTask" }
           },
           "400": {
             "description": "Bad request (invalid id) / No token provided",
@@ -620,7 +620,7 @@
         "responses": {
           "200": {
             "description": "Successful operation",
-            "schema": { "$ref": "#/components/schemas/NewTask" }
+            "schema": { "$ref": "#/components/schemas/ResetTask" }
           },
           "400": {
             "description": "Bad request (invalid id) / No token provided",
@@ -628,6 +628,10 @@
           },
           "401": {
             "description": "Unauthorized (invalid access token)",
+            "content": {}
+          },
+          "403": {
+            "description": "Task is already reset",
             "content": {}
           },
           "404": {
@@ -815,7 +819,7 @@
       }
     },
     "/gift/buy/{giftId}": {
-      "post": {
+      "patch": {
         "tags": ["Gift"],
         "summary": "Buy gift for the child",
         "parameters": [
@@ -1010,11 +1014,10 @@
         "summary": "Google authentication",
         "responses": {
           "200": {
-            "description": "Successful operation"
-          },
-          "403": {
-            "description": "Email doesn't exist / Password is wrong",
-            "content": {}
+            "description": "Successful operation",
+            "schema": {
+              "$ref": "#/components/schemas/AfterLogin"
+            }
           }
         }
       }
@@ -1025,11 +1028,10 @@
         "summary": "Google authentication",
         "responses": {
           "200": {
-            "description": "Successful operation"
-          },
-          "403": {
-            "description": "Email doesn't exist / Password is wrong",
-            "content": {}
+            "description": "Successful operation",
+            "schema": {
+              "$ref": "#/components/schemas/AfterLogin"
+            }
           }
         }
       }
@@ -1103,6 +1105,7 @@
           },
           "rewardPerDay": {
             "type": "integer",
+            "minimum": 1,
             "description": "Habit's reward for a single day"
           }
         }
@@ -1208,6 +1211,7 @@
           },
           "rewardPerDay": {
             "type": "integer",
+            "minimum": 1,
             "description": "Habit's reward for a single day"
           }
         }
@@ -1232,7 +1236,7 @@
                     "isCompleted": {
                       "type": "string",
                       "description": "Habit's status",
-                      "enum": ["unknown", "confirmed", "canceled"]
+                      "enum": ["confirmed"]
                     }
                   }
                 }
@@ -1262,6 +1266,49 @@
           "updatedRewards": {
             "type": "integer",
             "description": "Child's new rewards amount"
+          }
+        }
+      },
+      "HabitDayCanceled": {
+        "type": "object",
+        "properties": {
+          "days": {
+            "type": "array",
+            "description": "Habit days",
+            "items": {
+              "type": "object",
+              "properties": {
+                "date": {
+                  "type": "string",
+                  "description": "Day's date"
+                },
+                "isCompleted": {
+                  "type": "string",
+                  "description": "Day's status",
+                  "enum": ["canceled"]
+                }
+              }
+            }
+          },
+          "_id": {
+            "type": "string",
+            "description": "Habit's id"
+          },
+          "name": {
+            "type": "string",
+            "description": "Habit's name"
+          },
+          "rewardPerDay": {
+            "type": "integer",
+            "description": "Habit's reward for a single day"
+          },
+          "childId": {
+            "type": "string",
+            "description": "Id of the child whose habit it is"
+          },
+          "__v": {
+            "type": "integer",
+            "description": "MongoDB document service versionKey (ignore)"
           }
         }
       },
@@ -1305,7 +1352,7 @@
               "isCompleted": {
                 "type": "string",
                 "description": "Task's status",
-                "enum": ["unknown", "confirmed", "canceled"]
+                "enum": ["confirmed"]
               },
               "childId": {
                 "type": "string",
@@ -1320,6 +1367,66 @@
           "updatedRewards": {
             "type": "integer",
             "description": "Child's new rewards amount"
+          }
+        }
+      },
+      "CancelTask": {
+        "type": "object",
+        "properties": {
+          "_id": {
+            "type": "string",
+            "description": "Task's id"
+          },
+          "name": {
+            "type": "string",
+            "description": "Task's name"
+          },
+          "reward": {
+            "type": "string",
+            "description": "Task's reward"
+          },
+          "isCompleted": {
+            "type": "string",
+            "description": "Task's status",
+            "enum": ["canceled"]
+          },
+          "childId": {
+            "type": "string",
+            "description": "Id of the child whose task it is"
+          },
+          "__v": {
+            "type": "integer",
+            "description": "MongoDB document service versionKey (ignore)"
+          }
+        }
+      },
+      "ResetTask": {
+        "type": "object",
+        "properties": {
+          "_id": {
+            "type": "string",
+            "description": "Task's id"
+          },
+          "name": {
+            "type": "string",
+            "description": "Task's name"
+          },
+          "reward": {
+            "type": "string",
+            "description": "Task's reward"
+          },
+          "isCompleted": {
+            "type": "string",
+            "description": "Task's status",
+            "enum": ["unknown"]
+          },
+          "childId": {
+            "type": "string",
+            "description": "Id of the child whose task it is"
+          },
+          "__v": {
+            "type": "integer",
+            "description": "MongoDB document service versionKey (ignore)"
           }
         }
       },
@@ -1430,6 +1537,7 @@
           },
           "price": {
             "type": "integer",
+            "minimum": 1,
             "description": "Gift's price"
           },
           "file": {
@@ -1511,6 +1619,7 @@
           },
           "price": {
             "type": "integer",
+            "minimum": 1,
             "description": "Gift's price"
           },
           "file": {
@@ -1630,17 +1739,116 @@
                     "habits": {
                       "type": "array",
                       "description": "Child's habits",
-                      "items": {}
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "days": {
+                            "type": "array",
+                            "description": "Habit days",
+                            "items": {
+                              "type": "object",
+                              "properties": {
+                                "date": {
+                                  "type": "string",
+                                  "description": "Day's date"
+                                },
+                                "isCompleted": {
+                                  "type": "string",
+                                  "description": "Day's status",
+                                  "enum": ["unknown", "confirmed", "canceled"]
+                                }
+                              }
+                            }
+                          },
+                          "_id": {
+                            "type": "string",
+                            "description": "Habit's id"
+                          },
+                          "name": {
+                            "type": "string",
+                            "description": "Habit's name"
+                          },
+                          "rewardPerDay": {
+                            "type": "integer",
+                            "description": "Habit's reward for a single day"
+                          },
+                          "childId": {
+                            "type": "string",
+                            "description": "Id of the child whose habit it is"
+                          },
+                          "__v": {
+                            "type": "integer",
+                            "description": "MongoDB document service versionKey (ignore)"
+                          }
+                        }
+                      }
                     },
                     "tasks": {
                       "type": "array",
                       "description": "Child's tasks",
-                      "items": {}
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "_id": {
+                            "type": "string",
+                            "description": "Task's id"
+                          },
+                          "name": {
+                            "type": "string",
+                            "description": "Task's name"
+                          },
+                          "reward": {
+                            "type": "string",
+                            "description": "Task's reward"
+                          },
+                          "isCompleted": {
+                            "type": "string",
+                            "description": "Task's status",
+                            "enum": ["unknown", "confirmed", "canceled"]
+                          },
+                          "childId": {
+                            "type": "string",
+                            "description": "Id of the child whose task it is"
+                          },
+                          "__v": {
+                            "type": "integer",
+                            "description": "MongoDB document service versionKey (ignore)"
+                          }
+                        }
+                      }
                     },
                     "gifts": {
                       "type": "array",
                       "description": "Child's gifts",
-                      "items": {}
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "name": {
+                            "type": "string",
+                            "description": "Gift's name"
+                          },
+                          "price": {
+                            "type": "integer",
+                            "description": "Gift's price"
+                          },
+                          "isPurchased": {
+                            "type": "boolean",
+                            "description": "Gift's status"
+                          },
+                          "imageUrl": {
+                            "type": "string",
+                            "description": "Gift's image url (created if 'file' field was provided while adding new gift)"
+                          },
+                          "childId": {
+                            "type": "string",
+                            "description": "Id of the child this gift was created for"
+                          },
+                          "__v": {
+                            "type": "integer",
+                            "description": "MongoDB document service versionKey (ignore)"
+                          }
+                        }
+                      }
                     },
                     "_id": {
                       "type": "string",
@@ -1708,20 +1916,6 @@
           "refreshToken": {
             "type": "string",
             "description": "Refresh token"
-          }
-        }
-      },
-      "CategoryPost": {
-        "required": ["name", "password"],
-        "type": "object",
-        "properties": {
-          "name": {
-            "type": "string",
-            "description": "Name of a category you want to add"
-          },
-          "password": {
-            "type": "string",
-            "description": "Service password"
           }
         }
       }
