@@ -1,0 +1,1730 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "version": "1.0.0",
+    "title": "Kidslike_v2 API docs",
+    "description": "",
+    "license": {
+      "name": "MIT",
+      "url": "https://opensource.org/licenses/MIT"
+    }
+  },
+  "host": "localhost:3000",
+  "basePath": "/",
+  "tags": [
+    {
+      "name": "Child",
+      "description": "Children endpoints"
+    },
+    {
+      "name": "Habit",
+      "description": "Habits endpoints"
+    },
+    {
+      "name": "Task",
+      "description": "Tasks endpoints"
+    },
+    {
+      "name": "Gift",
+      "description": "Gifts endpoints"
+    },
+    {
+      "name": "Auth",
+      "description": "Authorization endpoints"
+    }
+  ],
+  "schemes": ["http"],
+  "consumes": ["application/json"],
+  "produces": ["application/json"],
+  "paths": {
+    "/child": {
+      "post": {
+        "tags": ["Child"],
+        "summary": "Add a child",
+        "parameters": [
+          {
+            "name": "Request body",
+            "in": "body",
+            "description": "Child's object",
+            "required": true,
+            "schema": { "$ref": "#/components/schemas/Child" }
+          },
+          {
+            "name": "Access token",
+            "description": "'accessToken' field you get after authentication",
+            "in": "header",
+            "type": "string",
+            "required": true
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Successful operation",
+            "schema": {
+              "$ref": "#/components/schemas/NewChild"
+            }
+          },
+          "400": {
+            "description": "Bad request (invalid request body) / No token provided",
+            "content": {}
+          },
+          "401": {
+            "description": "Unauthorized (invalid access token)",
+            "content": {}
+          },
+          "404": {
+            "description": "Child not found / Invalid user / Invalid session",
+            "content": {}
+          }
+        }
+      }
+    },
+    "/habit/": {
+      "get": {
+        "tags": ["Habit"],
+        "summary": "Get all children habits for current user",
+        "parameters": [
+          {
+            "name": "Access token",
+            "description": "'accessToken' field you get after authentication",
+            "in": "header",
+            "type": "string",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "schema": {
+              "$ref": "#/components/schemas/GetHabits"
+            }
+          },
+          "400": {
+            "description": "No token provided",
+            "content": {}
+          },
+          "401": {
+            "description": "Unauthorized (invalid access token)",
+            "content": {}
+          },
+          "404": {
+            "description": "Invalid user / Invalid session",
+            "content": {}
+          }
+        }
+      }
+    },
+    "/habit/{childId}": {
+      "post": {
+        "tags": ["Habit"],
+        "summary": "Add habit for the child",
+        "parameters": [
+          {
+            "name": "Request body",
+            "in": "body",
+            "description": "Habit's object",
+            "required": true,
+            "schema": { "$ref": "#/components/schemas/Habit" }
+          },
+          {
+            "name": "Child's id",
+            "in": "path",
+            "description": "Id of the child you want to update (_id field in child's object)",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "Access token",
+            "description": "'accessToken' field you get after authentication",
+            "in": "header",
+            "type": "string",
+            "required": true
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Successful operation",
+            "schema": {
+              "$ref": "#/components/schemas/NewHabit"
+            }
+          },
+          "400": {
+            "description": "Bad request (invalid request body or id) / No token provided",
+            "content": {}
+          },
+          "401": {
+            "description": "Unauthorized (invalid access token)",
+            "content": {}
+          },
+          "404": {
+            "description": "Child not found / Invalid user / Invalid session",
+            "content": {}
+          }
+        }
+      }
+    },
+    "/habit/{habitId}": {
+      "patch": {
+        "tags": ["Habit"],
+        "summary": "Edit habit",
+        "parameters": [
+          {
+            "name": "Request body",
+            "in": "body",
+            "description": "Request body. At least one field is required.",
+            "required": true,
+            "schema": { "$ref": "#/components/schemas/PatchHabit" }
+          },
+          {
+            "name": "Habit's id",
+            "in": "path",
+            "description": "Habit's id (_id field in habit's object)",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "Access token",
+            "description": "'accessToken' field you get after authentication",
+            "in": "header",
+            "type": "string",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "schema": { "$ref": "#/components/schemas/NewHabit" }
+          },
+          "400": {
+            "description": "Bad request (invalid request body or id) / No token provided",
+            "content": {}
+          },
+          "401": {
+            "description": "Unauthorized (invalid access token)",
+            "content": {}
+          },
+          "404": {
+            "description": "Child not found / Habit not found / Invalid user / Invalid session",
+            "content": {}
+          }
+        }
+      },
+      "delete": {
+        "tags": ["Habit"],
+        "summary": "Delete habit",
+        "parameters": [
+          {
+            "name": "Habit's id",
+            "in": "path",
+            "description": "Habit's id (_id field in habit's object)",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "Access token",
+            "description": "'accessToken' field you get after authentication",
+            "in": "header",
+            "type": "string",
+            "required": true
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful operation",
+            "content": {}
+          },
+          "400": {
+            "description": "Bad request (invalid id) / No token provided",
+            "content": {}
+          },
+          "401": {
+            "description": "Unauthorized (invalid access token)",
+            "content": {}
+          },
+          "404": {
+            "description": "Child not found / Habit not found / Invalid user / Invalid session",
+            "content": {}
+          }
+        }
+      }
+    },
+    "/habit/confirm/{habitId}": {
+      "patch": {
+        "tags": ["Habit"],
+        "summary": "Confirm that habit's current day was confirmed",
+        "parameters": [
+          {
+            "name": "Habit's id",
+            "in": "path",
+            "description": "Habit's id (_id field in habit's object)",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "Access token",
+            "description": "'accessToken' field you get after authentication",
+            "in": "header",
+            "type": "string",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "schema": {
+              "$ref": "#/components/schemas/HabitConfirmedDay"
+            }
+          },
+          "400": {
+            "description": "Bad request (invalid id) / No token provided / Today's day doesn't exist on provided habit",
+            "content": {}
+          },
+          "401": {
+            "description": "Unauthorized (invalid access token)",
+            "content": {}
+          },
+          "403": {
+            "description": "This day has already been confirmed",
+            "content": {}
+          },
+          "404": {
+            "description": "Child not found / Habit not found / Invalid user / Invalid session",
+            "content": {}
+          }
+        }
+      }
+    },
+    "/habit/cancel/{habitId}": {
+      "patch": {
+        "tags": ["Habit"],
+        "summary": "Set habit's current day to canceled (child did not fulfill his task)",
+        "parameters": [
+          {
+            "name": "Habit's id",
+            "in": "path",
+            "description": "Habit's id (_id field in habit's object)",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "Access token",
+            "description": "'accessToken' field you get after authentication",
+            "in": "header",
+            "type": "string",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "schema": {
+              "$ref": "#/components/schemas/NewHabit"
+            }
+          },
+          "400": {
+            "description": "Bad request (invalid id) / No token provided / Today's day doesn't exist on provided habit",
+            "content": {}
+          },
+          "401": {
+            "description": "Unauthorized (invalid access token)",
+            "content": {}
+          },
+          "403": {
+            "description": "This day has already been confirmed",
+            "content": {}
+          },
+          "404": {
+            "description": "Child not found / Habit not found / Invalid user / Invalid session",
+            "content": {}
+          }
+        }
+      }
+    },
+    "/task/": {
+      "get": {
+        "tags": ["Task"],
+        "summary": "Get all children tasks for current user",
+        "parameters": [
+          {
+            "name": "Access token",
+            "description": "'accessToken' field you get after authentication",
+            "in": "header",
+            "type": "string",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "schema": {
+              "$ref": "#/components/schemas/GetTasks"
+            }
+          },
+          "400": {
+            "description": "No token provided",
+            "content": {}
+          },
+          "401": {
+            "description": "Unauthorized (invalid access token)",
+            "content": {}
+          },
+          "404": {
+            "description": "Invalid user / Invalid session",
+            "content": {}
+          }
+        }
+      }
+    },
+    "/task/{childId}": {
+      "post": {
+        "tags": ["Task"],
+        "summary": "Add task for the child",
+        "parameters": [
+          {
+            "name": "Request body",
+            "in": "body",
+            "description": "Task's object",
+            "required": true,
+            "schema": { "$ref": "#/components/schemas/Task" }
+          },
+          {
+            "name": "Child's id",
+            "in": "path",
+            "description": "Id of the child you want to update (_id field in child's object)",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "Access token",
+            "description": "'accessToken' field you get after authentication",
+            "in": "header",
+            "type": "string",
+            "required": true
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Successful operation",
+            "schema": {
+              "$ref": "#/components/schemas/NewTask"
+            }
+          },
+          "400": {
+            "description": "Bad request (invalid request body or id) / No token provided",
+            "content": {}
+          },
+          "401": {
+            "description": "Unauthorized (invalid access token)",
+            "content": {}
+          },
+          "404": {
+            "description": "Child not found / Invalid user / Invalid session",
+            "content": {}
+          }
+        }
+      }
+    },
+    "/task/{taskId}": {
+      "patch": {
+        "tags": ["Task"],
+        "summary": "Edit task",
+        "parameters": [
+          {
+            "name": "Request body",
+            "in": "body",
+            "description": "Request body. At least one field is required.",
+            "required": true,
+            "schema": { "$ref": "#/components/schemas/PatchTask" }
+          },
+          {
+            "name": "Task's id",
+            "in": "path",
+            "description": "Task's id (_id field in task's object)",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "Access token",
+            "description": "'accessToken' field you get after authentication",
+            "in": "header",
+            "type": "string",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "schema": { "$ref": "#/components/schemas/NewTask" }
+          },
+          "400": {
+            "description": "Bad request (invalid request body or id) / No token provided",
+            "content": {}
+          },
+          "401": {
+            "description": "Unauthorized (invalid access token)",
+            "content": {}
+          },
+          "404": {
+            "description": "Child not found / Task not found / Invalid user / Invalid session",
+            "content": {}
+          }
+        }
+      },
+      "delete": {
+        "tags": ["Task"],
+        "summary": "Delete task",
+        "parameters": [
+          {
+            "name": "Task's id",
+            "in": "path",
+            "description": "Task's id (_id field in task's object)",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "Access token",
+            "description": "'accessToken' field you get after authentication",
+            "in": "header",
+            "type": "string",
+            "required": true
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful operation",
+            "content": {}
+          },
+          "400": {
+            "description": "Bad request (invalid id) / No token provided",
+            "content": {}
+          },
+          "401": {
+            "description": "Unauthorized (invalid access token)",
+            "content": {}
+          },
+          "404": {
+            "description": "Child not found / Task not found / Invalid user / Invalid session",
+            "content": {}
+          }
+        }
+      }
+    },
+    "/task/confirm/{taskId}": {
+      "patch": {
+        "tags": ["Task"],
+        "summary": "Set task's status to confirmed",
+        "parameters": [
+          {
+            "name": "Task's id",
+            "in": "path",
+            "description": "Task's id (_id field in task's object)",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "Access token",
+            "description": "'accessToken' field you get after authentication",
+            "in": "header",
+            "type": "string",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "schema": { "$ref": "#/components/schemas/ConfirmTask" }
+          },
+          "400": {
+            "description": "Bad request (invalid id) / No token provided",
+            "content": {}
+          },
+          "401": {
+            "description": "Unauthorized (invalid access token)",
+            "content": {}
+          },
+          "403": {
+            "description": "Task is already confirmed",
+            "content": {}
+          },
+          "404": {
+            "description": "Child not found / Task not found / Invalid user / Invalid session",
+            "content": {}
+          }
+        }
+      }
+    },
+    "/task/cancel/{taskId}": {
+      "patch": {
+        "tags": ["Task"],
+        "summary": "Set task's status to canceled",
+        "parameters": [
+          {
+            "name": "Task's id",
+            "in": "path",
+            "description": "Task's id (_id field in task's object)",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "Access token",
+            "description": "'accessToken' field you get after authentication",
+            "in": "header",
+            "type": "string",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "schema": { "$ref": "#/components/schemas/NewTask" }
+          },
+          "400": {
+            "description": "Bad request (invalid id) / No token provided",
+            "content": {}
+          },
+          "401": {
+            "description": "Unauthorized (invalid access token)",
+            "content": {}
+          },
+          "403": {
+            "description": "Task is already canceled",
+            "content": {}
+          },
+          "404": {
+            "description": "Child not found / Task not found / Invalid user / Invalid session",
+            "content": {}
+          }
+        }
+      }
+    },
+    "/task/reset/{taskId}": {
+      "patch": {
+        "tags": ["Task"],
+        "summary": "Reset task's status",
+        "parameters": [
+          {
+            "name": "Task's id",
+            "in": "path",
+            "description": "Task's id (_id field in task's object)",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "Access token",
+            "description": "'accessToken' field you get after authentication",
+            "in": "header",
+            "type": "string",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "schema": { "$ref": "#/components/schemas/NewTask" }
+          },
+          "400": {
+            "description": "Bad request (invalid id) / No token provided",
+            "content": {}
+          },
+          "401": {
+            "description": "Unauthorized (invalid access token)",
+            "content": {}
+          },
+          "404": {
+            "description": "Child not found / Task not found / Invalid user / Invalid session",
+            "content": {}
+          }
+        }
+      }
+    },
+    "/gift/": {
+      "get": {
+        "tags": ["Gift"],
+        "summary": "Get all children gifts for current user",
+        "parameters": [
+          {
+            "name": "Access token",
+            "description": "'accessToken' field you get after authentication",
+            "in": "header",
+            "type": "string",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "schema": {
+              "$ref": "#/components/schemas/GetGifts"
+            }
+          },
+          "400": {
+            "description": "No token provided",
+            "content": {}
+          },
+          "401": {
+            "description": "Unauthorized (invalid access token)",
+            "content": {}
+          },
+          "404": {
+            "description": "Invalid user / Invalid session",
+            "content": {}
+          }
+        }
+      }
+    },
+    "/gift/{childId}": {
+      "post": {
+        "tags": ["Gift"],
+        "summary": "Add gift for the child",
+        "parameters": [
+          {
+            "name": "Request body",
+            "in": "body",
+            "description": "Gift's object",
+            "required": true,
+            "schema": { "$ref": "#/components/schemas/Gift" }
+          },
+          {
+            "name": "Child's id",
+            "in": "path",
+            "description": "Id of the child you want to update (_id field in child's object)",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "Access token",
+            "description": "'accessToken' field you get after authentication",
+            "in": "header",
+            "type": "string",
+            "required": true
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Successful operation",
+            "schema": {
+              "$ref": "#/components/schemas/NewGift"
+            }
+          },
+          "400": {
+            "description": "Bad request (invalid request body or id) / No token provided",
+            "content": {}
+          },
+          "401": {
+            "description": "Unauthorized (invalid access token)",
+            "content": {}
+          },
+          "404": {
+            "description": "Child not found / Invalid user / Invalid session",
+            "content": {}
+          },
+          "415": {
+            "description": "File isn't an image",
+            "content": {}
+          }
+        }
+      }
+    },
+    "/gift/{giftId}": {
+      "patch": {
+        "tags": ["Gift"],
+        "summary": "Edit gift",
+        "parameters": [
+          {
+            "name": "Request body",
+            "in": "body",
+            "description": "Request body. At least one field is required.",
+            "required": true,
+            "schema": { "$ref": "#/components/schemas/PatchGift" }
+          },
+          {
+            "name": "Gift's id",
+            "in": "path",
+            "description": "Gift's id (_id field in habit's object)",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "Access token",
+            "description": "'accessToken' field you get after authentication",
+            "in": "header",
+            "type": "string",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "schema": { "$ref": "#/components/schemas/NewGift" }
+          },
+          "400": {
+            "description": "Bad request (invalid request body or id) / No token provided",
+            "content": {}
+          },
+          "401": {
+            "description": "Unauthorized (invalid access token)",
+            "content": {}
+          },
+          "404": {
+            "description": "Child not found / Gift not found / Invalid user / Invalid session",
+            "content": {}
+          },
+          "415": {
+            "description": "File isn't an image",
+            "content": {}
+          }
+        }
+      },
+      "delete": {
+        "tags": ["Gift"],
+        "summary": "Delete gift",
+        "parameters": [
+          {
+            "name": "Gift's id",
+            "in": "path",
+            "description": "Gift's id (_id field in habit's object)",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "Access token",
+            "description": "'accessToken' field you get after authentication",
+            "in": "header",
+            "type": "string",
+            "required": true
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful operation",
+            "content": {}
+          },
+          "400": {
+            "description": "Bad request (invalid id) / No token provided",
+            "content": {}
+          },
+          "401": {
+            "description": "Unauthorized (invalid access token)",
+            "content": {}
+          },
+          "404": {
+            "description": "Child not found / Gift not found / Invalid user / Invalid session",
+            "content": {}
+          }
+        }
+      }
+    },
+    "/gift/buy/{giftId}": {
+      "post": {
+        "tags": ["Gift"],
+        "summary": "Buy gift for the child",
+        "parameters": [
+          {
+            "name": "Gift's id",
+            "in": "path",
+            "description": "Gift's id (_id field in habit's object)",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "Access token",
+            "description": "'accessToken' field you get after authentication",
+            "in": "header",
+            "type": "string",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "schema": {
+              "$ref": "#/components/schemas/PurchasedGift"
+            }
+          },
+          "400": {
+            "description": "Bad request (invalid request body or id) / No token provided",
+            "content": {}
+          },
+          "401": {
+            "description": "Unauthorized (invalid access token)",
+            "content": {}
+          },
+          "403": {
+            "description": "This gift has already been purchased",
+            "content": {}
+          },
+          "404": {
+            "description": "Child not found / Invalid user / Invalid session",
+            "content": {}
+          },
+          "409": {
+            "description": "Not enough rewards for gaining this gift",
+            "content": {}
+          }
+        }
+      }
+    },
+    "/auth/register": {
+      "post": {
+        "tags": ["Auth"],
+        "summary": "User registration",
+        "parameters": [
+          {
+            "name": "Request body",
+            "in": "body",
+            "description": "Registration's object",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/Registration"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Successful operation",
+            "schema": {
+              "$ref": "#/components/schemas/AfterRegistration"
+            }
+          },
+          "409": {
+            "description": "Provided email already exists",
+            "content": {}
+          }
+        }
+      }
+    },
+    "/auth/login": {
+      "post": {
+        "tags": ["Auth"],
+        "summary": "User authentication",
+        "parameters": [
+          {
+            "name": "Request body",
+            "in": "body",
+            "description": "Authentication's object",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/Login"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "schema": {
+              "$ref": "#/components/schemas/AfterLogin"
+            }
+          },
+          "403": {
+            "description": "Email doesn't exist / Password is wrong",
+            "content": {}
+          }
+        }
+      }
+    },
+    "/auth/logout": {
+      "post": {
+        "tags": ["Auth"],
+        "summary": "Logout",
+        "parameters": [
+          {
+            "name": "Access token",
+            "description": "'accessToken' field you get after authentication",
+            "in": "header",
+            "type": "string",
+            "required": true
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful operation"
+          },
+          "400": {
+            "description": "No token provided",
+            "content": {}
+          },
+          "401": {
+            "description": "Unauthorized (invalid access token)",
+            "content": {}
+          },
+          "404": {
+            "description": "Invalid user / Invalid session",
+            "content": {}
+          }
+        }
+      }
+    },
+    "/auth/refresh": {
+      "get": {
+        "tags": ["Auth"],
+        "summary": "Get new pair of tokens",
+        "parameters": [
+          {
+            "name": "Request body",
+            "description": "Request body with session's id",
+            "in": "body",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "sid": {
+                  "type": "string",
+                  "description": "Session's (sid field after authentication)"
+                }
+              }
+            },
+            "required": true
+          },
+          {
+            "name": "Refresh token",
+            "description": "'refreshToken' field you get after authentication",
+            "in": "header",
+            "type": "string",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "schema": {
+              "$ref": "#/components/schemas/RefreshTokens"
+            }
+          },
+          "400": {
+            "description": "No token provided",
+            "content": {}
+          },
+          "401": {
+            "description": "Unauthorized (invalid refresh token)",
+            "content": {}
+          },
+          "404": {
+            "description": "Invalid user / Invalid session",
+            "content": {}
+          }
+        }
+      }
+    },
+    "/auth/google": {
+      "post": {
+        "tags": ["Auth"],
+        "summary": "Google authentication",
+        "responses": {
+          "200": {
+            "description": "Successful operation"
+          },
+          "403": {
+            "description": "Email doesn't exist / Password is wrong",
+            "content": {}
+          }
+        }
+      }
+    },
+    "/auth/facebook": {
+      "post": {
+        "tags": ["Auth"],
+        "summary": "Google authentication",
+        "responses": {
+          "200": {
+            "description": "Successful operation"
+          },
+          "403": {
+            "description": "Email doesn't exist / Password is wrong",
+            "content": {}
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Child": {
+        "required": ["name", "gender"],
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Child's name"
+          },
+          "gender": {
+            "type": "string",
+            "description": "Child's gender",
+            "enum": ["male", "female"]
+          }
+        }
+      },
+      "NewChild": {
+        "type": "object",
+        "properties": {
+          "rewards": {
+            "type": "integer",
+            "description": "Child's rewards"
+          },
+          "habits": {
+            "type": "array",
+            "description": "Child's habits",
+            "items": {}
+          },
+          "tasks": {
+            "type": "array",
+            "description": "Child's tasks",
+            "items": {}
+          },
+          "gifts": {
+            "type": "array",
+            "description": "Child's gifts",
+            "items": {}
+          },
+          "_id": {
+            "type": "string",
+            "description": "Child's id"
+          },
+          "name": {
+            "type": "string",
+            "description": "Child's name"
+          },
+          "gender": {
+            "type": "string",
+            "description": "Child's gender",
+            "enum": ["male", "female"]
+          },
+          "__v": {
+            "type": "integer",
+            "description": "MongoDB document service versionKey (ignore)"
+          }
+        }
+      },
+      "Habit": {
+        "required": ["name", "rewardPerDay"],
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Habit's name"
+          },
+          "rewardPerDay": {
+            "type": "integer",
+            "description": "Habit's reward for a single day"
+          }
+        }
+      },
+      "GetHabits": {
+        "type": "array",
+        "items": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "days": {
+                "type": "array",
+                "description": "Habit days",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "date": {
+                      "type": "string",
+                      "description": "Day's date"
+                    },
+                    "isCompleted": {
+                      "type": "string",
+                      "description": "Day's status",
+                      "enum": ["unknown", "confirmed", "canceled"]
+                    }
+                  }
+                }
+              },
+              "_id": {
+                "type": "string",
+                "description": "Habit's id"
+              },
+              "name": {
+                "type": "string",
+                "description": "Habit's name"
+              },
+              "rewardPerDay": {
+                "type": "integer",
+                "description": "Habit's reward for a single day"
+              },
+              "childId": {
+                "type": "string",
+                "description": "Id of the child whose habit it is"
+              },
+              "__v": {
+                "type": "integer",
+                "description": "MongoDB document service versionKey (ignore)"
+              }
+            }
+          }
+        }
+      },
+      "NewHabit": {
+        "type": "object",
+        "properties": {
+          "days": {
+            "type": "array",
+            "description": "Habit days",
+            "items": {
+              "type": "object",
+              "properties": {
+                "date": {
+                  "type": "string",
+                  "description": "Day's date"
+                },
+                "isCompleted": {
+                  "type": "string",
+                  "description": "Day's status",
+                  "enum": ["unknown", "confirmed", "canceled"]
+                }
+              }
+            }
+          },
+          "_id": {
+            "type": "string",
+            "description": "Habit's id"
+          },
+          "name": {
+            "type": "string",
+            "description": "Habit's name"
+          },
+          "rewardPerDay": {
+            "type": "integer",
+            "description": "Habit's reward for a single day"
+          },
+          "childId": {
+            "type": "string",
+            "description": "Id of the child whose habit it is"
+          },
+          "__v": {
+            "type": "integer",
+            "description": "MongoDB document service versionKey (ignore)"
+          }
+        }
+      },
+      "PatchHabit": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Habit's name"
+          },
+          "rewardPerDay": {
+            "type": "integer",
+            "description": "Habit's reward for a single day"
+          }
+        }
+      },
+      "HabitConfirmedDay": {
+        "type": "object",
+        "properties": {
+          "updatedHabit": {
+            "type": "object",
+            "description": "Updated habit",
+            "properties": {
+              "days": {
+                "type": "array",
+                "description": "Habit days",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "date": {
+                      "type": "string",
+                      "description": "Day's date"
+                    },
+                    "isCompleted": {
+                      "type": "string",
+                      "description": "Habit's status",
+                      "enum": ["unknown", "confirmed", "canceled"]
+                    }
+                  }
+                }
+              },
+              "_id": {
+                "type": "string",
+                "description": "Habit's id"
+              },
+              "name": {
+                "type": "string",
+                "description": "Habit's name"
+              },
+              "rewardPerDay": {
+                "type": "integer",
+                "description": "Habit's reward for a single day"
+              },
+              "childId": {
+                "type": "string",
+                "description": "Id of the child whose habit it is"
+              },
+              "__v": {
+                "type": "integer",
+                "description": "MongoDB document service versionKey (ignore)"
+              }
+            }
+          },
+          "updatedRewards": {
+            "type": "integer",
+            "description": "Child's new rewards amount"
+          }
+        }
+      },
+      "Task": {
+        "required": ["name", "reward"],
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Task's name"
+          },
+          "reward": {
+            "type": "integer",
+            "description": "Task's reward"
+          },
+          "daysToComplete": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "Days for a task to be completed (optional)"
+          }
+        }
+      },
+      "ConfirmTask": {
+        "type": "object",
+        "properties": {
+          "updatedTask": {
+            "type": "object",
+            "properties": {
+              "_id": {
+                "type": "string",
+                "description": "Task's id"
+              },
+              "name": {
+                "type": "string",
+                "description": "Task's name"
+              },
+              "reward": {
+                "type": "string",
+                "description": "Task's reward"
+              },
+              "isCompleted": {
+                "type": "string",
+                "description": "Task's status",
+                "enum": ["unknown", "confirmed", "canceled"]
+              },
+              "childId": {
+                "type": "string",
+                "description": "Id of the child whose task it is"
+              },
+              "__v": {
+                "type": "integer",
+                "description": "MongoDB document service versionKey (ignore)"
+              }
+            }
+          },
+          "updatedRewards": {
+            "type": "integer",
+            "description": "Child's new rewards amount"
+          }
+        }
+      },
+      "GetTasks": {
+        "type": "array",
+        "items": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "_id": {
+                "type": "string",
+                "description": "Task's id"
+              },
+              "name": {
+                "type": "string",
+                "description": "Task's name"
+              },
+              "reward": {
+                "type": "string",
+                "description": "Task's reward"
+              },
+              "isCompleted": {
+                "type": "string",
+                "description": "Task's status",
+                "enum": ["unknown", "confirmed", "canceled"]
+              },
+              "childId": {
+                "type": "string",
+                "description": "Id of the child whose task it is"
+              },
+              "__v": {
+                "type": "integer",
+                "description": "MongoDB document service versionKey (ignore)"
+              }
+            }
+          }
+        }
+      },
+      "NewTask": {
+        "type": "object",
+        "properties": {
+          "_id": {
+            "type": "string",
+            "description": "Task's id"
+          },
+          "name": {
+            "type": "string",
+            "description": "Task's name"
+          },
+          "reward": {
+            "type": "string",
+            "description": "Task's reward"
+          },
+          "isCompleted": {
+            "type": "string",
+            "description": "Task's status",
+            "enum": ["unknown", "confirmed", "canceled"]
+          },
+          "childId": {
+            "type": "string",
+            "description": "Id of the child whose task it is"
+          },
+          "__v": {
+            "type": "integer",
+            "description": "MongoDB document service versionKey (ignore)"
+          }
+        }
+      },
+      "PatchTask": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Task's name"
+          },
+          "reward": {
+            "type": "integer",
+            "description": "Task's reward"
+          },
+          "daysToComplete": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "Days for a task to be completed (optional)"
+          },
+          "isCompleted": {
+            "type": "string",
+            "description": "Task's status",
+            "enum": ["unknown", "confirmed", "canceled"]
+          },
+          "startDate": {
+            "type": "string",
+            "description": "Task's start date (appears if daysToComplete field is passed)"
+          },
+          "endDate": {
+            "type": "string",
+            "description": "Task's end date (appears if daysToComplete field is passed)"
+          }
+        }
+      },
+      "Gift": {
+        "required": ["name", "price"],
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Gift's name"
+          },
+          "price": {
+            "type": "integer",
+            "description": "Gift's price"
+          },
+          "file": {
+            "type": "file",
+            "description": "Gift's image ('file' field in multipart/form-data content-type, optional)"
+          }
+        }
+      },
+      "GetGifts": {
+        "type": "array",
+        "items": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string",
+                "description": "Gift's name"
+              },
+              "price": {
+                "type": "integer",
+                "description": "Gift's price"
+              },
+              "isPurchased": {
+                "type": "boolean",
+                "description": "Gift's status"
+              },
+              "imageUrl": {
+                "type": "string",
+                "description": "Gift's image url (created if 'file' field was provided while adding new gift)"
+              },
+              "childId": {
+                "type": "string",
+                "description": "Id of the child this gift was created for"
+              },
+              "__v": {
+                "type": "integer",
+                "description": "MongoDB document service versionKey (ignore)"
+              }
+            }
+          }
+        }
+      },
+      "NewGift": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Gift's name"
+          },
+          "price": {
+            "type": "integer",
+            "description": "Gift's price"
+          },
+          "isPurchased": {
+            "type": "boolean",
+            "description": "Gift's status"
+          },
+          "imageUrl": {
+            "type": "string",
+            "description": "Gift's image url (created if 'file' field was provided while adding new gift)"
+          },
+          "childId": {
+            "type": "string",
+            "description": "Id of the child this gift was created for"
+          },
+          "__v": {
+            "type": "integer",
+            "description": "MongoDB document service versionKey (ignore)"
+          }
+        }
+      },
+      "PatchGift": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Gift's name"
+          },
+          "price": {
+            "type": "integer",
+            "description": "Gift's price"
+          },
+          "file": {
+            "type": "file",
+            "description": "Gift's image ('file' field in multipart/form-data content-type, optional)"
+          }
+        }
+      },
+      "PurchasedGift": {
+        "type": "object",
+        "properties": {
+          "updatedRewards": {
+            "type": "integer",
+            "description": "Child's new rewards amount"
+          },
+          "purchasedGift": {
+            "type": "object",
+            "description": "Obtained gift",
+            "properties": {
+              "name": {
+                "type": "string",
+                "description": "Gift's name"
+              },
+              "price": {
+                "type": "integer",
+                "description": "Gift's price"
+              },
+              "isPurchased": {
+                "type": "boolean",
+                "description": "Gift's status"
+              },
+              "imageUrl": {
+                "type": "string",
+                "description": "Gift's image url (created if 'file' field was provided while adding new gift)"
+              },
+              "childId": {
+                "type": "string",
+                "description": "Id of the child this gift was created for"
+              },
+              "__v": {
+                "type": "integer",
+                "description": "MongoDB document service versionKey (ignore)"
+              }
+            }
+          }
+        }
+      },
+      "Registration": {
+        "required": ["email", "password", "username"],
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "description": "User's email",
+            "format": "email"
+          },
+          "password": {
+            "type": "string",
+            "description": "User's password"
+          },
+          "username": {
+            "type": "string",
+            "description": "User's name"
+          }
+        }
+      },
+      "AfterRegistration": {
+        "type": "object",
+        "properties": {
+          "_id": {
+            "type": "string",
+            "description": "Habit's id"
+          },
+          "email": {
+            "type": "string",
+            "description": "User's email",
+            "format": "email"
+          },
+          "username": {
+            "type": "string",
+            "description": "User's name"
+          }
+        }
+      },
+      "Login": {
+        "required": ["email", "password"],
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "description": "User's email",
+            "format": "email"
+          },
+          "password": {
+            "type": "string",
+            "description": "User's password"
+          }
+        }
+      },
+      "AfterLogin": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "object",
+            "description": "User's data",
+            "properties": {
+              "children": {
+                "type": "array",
+                "description": "User's children",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "rewards": {
+                      "type": "integer",
+                      "description": "Child's rewards"
+                    },
+                    "habits": {
+                      "type": "array",
+                      "description": "Child's habits",
+                      "items": {}
+                    },
+                    "tasks": {
+                      "type": "array",
+                      "description": "Child's tasks",
+                      "items": {}
+                    },
+                    "gifts": {
+                      "type": "array",
+                      "description": "Child's gifts",
+                      "items": {}
+                    },
+                    "_id": {
+                      "type": "string",
+                      "description": "Child's id"
+                    },
+                    "name": {
+                      "type": "string",
+                      "description": "Child's name"
+                    },
+                    "gender": {
+                      "type": "string",
+                      "description": "Child's gender",
+                      "enum": ["male", "female"]
+                    },
+                    "__v": {
+                      "type": "integer",
+                      "description": "MongoDB document service versionKey (ignore)"
+                    }
+                  }
+                }
+              },
+              "_id": {
+                "type": "string",
+                "description": "User's id"
+              },
+              "email": {
+                "type": "string",
+                "description": "User's email"
+              },
+              "passwordHash": {
+                "type": "string",
+                "description": "User's hash password"
+              },
+              "username": {
+                "type": "string",
+                "description": "User's name"
+              },
+              "__v": {
+                "type": "integer",
+                "description": "MongoDB document service versionKey (ignore)"
+              }
+            }
+          },
+          "accessToken": {
+            "type": "string",
+            "description": "Session's access token (needed for all requests)"
+          },
+          "refreshToken": {
+            "type": "string",
+            "description": "Session's refresh token (needed for /auth/refresh)"
+          },
+          "sid": {
+            "type": "string",
+            "description": "Session's id (needed for /auth/refresh)"
+          }
+        }
+      },
+      "RefreshTokens": {
+        "type": "object",
+        "properties": {
+          "accessToken": {
+            "type": "string",
+            "description": "Access token"
+          },
+          "refreshToken": {
+            "type": "string",
+            "description": "Refresh token"
+          }
+        }
+      },
+      "CategoryPost": {
+        "required": ["name", "password"],
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Name of a category you want to add"
+          },
+          "password": {
+            "type": "string",
+            "description": "Service password"
+          }
+        }
+      }
+    }
+  }
+}

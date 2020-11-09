@@ -8,3 +8,9 @@ export enum ReqBodyParts {
   Params = "params",
   Query = "query",
 }
+
+export enum TaskStatus {
+  Unknown = "unknown",
+  Confirmed = "confirmed",
+  Canceled = "canceled",
+}

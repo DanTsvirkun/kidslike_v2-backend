@@ -3,7 +3,15 @@ import Joi from "joi";
 import mongoose from "mongoose";
 import validate from "../function-helpers/validate";
 import { authorize } from "../auth/auth.controller";
-import { addTask, deleteTask, editTask, confirmTask } from "./task.controller";
+import {
+  addTask,
+  deleteTask,
+  editTask,
+  confirmTask,
+  cancelTask,
+  getTasks,
+  resetTask,
+} from "./task.controller";
 import tryCatchWrapper from "../function-helpers/try-catch-wrapper";
 
 const addTaskSchema = Joi.object({
@@ -17,6 +25,18 @@ const editTaskSchema = Joi.object({
   reward: Joi.number(),
   daysToComplete: Joi.number(),
 }).min(1);
+
+const addTaskIdSchema = Joi.object({
+  childId: Joi.string()
+    .custom((value, helpers) => {
+      const isValidObjectId = mongoose.Types.ObjectId.isValid(value);
+      if (!isValidObjectId) {
+        return helpers.error("Invalid child id. Must be MongoDB object id");
+      }
+      return value;
+    })
+    .required(),
+});
 
 const editOrDeleteTaskIdSchema = Joi.object({
   taskId: Joi.string()
@@ -32,9 +52,11 @@ const editOrDeleteTaskIdSchema = Joi.object({
 
 const router = Router();
 
+router.get("/", authorize, tryCatchWrapper(getTasks));
 router.post(
   "/:childId",
   authorize,
+  validate(addTaskIdSchema, "params"),
   validate(addTaskSchema),
   tryCatchWrapper(addTask)
 );
@@ -52,10 +74,22 @@ router.delete(
   tryCatchWrapper(deleteTask)
 );
 router.patch(
-  "/complete/:taskId",
+  "/confirm/:taskId",
   authorize,
   validate(editOrDeleteTaskIdSchema, "params"),
   tryCatchWrapper(confirmTask)
+);
+router.patch(
+  "/cancel/:taskId",
+  authorize,
+  validate(editOrDeleteTaskIdSchema, "params"),
+  tryCatchWrapper(cancelTask)
+);
+router.patch(
+  "/reset/:taskId",
+  authorize,
+  validate(editOrDeleteTaskIdSchema, "params"),
+  tryCatchWrapper(resetTask)
 );
 
 export default router;

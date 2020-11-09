@@ -1,16 +1,10 @@
 import { Request, Response, NextFunction } from "express";
-import { AxiosError } from "axios";
-
-type ControllerFunction = (
-  req: Request,
-  res: Response,
-  next?: NextFunction
-) => any;
+import { ControllerFunction } from "../typescript-helpers/types";
 
 export default (cb: ControllerFunction) => (
   req: Request,
   res: Response,
   next: NextFunction
 ) => {
-  return cb(req, res, next).catch((err: AxiosError) => next(err));
+  return cb(req, res, next).catch((err: any) => next(err));
 };

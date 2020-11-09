@@ -8,7 +8,9 @@ import {
   addHabit,
   deleteHabit,
   editHabit,
-  habitDaySuccessful,
+  habitDayConfirmed,
+  habitDayCanceled,
+  getHabits,
 } from "./habit.controller";
 
 const addHabitSchema = Joi.object({
@@ -21,7 +23,7 @@ const addHabitIdSchema = Joi.object({
     .custom((value, helpers) => {
       const isValidObjectId = mongoose.Types.ObjectId.isValid(value);
       if (!isValidObjectId) {
-        return helpers.error("Invalid habit id. Must be MongoDB object id");
+        return helpers.error("Invalid child id. Must be MongoDB object id");
       }
       return value;
     })
@@ -47,6 +49,7 @@ const editOrDeleteHabitIdSchema = Joi.object({
 
 const router = Router();
 
+router.get("/", authorize, tryCatchWrapper(getHabits));
 router.post(
   "/:childId",
   authorize,
@@ -68,10 +71,16 @@ router.delete(
   tryCatchWrapper(deleteHabit)
 );
 router.patch(
-  "/successful/:habitId",
+  "/confirm/:habitId",
   authorize,
   validate(editOrDeleteHabitIdSchema, "params"),
-  tryCatchWrapper(habitDaySuccessful)
+  tryCatchWrapper(habitDayConfirmed)
+);
+router.patch(
+  "/cancel/:habitId",
+  authorize,
+  validate(editOrDeleteHabitIdSchema, "params"),
+  tryCatchWrapper(habitDayCanceled)
 );
 
 export default router;

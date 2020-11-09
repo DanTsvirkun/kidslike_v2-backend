@@ -7,4 +7,4 @@ const habitSchema = new Schema({
   childId: mongoose.Types.ObjectId,
 });
 
-export const HabitModel = mongoose.model("Habit", habitSchema);
+export default mongoose.model("Habit", habitSchema);

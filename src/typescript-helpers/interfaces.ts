@@ -1,5 +1,5 @@
 import { Document } from "mongoose";
-import { Gender } from "./enums";
+import { Gender, TaskStatus } from "./enums";
 import { MongoDBObjectId } from "./types";
 
 export interface IParent extends Document {
@@ -28,8 +28,10 @@ export interface IHabit extends Document {
 export interface ITask extends Document {
   name: string;
   reward: number;
-  isCompleted: boolean;
+  isCompleted: TaskStatus;
   daysToComplete?: number;
+  startDate: string;
+  endDate?: string;
   childId: MongoDBObjectId;
 }
 
@@ -48,5 +50,5 @@ export interface IJWTPayload {
 
 export interface IHabitDays {
   date: string;
-  isCompleted: boolean;
+  isCompleted: TaskStatus;
 }

@@ -1,11 +1,17 @@
-import { Request, Response } from "express";
+import { Request, Response, NextFunction } from "express";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
-import { IParent, IJWTPayload } from "../typescript-helpers/interfaces";
-import { UserModel } from "../user/user.model";
-import SessionModel from "../session/session.model";
-import { NextFunction } from "express-serve-static-core";
+import * as queryString from "query-string";
+import axios from "axios";
+import { URL } from "url";
 import { Document } from "mongoose";
+import { IParent, IJWTPayload } from "../typescript-helpers/interfaces";
+import UserModel from "../user/user.model";
+import SessionModel from "../session/session.model";
+import ChildModel from "../child/child.model";
+import HabitModel from "../habit/habit.model";
+import TaskModel from "../task/task.model";
+import GiftModel from "../gift/gift.model";
 
 export const register = async (req: Request, res: Response) => {
   const { email, password, username } = req.body;
@@ -63,14 +69,21 @@ export const login = async (req: Request, res: Response) => {
       expiresIn: process.env.JWT_REFRESH_EXPIRE_TIME,
     }
   );
-  return res.status(200).send({
-    id: user._id,
-    sid: newSession._id,
-    username: (user as IParent).username,
-    children: (user as IParent).children,
-    accessToken,
-    refreshToken,
-  });
+  return UserModel.findOne({ email })
+    .populate({
+      path: "children",
+      model: ChildModel,
+      populate: [
+        { path: "habits", model: HabitModel },
+        { path: "tasks", model: TaskModel },
+        { path: "gifts", model: GiftModel },
+      ],
+    })
+    .exec((err, data) =>
+      res
+        .status(200)
+        .send({ data, accessToken, refreshToken, sid: newSession._id })
+    );
 };
 
 export const authorize = async (
@@ -147,4 +160,149 @@ export const logout = async (req: Request, res: Response) => {
   req.user = null;
   req.session = null;
   return res.status(204).end();
+};
+
+export const googleAuth = async (req: Request, res: Response) => {
+  const stringifiedParams = queryString.stringify({
+    client_id: process.env.GOOGLE_CLIENT_ID,
+    redirect_uri: `${process.env.BASE_URL}/auth/google-redirect`,
+    scope: [
+      "https://www.googleapis.com/auth/userinfo.email",
+      "https://www.googleapis.com/auth/userinfo.profile",
+    ].join(" "),
+    response_type: "code",
+    access_type: "offline",
+    prompt: "consent",
+  });
+  res.redirect(
+    `https://accounts.google.com/o/oauth2/v2/auth?${stringifiedParams}`
+  );
+};
+
+export const googleRedirect = async (req: Request, res: Response) => {
+  const fullUrl = `${req.protocol}://${req.get("host")}${req.originalUrl}`;
+  const urlObj = new URL(fullUrl);
+  const urlParams = queryString.parse(urlObj.search);
+  const code = urlParams.code;
+  const tokenData = await axios({
+    url: `https://oauth2.googleapis.com/token`,
+    method: "post",
+    data: {
+      client_id: process.env.GOOGLE_CLIENT_ID,
+      client_secret: process.env.GOOGLE_CLIENT_SECRET,
+      redirect_uri: `${process.env.BASE_URL}/auth/google-redirect`,
+      grant_type: "authorization_code",
+      code,
+    },
+  });
+  const userData = await axios({
+    url: "https://www.googleapis.com/oauth2/v2/userinfo",
+    method: "get",
+    headers: {
+      Authorization: `Bearer ${tokenData.data.access_token}`,
+    },
+  });
+  let existingParent = await UserModel.findOne({ email: userData.data.email });
+  if (!existingParent) {
+    const email = userData.data.email;
+    const username = userData.data.name;
+    //@ts-ignore
+    existingParent = await UserModel.create({ email, username });
+  }
+  const newSession = await SessionModel.create({
+    uid: ((existingParent as unknown) as IParent)._id,
+  });
+  const accessToken = jwt.sign(
+    { uid: ((existingParent as unknown) as IParent)._id, sid: newSession._id },
+    process.env.JWT_SECRET as string,
+    {
+      expiresIn: process.env.JWT_ACCESS_EXPIRE_TIME,
+    }
+  );
+  const refreshToken = jwt.sign(
+    { uid: ((existingParent as unknown) as IParent)._id, sid: newSession._id },
+    process.env.JWT_SECRET as string,
+    {
+      expiresIn: process.env.JWT_REFRESH_EXPIRE_TIME,
+    }
+  );
+  return res.status(200).send({
+    id: ((existingParent as unknown) as IParent)._id,
+    sid: newSession._id,
+    username: ((existingParent as unknown) as IParent).username,
+    children: ((existingParent as unknown) as IParent).children,
+    accessToken,
+    refreshToken,
+  });
+};
+
+export const facebookAuth = async (req: Request, res: Response) => {
+  const stringifiedParams = queryString.stringify({
+    client_id: process.env.FACEBOOK_APP_ID,
+    redirect_uri: `${process.env.BASE_URL}/auth/facebook-redirect/`,
+    scope: "email",
+    response_type: "code",
+    auth_type: "rerequest",
+    display: "popup",
+  });
+  res.redirect(
+    `https://www.facebook.com/v4.0/dialog/oauth?${stringifiedParams}`
+  );
+};
+
+export const facebookRedirect = async (req: Request, res: Response) => {
+  const fullUrl = `${req.protocol}://${req.get("host")}${req.originalUrl}`;
+  const urlObj = new URL(fullUrl);
+  const urlParams = queryString.parse(urlObj.search);
+  const code = urlParams.code;
+  const tokenData = await axios({
+    url: "https://graph.facebook.com/v4.0/oauth/access_token",
+    method: "get",
+    params: {
+      client_id: process.env.FACEBOOK_APP_ID,
+      client_secret: process.env.FACEBOOK_APP_SECRET,
+      redirect_uri: `${process.env.BASE_URL}/auth/facebook-redirect/`,
+      code,
+    },
+  });
+  const userData = await axios({
+    url: "https://graph.facebook.com/me",
+    method: "get",
+    params: {
+      fields: ["email", "first_name"].join(","),
+      access_token: tokenData.data.access_token,
+    },
+  });
+  let existingParent = await UserModel.findOne({ email: userData.data.email });
+  if (!existingParent) {
+    const email = userData.data.email;
+    const username = userData.data.first_name;
+    //@ts-ignore
+    existingParent = await UserModel.create({ email, username });
+  }
+  const newSession = await SessionModel.create({
+    uid: ((existingParent as unknown) as IParent)._id,
+  });
+  const accessToken = jwt.sign(
+    { uid: ((existingParent as unknown) as IParent)._id, sid: newSession._id },
+    process.env.JWT_SECRET as string,
+    {
+      expiresIn: process.env.JWT_ACCESS_EXPIRE_TIME,
+    }
+  );
+  const refreshToken = jwt.sign(
+    { uid: ((existingParent as unknown) as IParent)._id, sid: newSession._id },
+    process.env.JWT_SECRET as string,
+    {
+      expiresIn: process.env.JWT_REFRESH_EXPIRE_TIME,
+    }
+  );
+  return res.status(200).send({
+    id: ((existingParent as unknown) as IParent)._id,
+    sid: newSession._id,
+    username: ((existingParent as unknown) as IParent).username,
+    children: ((existingParent as unknown) as IParent).children,
+    accessToken,
+    refreshToken,
+  });
 };

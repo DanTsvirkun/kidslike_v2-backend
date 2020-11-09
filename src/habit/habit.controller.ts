@@ -7,8 +7,10 @@ import {
   IHabit,
   IHabitDays,
 } from "../typescript-helpers/interfaces";
-import { HabitModel } from "./habit.model";
-import { ChildModel } from "../child/child.model";
+import HabitModel from "./habit.model";
+import ChildModel from "../child/child.model";
+import { TaskStatus } from "../typescript-helpers/enums";
+import UserModel from "../user/user.model";
 
 export const addHabit = async (req: Request, res: Response) => {
   const parent = req.user;
@@ -18,12 +20,17 @@ export const addHabit = async (req: Request, res: Response) => {
   if (!childToUpdateId) {
     return res.status(404).send({ message: "Child not found" });
   }
+  if (!(req.body.rewardPerDay >= 1)) {
+    return res
+      .status(400)
+      .send({ message: "rewardPerDay must be greater or equal to 1" });
+  }
   const habitDays: IHabitDays[] = [];
   const date = DateTime.local();
   for (let i = 0; i < 10; i++) {
     habitDays.push({
       date: date.plus({ days: i }).toLocaleString(),
-      isCompleted: false,
+      isCompleted: TaskStatus.Unknown,
     });
   }
   const habit = await HabitModel.create({
@@ -38,9 +45,25 @@ export const addHabit = async (req: Request, res: Response) => {
 };
 
 export const editHabit = async (req: Request, res: Response) => {
+  const parent = req.user;
   const habitToEdit = await HabitModel.findById(req.params.habitId);
   if (!habitToEdit) {
     return res.status(404).send({ message: "Habit not found" });
+  }
+  const childToUpdate = (parent as IParent).children.find(
+    (childId) =>
+      childId.toString() === (habitToEdit as IHabit).childId.toString()
+  );
+  if (!childToUpdate) {
+    return res.status(404).send({ message: "Child not found" });
+  }
+  if (
+    (req.body.rewardPerDay || req.body.rewardPerDay === 0) &&
+    !(req.body.rewardPerDay >= 1)
+  ) {
+    return res
+      .status(400)
+      .send({ message: "rewardPerDay must be greater or equal to 1" });
   }
   const newHabit: IHabit = { ...habitToEdit.toObject(), ...req.body };
   await HabitModel.findByIdAndUpdate(req.params.habitId, newHabit, {
@@ -51,20 +74,37 @@ export const editHabit = async (req: Request, res: Response) => {
 };
 
 export const deleteHabit = async (req: Request, res: Response) => {
-  const deletedHabit = await HabitModel.findByIdAndDelete(req.params.habitId);
-  if (!deletedHabit) {
+  const parent = req.user;
+  const habitToDelete = await HabitModel.findById(req.params.habitId);
+  if (!habitToDelete) {
     return res.status(404).send({ message: "Habit not found" });
   }
+  const childToUpdate = (parent as IParent).children.find(
+    (childId) =>
+      childId.toString() === (habitToDelete as IHabit).childId.toString()
+  );
+  if (!childToUpdate) {
+    return res.status(404).send({ message: "Child not found" });
+  }
+  const deletedHabit = await HabitModel.findByIdAndDelete(req.params.habitId);
   await ChildModel.findByIdAndUpdate((deletedHabit as IHabit).childId, {
-    $pull: { habits: Types.ObjectId(deletedHabit._id) },
+    $pull: { habits: Types.ObjectId((deletedHabit as IHabit)._id) },
   });
   return res.status(204).end();
 };
 
-export const habitDaySuccessful = async (req: Request, res: Response) => {
+export const habitDayConfirmed = async (req: Request, res: Response) => {
+  const parent = req.user;
   const habitToEdit = await HabitModel.findById(req.params.habitId);
   if (!habitToEdit) {
     return res.status(404).send({ message: "Habit not found" });
+  }
+  const childToUpdateId = (parent as IParent).children.find(
+    (childId) =>
+      childId.toString() === (habitToEdit as IHabit).childId.toString()
+  );
+  if (!childToUpdateId) {
+    return res.status(404).send({ message: "Child not found" });
   }
   const childToUpdate = await ChildModel.findById(
     (habitToEdit as IHabit).childId
@@ -74,10 +114,15 @@ export const habitDaySuccessful = async (req: Request, res: Response) => {
     (day) => day.date === date
   );
   if (completedDay) {
-    if (completedDay.isCompleted === true) {
+    if (completedDay.isCompleted === TaskStatus.Confirmed) {
       return res
         .status(403)
-        .send({ message: "This day has been already completed" });
+        .send({ message: "This day has already been confirmed" });
+    }
+    if (completedDay.isCompleted === TaskStatus.Canceled) {
+      return res
+        .status(403)
+        .send({ message: "This day has already been canceled" });
     }
   } else {
     return res
@@ -86,11 +131,15 @@ export const habitDaySuccessful = async (req: Request, res: Response) => {
   }
   const updatedHabit = await HabitModel.findOneAndUpdate(
     { _id: req.params.habitId, "days.date": date },
-    { $set: { "days.$.isCompleted": true } },
+    { $set: { "days.$.isCompleted": TaskStatus.Confirmed } },
     { new: true }
   );
   let updatedRewards: number;
-  if ((updatedHabit as IHabit).days.every((day) => day.isCompleted === true)) {
+  if (
+    (updatedHabit as IHabit).days.every(
+      (day) => day.isCompleted === TaskStatus.Confirmed
+    )
+  ) {
     updatedRewards =
       (childToUpdate as IChild).rewards +
       (habitToEdit as IHabit).rewardPerDay +
@@ -107,5 +156,65 @@ export const habitDaySuccessful = async (req: Request, res: Response) => {
       $set: { rewards: updatedRewards },
     });
   }
-  return res.status(201).send({ updatedHabit, updatedRewards });
+  return res.status(200).send({ updatedHabit, updatedRewards });
+};
+
+export const habitDayCanceled = async (req: Request, res: Response) => {
+  const parent = req.user;
+  const habitToEdit = await HabitModel.findById(req.params.habitId);
+  if (!habitToEdit) {
+    return res.status(404).send({ message: "Habit not found" });
+  }
+  const childToUpdateId = (parent as IParent).children.find(
+    (childId) =>
+      childId.toString() === (habitToEdit as IHabit).childId.toString()
+  );
+  if (!childToUpdateId) {
+    return res.status(404).send({ message: "Child not found" });
+  }
+  const date = DateTime.local().toLocaleString();
+  const completedDay = (habitToEdit as IHabit).days.find(
+    (day) => day.date === date
+  );
+  if (completedDay) {
+    if (completedDay.isCompleted === TaskStatus.Canceled) {
+      return res
+        .status(403)
+        .send({ message: "This day has already been canceled" });
+    }
+    if (completedDay.isCompleted === TaskStatus.Confirmed) {
+      return res
+        .status(403)
+        .send({ message: "This day has already been confirmed" });
+    }
+  } else {
+    return res
+      .status(400)
+      .send({ message: "Today's day doesn't exist on provided habit" });
+  }
+  const updatedHabit = await HabitModel.findOneAndUpdate(
+    { _id: req.params.habitId, "days.date": date },
+    { $set: { "days.$.isCompleted": TaskStatus.Canceled } },
+    { new: true }
+  );
+  return res.status(200).send({ updatedHabit });
+};
+
+export const getHabits = async (req: Request, res: Response) => {
+  const parent = req.user;
+  return UserModel.findOne(parent as IParent)
+    .populate({
+      path: "children",
+      model: ChildModel,
+      populate: [{ path: "habits", model: HabitModel }],
+    })
+    .exec((err, data) =>
+      res
+        .status(200)
+        .send(
+          (data as IParent).children.map(
+            (child) => ((child as unknown) as IChild).habits
+          )
+        )
+    );
 };

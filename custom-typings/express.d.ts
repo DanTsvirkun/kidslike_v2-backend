@@ -5,6 +5,7 @@ declare global {
     interface Request {
       user: Document | null;
       session: Document | null;
+      fileValidationError: string;
     }
   }
 }

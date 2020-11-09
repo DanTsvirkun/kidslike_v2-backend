@@ -2,9 +2,9 @@ import mongoose, { Schema } from "mongoose";
 
 const userSchema = new Schema({
   email: String,
-  passwordHash: String,
+  passwordHash: { type: String, required: false },
   username: String,
   children: [{ type: mongoose.Types.ObjectId, ref: "Child" }],
 });
 
-export const UserModel = mongoose.model("User", userSchema);
+export default mongoose.model("User", userSchema);

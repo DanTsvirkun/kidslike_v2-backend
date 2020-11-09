@@ -9,4 +9,4 @@ const childSchema = new Schema({
   gifts: [{ type: mongoose.Types.ObjectId, ref: "Gift" }],
 });
 
-export const ChildModel = mongoose.model("Child", childSchema);
+export default mongoose.model("Child", childSchema);

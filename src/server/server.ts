@@ -1,14 +1,15 @@
 import cors from "cors";
 import path from "path";
 import express, { Application, Request, Response, NextFunction } from "express";
-import { AxiosError } from "axios";
 import mongoose from "mongoose";
+import swaggerUi from "swagger-ui-express";
 import authRouter from "../auth/auth.router";
 import childRouter from "../child/child.router";
 import taskRouter from "../task/task.router";
 import habitRouter from "../habit/habit.router";
 import giftRouter from "../gift/gift.router";
 require("dotenv").config({ path: path.join(__dirname, "../../.env") });
+const swaggerDocument = require("../../swagger.json");
 
 export default class Server {
   app: Application;
@@ -56,16 +57,16 @@ export default class Server {
     this.app.use("/task", taskRouter);
     this.app.use("/habit", habitRouter);
     this.app.use("/gift", giftRouter);
+    this.app.use(
+      "/api-docs",
+      swaggerUi.serve,
+      swaggerUi.setup(swaggerDocument)
+    );
   }
 
   private initErrorHandling() {
     this.app.use(
-      (
-        err: AxiosError,
-        req: Request,
-        res: Response,
-        next: NextFunction
-      ): Response => {
+      (err: any, req: Request, res: Response, next: NextFunction): Response => {
         let status = 500;
         if (err.response) {
           status = err.response.status;

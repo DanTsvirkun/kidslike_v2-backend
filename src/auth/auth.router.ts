@@ -1,7 +1,17 @@
 import { Router } from "express";
 import Joi from "joi";
 import tryCatchWrapper from "../function-helpers/try-catch-wrapper";
-import { register, login } from "./auth.controller";
+import {
+  register,
+  login,
+  googleAuth,
+  googleRedirect,
+  facebookAuth,
+  facebookRedirect,
+  refreshTokens,
+  logout,
+  authorize,
+} from "./auth.controller";
 import validate from "../function-helpers/validate";
 
 const signUpSchema = Joi.object({
@@ -15,9 +25,23 @@ const signInSchema = Joi.object({
   password: Joi.string().required(),
 });
 
+const refreshTokensSchema = Joi.object({
+  sid: Joi.string().required(),
+});
+
 const router = Router();
 
 router.post("/register", validate(signUpSchema), tryCatchWrapper(register));
 router.post("/login", validate(signInSchema), tryCatchWrapper(login));
+router.post("/logout", authorize, tryCatchWrapper(logout));
+router.get(
+  "/refresh",
+  validate(refreshTokensSchema),
+  tryCatchWrapper(refreshTokens)
+);
+router.get("/google", tryCatchWrapper(googleAuth));
+router.get("/google-redirect", tryCatchWrapper(googleRedirect));
+router.get("/facebook", tryCatchWrapper(facebookAuth));
+router.get("/facebook-redirect", tryCatchWrapper(facebookRedirect));
 
 export default router;
