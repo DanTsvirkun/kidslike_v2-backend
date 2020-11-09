@@ -4,8 +4,14 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "start": "node dist/server/start.js",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "nodemon --files src/server/start.ts"
+    "postinstall": "tsc",
+    "dev": "nodemon --files src/server/start.ts",
+    "deploy": "git add . && git commit -m Heroku && git push heroku master"
+  },
+  "engines": {
+    "node": "12.18.0"
   },
   "repository": {
     "type": "git",
