@@ -2,15 +2,18 @@
   "swagger": "2.0",
   "info": {
     "version": "1.0.0",
-    "title": "Kidslike_v2 API docs",
-    "description": "",
+    "title": "Kidslike V2 API docs",
+    "description": "API documentation for GoIT project 'Kidslike V2'. Backend github repository: https://github.com/DanTsvirkun/kidslike_v2-backend",
     "license": {
       "name": "MIT",
       "url": "https://opensource.org/licenses/MIT"
     }
   },
-  "host": "https://kidslikev2.herokuapp.com/",
+  "host": "kidslikev2.herokuapp.com",
   "basePath": "",
+  "schemes": ["https"],
+  "consumes": ["application/json"],
+  "produces": ["application/json"],
   "tags": [
     {
       "name": "Child",
@@ -33,9 +36,6 @@
       "description": "Authorization endpoints"
     }
   ],
-  "schemes": ["http"],
-  "consumes": ["application/json"],
-  "produces": ["application/json"],
   "paths": {
     "/child": {
       "post": {
@@ -79,7 +79,7 @@
         }
       }
     },
-    "/habit/": {
+    "/habit": {
       "get": {
         "tags": ["Habit"],
         "summary": "Get all children habits for current user",
@@ -340,7 +340,7 @@
         }
       }
     },
-    "/task/": {
+    "/task": {
       "get": {
         "tags": ["Task"],
         "summary": "Get all children tasks for current user",
@@ -641,7 +641,7 @@
         }
       }
     },
-    "/gift/": {
+    "/gift": {
       "get": {
         "tags": ["Gift"],
         "summary": "Get all children gifts for current user",
@@ -1009,7 +1009,7 @@
       }
     },
     "/auth/google": {
-      "post": {
+      "get": {
         "tags": ["Auth"],
         "summary": "Google authentication",
         "responses": {
@@ -1023,7 +1023,7 @@
       }
     },
     "/auth/facebook": {
-      "post": {
+      "get": {
         "tags": ["Auth"],
         "summary": "Google authentication",
         "responses": {
