@@ -1,8 +1,8 @@
 import { Router } from "express";
 import Joi from "joi";
 import mongoose from "mongoose";
-import validate from "../function-helpers/validate";
-import { authorize } from "../auth/auth.controller";
+import validate from "../../helpers/function-helpers/validate";
+import { authorize } from "../../auth/auth.controller";
 import {
   addTask,
   deleteTask,
@@ -12,7 +12,7 @@ import {
   getTasks,
   resetTask,
 } from "./task.controller";
-import tryCatchWrapper from "../function-helpers/try-catch-wrapper";
+import tryCatchWrapper from "../../helpers/function-helpers/try-catch-wrapper";
 
 const addTaskSchema = Joi.object({
   name: Joi.string().required(),

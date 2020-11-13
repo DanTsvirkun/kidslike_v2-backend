@@ -1,8 +1,12 @@
 import { Request, Response, NextFunction } from "express";
 import { Types } from "mongoose";
 import GiftModel from "./gift.model";
-import { uploadImage } from "../function-helpers/multer-config";
-import { IParent, IChild, IGift } from "../typescript-helpers/interfaces";
+import { uploadImage } from "../../helpers/function-helpers/multer-config";
+import {
+  IParent,
+  IChild,
+  IGift,
+} from "../../helpers/typescript-helpers/interfaces";
 import ChildModel from "../child/child.model";
 import UserModel from "../user/user.model";
 

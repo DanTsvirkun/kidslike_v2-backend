@@ -1689,7 +1689,7 @@
       "AfterRegistration": {
         "type": "object",
         "properties": {
-          "_id": {
+          "id": {
             "type": "string",
             "description": "Habit's id"
           },

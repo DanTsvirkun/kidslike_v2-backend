@@ -1,6 +1,6 @@
 import multer from "multer";
 import util from "util";
-import gc from "../gcp-config/index";
+import gc from "../../gcp-config/index";
 import { Request } from "express";
 
 const bucket = gc.bucket("kidslikev2_bucket");

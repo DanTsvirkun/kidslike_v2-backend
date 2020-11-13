@@ -1,6 +1,6 @@
 import { Router } from "express";
 import Joi from "joi";
-import tryCatchWrapper from "../function-helpers/try-catch-wrapper";
+import tryCatchWrapper from "../helpers/function-helpers/try-catch-wrapper";
 import {
   register,
   login,
@@ -12,7 +12,7 @@ import {
   logout,
   authorize,
 } from "./auth.controller";
-import validate from "../function-helpers/validate";
+import validate from "../helpers/function-helpers/validate";
 
 const signUpSchema = Joi.object({
   email: Joi.string().required(),

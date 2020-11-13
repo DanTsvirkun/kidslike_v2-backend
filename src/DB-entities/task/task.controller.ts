@@ -1,11 +1,15 @@
 import { Request, Response, NextFunction } from "express";
 import { Types } from "mongoose";
 import { DateTime } from "luxon";
-import { IParent, IChild, ITask } from "../typescript-helpers/interfaces";
+import {
+  IParent,
+  IChild,
+  ITask,
+} from "../../helpers/typescript-helpers/interfaces";
 import ChildModel from "../child/child.model";
 import TaskModel from "./task.model";
 import UserModel from "../user/user.model";
-import { TaskStatus } from "../typescript-helpers/enums";
+import { TaskStatus } from "../../helpers/typescript-helpers/enums";
 
 export const addTask = async (req: Request, res: Response) => {
   const parent = req.user;

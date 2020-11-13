@@ -6,10 +6,10 @@ import {
   IChild,
   IHabit,
   IHabitDays,
-} from "../typescript-helpers/interfaces";
+} from "../../helpers/typescript-helpers/interfaces";
 import HabitModel from "./habit.model";
 import ChildModel from "../child/child.model";
-import { TaskStatus } from "../typescript-helpers/enums";
+import { TaskStatus } from "../../helpers/typescript-helpers/enums";
 import UserModel from "../user/user.model";
 
 export const addHabit = async (req: Request, res: Response) => {

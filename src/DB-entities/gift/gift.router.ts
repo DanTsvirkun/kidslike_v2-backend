@@ -1,9 +1,9 @@
 import { Router } from "express";
 import Joi from "joi";
 import mongoose from "mongoose";
-import validate from "../function-helpers/validate";
-import { authorize } from "../auth/auth.controller";
-import tryCatchWrapper from "../function-helpers/try-catch-wrapper";
+import validate from "../../helpers/function-helpers/validate";
+import { authorize } from "../../auth/auth.controller";
+import tryCatchWrapper from "../../helpers/function-helpers/try-catch-wrapper";
 import {
   addGift,
   editGift,
@@ -11,7 +11,7 @@ import {
   buyGift,
   getGifts,
 } from "./gift.controller";
-import { multerMid } from "../function-helpers/multer-config";
+import { multerMid } from "../../helpers/function-helpers/multer-config";
 
 const addGiftSchema = Joi.object({
   name: Joi.string().required(),

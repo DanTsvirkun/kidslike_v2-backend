@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import { ObjectSchema } from "joi";
-import { ControllerFunction } from "./../typescript-helpers/types";
+import { ControllerFunction } from "../typescript-helpers/types";
 import { ReqBodyParts } from "../typescript-helpers/enums";
 
 export default (schema: ObjectSchema, reqPart = "body"): ControllerFunction => {

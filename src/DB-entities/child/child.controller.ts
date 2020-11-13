@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
-import { IParent } from "../typescript-helpers/interfaces";
-import { MongoDBObjectId } from "../typescript-helpers/types";
-import ChildModel from "../child/child.model";
+import { IParent } from "../../helpers/typescript-helpers/interfaces";
+import { MongoDBObjectId } from "../../helpers/typescript-helpers/types";
+import ChildModel from "./child.model";
 
 export const addChild = async (req: Request, res: Response) => {
   const newChild = await ChildModel.create(req.body);

@@ -1,9 +1,9 @@
 import { Router } from "express";
 import Joi from "joi";
-import validate from "../function-helpers/validate";
-import { authorize } from "../auth/auth.controller";
+import validate from "../../helpers/function-helpers/validate";
+import { authorize } from "../../auth/auth.controller";
 import { addChild } from "./child.controller";
-import tryCatchWrapper from "../function-helpers/try-catch-wrapper";
+import tryCatchWrapper from "../../helpers/function-helpers/try-catch-wrapper";
 
 const addChildSchema = Joi.object({
   name: Joi.string().required(),
