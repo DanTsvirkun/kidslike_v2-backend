@@ -18,6 +18,10 @@ export interface IChild extends Document {
   gifts: MongoDBObjectId[];
 }
 
+export interface ISession extends Document {
+  uid: string;
+}
+
 export interface IHabit extends Document {
   name: string;
   rewardPerDay: number;

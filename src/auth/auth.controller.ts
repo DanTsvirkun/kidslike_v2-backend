@@ -105,7 +105,7 @@ export const authorize = async (
     try {
       payload = jwt.verify(accessToken, process.env.JWT_SECRET as string);
     } catch (err) {
-      return res.status(401).send({ message: "Unathorized" });
+      return res.status(401).send({ message: "Unauthorized" });
     }
     const user = await UserModel.findById((payload as IJWTPayload).uid);
     const session = await SessionModel.findById((payload as IJWTPayload).sid);
@@ -124,7 +124,11 @@ export const authorize = async (
 export const refreshTokens = async (req: Request, res: Response) => {
   const authorizationHeader = req.get("Authorization");
   if (authorizationHeader) {
-    const reqRefreshToken = authorizationHeader.replace("Bearer", "");
+    const activeSession = await SessionModel.findById(req.body.sid);
+    if (!activeSession) {
+      return res.status(404).send({ message: "Invalid session" });
+    }
+    const reqRefreshToken = authorizationHeader.replace("Bearer ", "");
     let payload: string | object;
     try {
       payload = jwt.verify(reqRefreshToken, process.env.JWT_SECRET as string);
@@ -156,7 +160,9 @@ export const refreshTokens = async (req: Request, res: Response) => {
       process.env.JWT_SECRET as string,
       { expiresIn: process.env.JWT_REFRESH_EXPIRE_TIME }
     );
-    return res.status(200).send({ newAccessToken, newRefreshToken });
+    return res
+      .status(200)
+      .send({ newAccessToken, newRefreshToken, sid: newSession._id });
   }
   return res.status(400).send({ message: "No token provided" });
 };

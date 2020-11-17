@@ -330,7 +330,7 @@
             "content": {}
           },
           "403": {
-            "description": "This day has already been confirmed",
+            "description": "This day has already been canceled",
             "content": {}
           },
           "404": {
@@ -890,6 +890,10 @@
               "$ref": "#/components/schemas/AfterRegistration"
             }
           },
+          "400": {
+            "description": "Bad request (invalid request body)",
+            "content": {}
+          },
           "409": {
             "description": "Provided email already exists",
             "content": {}
@@ -994,7 +998,7 @@
             }
           },
           "400": {
-            "description": "No token provided",
+            "description": "Invalid request body / No token provided",
             "content": {}
           },
           "401": {
@@ -1916,6 +1920,10 @@
           "refreshToken": {
             "type": "string",
             "description": "Refresh token"
+          },
+          "sid": {
+            "type": "string",
+            "description": "New session's id"
           }
         }
       }

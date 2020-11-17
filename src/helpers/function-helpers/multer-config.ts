@@ -1,7 +1,8 @@
 import multer from "multer";
 import util from "util";
-import gc from "../../gcp-config/index";
 import { Request } from "express";
+import { v4 as uuid } from "uuid";
+import gc from "../../gcp-config/index";
 
 const bucket = gc.bucket("kidslikev2_bucket");
 
@@ -31,7 +32,8 @@ export const uploadImage = (file: Express.Multer.File) => {
   }
   return new Promise((resolve, reject) => {
     const { originalname, buffer } = file;
-    const blob = bucket.file(originalname.replace(/ /g, "_"));
+    const fileName = uuid();
+    const blob = bucket.file(originalname.replace(/.*(?=\.)/, fileName));
     const blobStream = blob.createWriteStream({
       resumable: false,
     });

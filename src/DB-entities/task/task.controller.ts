@@ -26,7 +26,7 @@ export const addTask = async (req: Request, res: Response) => {
   }
   const currentDate = DateTime.local();
   let endDate: DateTime;
-  if (req.body.daysToComplete) {
+  if (req.body.daysToComplete || req.body.daysToComplete === 0) {
     // @ts-ignore
     if (!(req.body.daysToComplete >= 1)) {
       return res
@@ -75,7 +75,7 @@ export const editTask = async (req: Request, res: Response) => {
   }
   const currentDate = DateTime.local();
   let endDate: DateTime;
-  if (req.body.daysToComplete) {
+  if (req.body.daysToComplete || req.body.daysToComplete === 0) {
     // @ts-ignore
     if (!(req.body.daysToComplete >= 1)) {
       return res
@@ -157,7 +157,7 @@ export const confirmTask = async (req: Request, res: Response) => {
   await ChildModel.findByIdAndUpdate((confirmedTask as ITask).childId, {
     $set: { rewards: updatedRewards },
   });
-  return res.status(200).send({ updatedRewards, confirmedTask });
+  return res.status(200).send({ confirmedTask, updatedRewards });
 };
 
 export const cancelTask = async (req: Request, res: Response) => {
@@ -192,12 +192,6 @@ export const cancelTask = async (req: Request, res: Response) => {
 export const resetTask = async (req: Request, res: Response) => {
   const parent = req.user;
   const taskToReset = await TaskModel.findById(req.params.taskId);
-  if (!taskToReset) {
-    return res.status(404).send({ message: "Task not found" });
-  }
-  if ((taskToReset as ITask).isCompleted === TaskStatus.Unknown) {
-    return res.status(403).send({ message: "Task is already reset" });
-  }
   const childToUpdateId = (parent as IParent).children.find(
     (childId) =>
       childId.toString() === (taskToReset as ITask).childId.toString()
@@ -205,14 +199,20 @@ export const resetTask = async (req: Request, res: Response) => {
   if (!childToUpdateId) {
     return res.status(404).send({ message: "Child not found" });
   }
-  const resetTesk = await TaskModel.findByIdAndUpdate(
+  if (!taskToReset) {
+    return res.status(404).send({ message: "Task not found" });
+  }
+  if ((taskToReset as ITask).isCompleted === TaskStatus.Unknown) {
+    return res.status(403).send({ message: "Task has been already reset" });
+  }
+  const unknownTask = await TaskModel.findByIdAndUpdate(
     req.params.taskId,
     {
       $set: { isCompleted: TaskStatus.Unknown },
     },
     { new: true }
   );
-  res.status(200).send(resetTesk);
+  res.status(200).send(unknownTask);
 };
 
 export const getTasks = async (
