@@ -4,10 +4,10 @@ import express, { Application, Request, Response, NextFunction } from "express";
 import mongoose from "mongoose";
 import swaggerUi from "swagger-ui-express";
 import authRouter from "../auth/auth.router";
-import childRouter from "../DB-entities/child/child.router";
-import taskRouter from "../DB-entities/task/task.router";
-import habitRouter from "../DB-entities/habit/habit.router";
-import giftRouter from "../DB-entities/gift/gift.router";
+import childRouter from "../REST-entities/child/child.router";
+import taskRouter from "../REST-entities/task/task.router";
+import habitRouter from "../REST-entities/habit/habit.router";
+import giftRouter from "../REST-entities/gift/gift.router";
 require("dotenv").config({ path: path.join(__dirname, "../../.env") });
 const swaggerDocument = require("../../swagger.json");
 

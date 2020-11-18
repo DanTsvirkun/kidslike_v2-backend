@@ -6,12 +6,12 @@ import axios from "axios";
 import { URL } from "url";
 import { Document } from "mongoose";
 import { IParent, IJWTPayload } from "../helpers/typescript-helpers/interfaces";
-import UserModel from "../DB-entities/user/user.model";
-import SessionModel from "../DB-entities/session/session.model";
-import ChildModel from "../DB-entities/child/child.model";
-import HabitModel from "../DB-entities/habit/habit.model";
-import TaskModel from "../DB-entities/task/task.model";
-import GiftModel from "../DB-entities/gift/gift.model";
+import UserModel from "../REST-entities/user/user.model";
+import SessionModel from "../REST-entities/session/session.model";
+import ChildModel from "../REST-entities/child/child.model";
+import HabitModel from "../REST-entities/habit/habit.model";
+import TaskModel from "../REST-entities/task/task.model";
+import GiftModel from "../REST-entities/gift/gift.model";
 
 export const register = async (req: Request, res: Response) => {
   const { email, password, username } = req.body;

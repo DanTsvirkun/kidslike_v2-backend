@@ -96,14 +96,14 @@ export const deleteGift = async (req: Request, res: Response) => {
 export const buyGift = async (req: Request, res: Response) => {
   const parent = req.user;
   const giftToBuy = await GiftModel.findById(req.params.giftId);
-  if (!giftToBuy) {
-    return res.status(404).send({ message: "Gift not found" });
-  }
   const childToUpdateId = (parent as IParent).children.find(
     (childId) => childId.toString() === (giftToBuy as IGift).childId.toString()
   );
   if (!childToUpdateId) {
     return res.status(404).send({ message: "Child not found" });
+  }
+  if (!giftToBuy) {
+    return res.status(404).send({ message: "Gift not found" });
   }
   const childToUpdate = await ChildModel.findById(childToUpdateId);
   if ((giftToBuy as IGift).isPurchased) {
