@@ -1695,7 +1695,7 @@
         "properties": {
           "id": {
             "type": "string",
-            "description": "Habit's id"
+            "description": "User's id"
           },
           "email": {
             "type": "string",
