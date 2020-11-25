@@ -70,6 +70,9 @@ export default class Server {
       swaggerUi.serve,
       swaggerUi.setup(swaggerDocument)
     );
+    this.app.use("/privacy-policy", (req: Request, res: Response) => {
+      res.sendFile(path.join(__dirname, "../../public/privacy-policy.html"));
+    });
   }
 
   private initErrorHandling() {

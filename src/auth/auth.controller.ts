@@ -100,10 +100,6 @@ export const authorize = async (
 ) => {
   const authorizationHeader = req.get("Authorization");
   if (authorizationHeader) {
-    const activeSession = await SessionModel.findById(req.body.sid);
-    if (!activeSession) {
-      return res.status(404).send({ message: "Invalid session" });
-    }
     const accessToken = authorizationHeader.replace("Bearer ", "");
     let payload: string | object;
     try {

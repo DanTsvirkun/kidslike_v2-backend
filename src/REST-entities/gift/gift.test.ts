@@ -4,6 +4,7 @@ import supertest, { Response } from "supertest";
 import { Application } from "express";
 import Server from "../../server/server";
 import { IChild, IGift } from "../../helpers/typescript-helpers/interfaces";
+import { Gender } from "../../helpers/typescript-helpers/enums";
 import UserModel from "../user/user.model";
 import SessionModel from "../session/session.model";
 import ChildModel from "../child/child.model";
@@ -53,11 +54,11 @@ describe("Gift router test suite", () => {
     thirdResponse = await supertest(app)
       .post("/child")
       .set("Authorization", `Bearer ${accessToken}`)
-      .send({ name: "Test", gender: "male" });
+      .send({ name: "Test", gender: Gender.MALE });
     fourthResponse = await supertest(app)
       .post("/child")
       .set("Authorization", `Bearer ${secondAccessToken}`)
-      .send({ name: "Test", gender: "female" });
+      .send({ name: "Test", gender: Gender.FEMALE });
     createdChild = await ChildModel.findById(thirdResponse.body._id);
     secondCreatedChild = await ChildModel.findById(fourthResponse.body._id);
   });
@@ -228,6 +229,20 @@ describe("Gift router test suite", () => {
 
       it("Should say that child wasn't found", () => {
         expect(response.body.message).toBe("Child not found");
+      });
+    });
+
+    context("With invalid id", () => {
+      beforeAll(async () => {
+        response = await supertest(app)
+          .post(`/gift/qwerty123`)
+          .set("Authorization", `Bearer ${accessToken}`)
+          .field("name", "Test")
+          .field("price", 1);
+      });
+
+      it("Should return a 400 status code", () => {
+        expect(response.status).toBe(400);
       });
     });
   });
@@ -406,6 +421,19 @@ describe("Gift router test suite", () => {
         expect(response.body.message).toBe("Child not found");
       });
     });
+
+    context("With invalid id", () => {
+      beforeAll(async () => {
+        response = await supertest(app)
+          .patch(`/gift/qwerty123`)
+          .set("Authorization", `Bearer ${accessToken}`)
+          .field("name", "Test2");
+      });
+
+      it("Should return a 400 status code", () => {
+        expect(response.status).toBe(400);
+      });
+    });
   });
 
   describe("PATCH /gift/buy/{giftId}", () => {
@@ -529,6 +557,18 @@ describe("Gift router test suite", () => {
         expect(response.body.message).toBe("Child not found");
       });
     });
+
+    context("With invalid id", () => {
+      beforeAll(async () => {
+        response = await supertest(app)
+          .patch(`/gift/buy/qwerty123`)
+          .set("Authorization", `Bearer ${accessToken}`);
+      });
+
+      it("Should return a 400 status code", () => {
+        expect(response.status).toBe(400);
+      });
+    });
   });
 
   describe("DELETE /gift/{giftId}", () => {
@@ -607,6 +647,18 @@ describe("Gift router test suite", () => {
 
       it("Should say that child wasn't found", () => {
         expect(response.body.message).toBe("Child not found");
+      });
+    });
+
+    context("With invalid id", () => {
+      beforeAll(async () => {
+        response = await supertest(app)
+          .delete(`/gift/qwerty123`)
+          .set("Authorization", `Bearer ${accessToken}`);
+      });
+
+      it("Should return a 400 status code", () => {
+        expect(response.status).toBe(400);
       });
     });
   });

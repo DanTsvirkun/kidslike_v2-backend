@@ -135,16 +135,16 @@ export const confirmTask = async (req: Request, res: Response) => {
   if (!childToUpdateId) {
     return res.status(404).send({ message: "Child not found" });
   }
-  if ((taskToConfirm as ITask).isCompleted === TaskStatus.Confirmed) {
+  if ((taskToConfirm as ITask).isCompleted === TaskStatus.CONFIRMED) {
     return res.status(403).send({ message: "Task is already confirmed" });
   }
-  if ((taskToConfirm as ITask).isCompleted === TaskStatus.Canceled) {
+  if ((taskToConfirm as ITask).isCompleted === TaskStatus.CANCELED) {
     return res.status(403).send({ message: "Task is already canceled" });
   }
   const confirmedTask = await TaskModel.findByIdAndUpdate(
     req.params.taskId,
     {
-      $set: { isCompleted: TaskStatus.Confirmed },
+      $set: { isCompleted: TaskStatus.CONFIRMED },
     },
     { new: true }
   );
@@ -173,16 +173,16 @@ export const cancelTask = async (req: Request, res: Response) => {
   if (!childToUpdateId) {
     return res.status(404).send({ message: "Child not found" });
   }
-  if ((taskToDecline as ITask).isCompleted === TaskStatus.Canceled) {
+  if ((taskToDecline as ITask).isCompleted === TaskStatus.CANCELED) {
     return res.status(403).send({ message: "Task is already canceled" });
   }
-  if ((taskToDecline as ITask).isCompleted === TaskStatus.Confirmed) {
+  if ((taskToDecline as ITask).isCompleted === TaskStatus.CONFIRMED) {
     return res.status(403).send({ message: "Task is already confirmed" });
   }
   const canceledTask = await TaskModel.findByIdAndUpdate(
     req.params.taskId,
     {
-      $set: { isCompleted: TaskStatus.Canceled },
+      $set: { isCompleted: TaskStatus.CANCELED },
     },
     { new: true }
   );
@@ -202,13 +202,13 @@ export const resetTask = async (req: Request, res: Response) => {
   if (!taskToReset) {
     return res.status(404).send({ message: "Task not found" });
   }
-  if ((taskToReset as ITask).isCompleted === TaskStatus.Unknown) {
+  if ((taskToReset as ITask).isCompleted === TaskStatus.UNKNOWN) {
     return res.status(403).send({ message: "Task has been already reset" });
   }
   const unknownTask = await TaskModel.findByIdAndUpdate(
     req.params.taskId,
     {
-      $set: { isCompleted: TaskStatus.Unknown },
+      $set: { isCompleted: TaskStatus.UNKNOWN },
     },
     { new: true }
   );

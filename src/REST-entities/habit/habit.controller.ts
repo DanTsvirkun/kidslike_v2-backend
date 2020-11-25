@@ -5,7 +5,7 @@ import {
   IParent,
   IChild,
   IHabit,
-  IHabitDays, 
+  IHabitDays,
 } from "../../helpers/typescript-helpers/interfaces";
 import HabitModel from "./habit.model";
 import ChildModel from "../child/child.model";
@@ -30,7 +30,7 @@ export const addHabit = async (req: Request, res: Response) => {
   for (let i = 0; i < 10; i++) {
     habitDays.push({
       date: date.plus({ days: i }).toLocaleString(),
-      isCompleted: TaskStatus.Unknown,
+      isCompleted: TaskStatus.UNKNOWN,
     });
   }
   const habit = await HabitModel.create({
@@ -114,12 +114,12 @@ export const habitDayConfirmed = async (req: Request, res: Response) => {
     (day) => day.date === date
   );
   if (completedDay) {
-    if (completedDay.isCompleted === TaskStatus.Confirmed) {
+    if (completedDay.isCompleted === TaskStatus.CONFIRMED) {
       return res
         .status(403)
         .send({ message: "This day has already been confirmed" });
     }
-    if (completedDay.isCompleted === TaskStatus.Canceled) {
+    if (completedDay.isCompleted === TaskStatus.CANCELED) {
       return res
         .status(403)
         .send({ message: "This day has already been canceled" });
@@ -131,13 +131,13 @@ export const habitDayConfirmed = async (req: Request, res: Response) => {
   }
   const updatedHabit = await HabitModel.findOneAndUpdate(
     { _id: req.params.habitId, "days.date": date },
-    { $set: { "days.$.isCompleted": TaskStatus.Confirmed } },
+    { $set: { "days.$.isCompleted": TaskStatus.CONFIRMED } },
     { new: true }
   );
   let updatedRewards: number;
   if (
     (updatedHabit as IHabit).days.every(
-      (day) => day.isCompleted === TaskStatus.Confirmed
+      (day) => day.isCompleted === TaskStatus.CONFIRMED
     )
   ) {
     updatedRewards =
@@ -177,12 +177,12 @@ export const habitDayCanceled = async (req: Request, res: Response) => {
     (day) => day.date === date
   );
   if (completedDay) {
-    if (completedDay.isCompleted === TaskStatus.Canceled) {
+    if (completedDay.isCompleted === TaskStatus.CANCELED) {
       return res
         .status(403)
         .send({ message: "This day has already been canceled" });
     }
-    if (completedDay.isCompleted === TaskStatus.Confirmed) {
+    if (completedDay.isCompleted === TaskStatus.CONFIRMED) {
       return res
         .status(403)
         .send({ message: "This day has already been confirmed" });
@@ -194,7 +194,7 @@ export const habitDayCanceled = async (req: Request, res: Response) => {
   }
   const updatedHabit = await HabitModel.findOneAndUpdate(
     { _id: req.params.habitId, "days.date": date },
-    { $set: { "days.$.isCompleted": TaskStatus.Canceled } },
+    { $set: { "days.$.isCompleted": TaskStatus.CANCELED } },
     { new: true }
   );
   return res.status(200).send({ updatedHabit });

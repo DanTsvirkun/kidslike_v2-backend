@@ -1,16 +1,16 @@
 export enum Gender {
-  Male = "male",
-  Female = "female",
+  MALE = "male",
+  FEMALE = "female",
 }
 
 export enum ReqBodyParts {
-  Body = "body",
-  Params = "params",
-  Query = "query",
+  BODY = "body",
+  PARAMS = "params",
+  QUERY = "query",
 }
 
 export enum TaskStatus {
-  Unknown = "unknown",
-  Confirmed = "confirmed",
-  Canceled = "canceled",
+  UNKNOWN = "unknown",
+  CONFIRMED = "confirmed",
+  CANCELED = "canceled",
 }

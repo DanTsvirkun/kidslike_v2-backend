@@ -3,6 +3,7 @@ import supertest, { Response } from "supertest";
 import { Application } from "express";
 import Server from "../../server/server";
 import { IChild, ITask } from "../../helpers/typescript-helpers/interfaces";
+import { Gender } from "../../helpers/typescript-helpers/enums";
 import UserModel from "../user/user.model";
 import SessionModel from "../session/session.model";
 import ChildModel from "../child/child.model";
@@ -52,11 +53,11 @@ describe("Task router test suite", () => {
     thirdResponse = await supertest(app)
       .post("/child")
       .set("Authorization", `Bearer ${accessToken}`)
-      .send({ name: "Test", gender: "male" });
+      .send({ name: "Test", gender: Gender.MALE });
     fourthResponse = await supertest(app)
       .post("/child")
       .set("Authorization", `Bearer ${secondAccessToken}`)
-      .send({ name: "Test", gender: "female" });
+      .send({ name: "Test", gender: Gender.FEMALE });
     createdChild = await ChildModel.findById(thirdResponse.body._id);
     secondCreatedChild = await ChildModel.findById(fourthResponse.body._id);
   });
@@ -239,6 +240,19 @@ describe("Task router test suite", () => {
 
       it("Should say that child wasn't found", () => {
         expect(response.body.message).toBe("Child not found");
+      });
+    });
+
+    context("With invalid id", () => {
+      beforeAll(async () => {
+        response = await supertest(app)
+          .post("/task/qwerty123")
+          .set("Authorization", `Bearer ${accessToken}`)
+          .send(validReqBody);
+      });
+
+      it("Should return a 400 status code", () => {
+        expect(response.status).toBe(400);
       });
     });
   });
@@ -457,6 +471,19 @@ describe("Task router test suite", () => {
         expect(response.body.message).toBe("Child not found");
       });
     });
+
+    context("With invalid id", () => {
+      beforeAll(async () => {
+        response = await supertest(app)
+          .patch("/task/qwerty123")
+          .set("Authorization", `Bearer ${accessToken}`)
+          .send(validReqBody);
+      });
+
+      it("Should return a 400 status code", () => {
+        expect(response.status).toBe(400);
+      });
+    });
   });
 
   describe("PATCH /task/confirm/{taskId}", () => {
@@ -491,7 +518,7 @@ describe("Task router test suite", () => {
       });
 
       it("Should confirm a task in DB", () => {
-        expect((confirmedTask as ITask).isCompleted).toBe(TaskStatus.Confirmed);
+        expect((confirmedTask as ITask).isCompleted).toBe(TaskStatus.CONFIRMED);
       });
     });
 
@@ -558,6 +585,18 @@ describe("Task router test suite", () => {
         expect(response.body.message).toBe("Child not found");
       });
     });
+
+    context("With invalid id", () => {
+      beforeAll(async () => {
+        response = await supertest(app)
+          .patch("/task/confirm/qwerty123")
+          .set("Authorization", `Bearer ${accessToken}`);
+      });
+
+      it("Should return a 400 status code", () => {
+        expect(response.status).toBe(400);
+      });
+    });
   });
 
   describe("PATCH /task/cancel/{taskId}", () => {
@@ -593,7 +632,7 @@ describe("Task router test suite", () => {
       });
 
       it("Should cancel a task in DB", () => {
-        expect((canceledTask as ITask).isCompleted).toBe(TaskStatus.Canceled);
+        expect((canceledTask as ITask).isCompleted).toBe(TaskStatus.CANCELED);
       });
     });
 
@@ -660,6 +699,18 @@ describe("Task router test suite", () => {
         expect(response.body.message).toBe("Child not found");
       });
     });
+
+    context("With invalid id", () => {
+      beforeAll(async () => {
+        response = await supertest(app)
+          .patch("/task/cancel/qwerty123")
+          .set("Authorization", `Bearer ${accessToken}`);
+      });
+
+      it("Should return a 400 status code", () => {
+        expect(response.status).toBe(400);
+      });
+    });
   });
 
   describe("PATCH /task/reset/{taskId}", () => {
@@ -691,7 +742,7 @@ describe("Task router test suite", () => {
       });
 
       it("Should update a task in DB", () => {
-        expect((unknownTask as ITask).isCompleted).toBe(TaskStatus.Unknown);
+        expect((unknownTask as ITask).isCompleted).toBe(TaskStatus.UNKNOWN);
       });
     });
 
@@ -756,6 +807,18 @@ describe("Task router test suite", () => {
 
       it("Should say that child wasn't found", () => {
         expect(response.body.message).toBe("Child not found");
+      });
+    });
+
+    context("With invalid id", () => {
+      beforeAll(async () => {
+        response = await supertest(app)
+          .patch("/task/reset/qwerty123")
+          .set("Authorization", `Bearer ${accessToken}`);
+      });
+
+      it("Should return a 400 status code", () => {
+        expect(response.status).toBe(400);
       });
     });
   });
@@ -842,6 +905,18 @@ describe("Task router test suite", () => {
 
       it("Should say that child wasn't found", () => {
         expect(response.body.message).toBe("Child not found");
+      });
+    });
+
+    context("With invalid id", () => {
+      beforeAll(async () => {
+        response = await supertest(app)
+          .delete("/task/qwerty123")
+          .set("Authorization", `Bearer ${accessToken}`);
+      });
+
+      it("Should return a 400 status code", () => {
+        expect(response.status).toBe(400);
       });
     });
   });

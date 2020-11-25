@@ -3,6 +3,7 @@ import supertest, { Response } from "supertest";
 import { Application } from "express";
 import Server from "../../server/server";
 import { IParent, IChild } from "../../helpers/typescript-helpers/interfaces";
+import { Gender } from "../../helpers/typescript-helpers/enums";
 import UserModel from "../user/user.model";
 import SessionModel from "../session/session.model";
 import ChildModel from "./child.model";
@@ -46,7 +47,7 @@ describe("Child router test suite", () => {
 
     const validReqBody = {
       name: "Test",
-      gender: "male",
+      gender: Gender.MALE,
     };
 
     const invalidReqBody = {

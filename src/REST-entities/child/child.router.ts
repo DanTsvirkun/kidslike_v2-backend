@@ -4,10 +4,11 @@ import validate from "../../helpers/function-helpers/validate";
 import { authorize } from "../../auth/auth.controller";
 import { addChild } from "./child.controller";
 import tryCatchWrapper from "../../helpers/function-helpers/try-catch-wrapper";
+import { Gender } from "../../helpers/typescript-helpers/enums";
 
 const addChildSchema = Joi.object({
   name: Joi.string().required(),
-  gender: Joi.string().valid("male", "female").required(),
+  gender: Joi.string().valid(Gender.MALE, Gender.FEMALE).required(),
 });
 
 const router = Router();
