@@ -19,20 +19,9 @@ export const addTask = async (req: Request, res: Response) => {
   if (!childToUpdateId) {
     return res.status(404).send({ message: "Child not found" });
   }
-  if (!(req.body.reward >= 1)) {
-    return res
-      .status(400)
-      .send({ message: "reward must be greater or equal to 1" });
-  }
   const currentDate = DateTime.local();
   let endDate: DateTime;
   if (req.body.daysToComplete || req.body.daysToComplete === 0) {
-    // @ts-ignore
-    if (!(req.body.daysToComplete >= 1)) {
-      return res
-        .status(400)
-        .send({ message: "daysToComplete must be greater or equal to 1" });
-    }
     endDate = currentDate.plus({ days: req.body.daysToComplete });
     const task = await TaskModel.create({
       ...req.body,
@@ -68,11 +57,6 @@ export const editTask = async (req: Request, res: Response) => {
   if (!childToUpdate) {
     return res.status(404).send({ message: "Child not found" });
   }
-  if ((req.body.reward || req.body.reward === 0) && !(req.body.reward >= 1)) {
-    return res
-      .status(400)
-      .send({ message: "reward must be greater or equal to 1" });
-  }
   const currentDate = DateTime.local();
   let endDate: DateTime;
   if (req.body.daysToComplete || req.body.daysToComplete === 0) {
@@ -80,7 +64,7 @@ export const editTask = async (req: Request, res: Response) => {
     if (!(req.body.daysToComplete >= 1)) {
       return res
         .status(400)
-        .send({ message: "daysToComplete must be greater or equal to 1" });
+        .send({ message: "daysToComplete must be greater than or equal to 1" });
     }
     endDate = currentDate.plus({ days: req.body.daysToComplete });
     const newTask: ITask = {

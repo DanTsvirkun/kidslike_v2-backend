@@ -15,20 +15,22 @@ import { multerMid } from "../../helpers/function-helpers/multer-config";
 
 const addGiftSchema = Joi.object({
   name: Joi.string().required(),
-  price: Joi.number().required(),
+  price: Joi.number().required().min(1),
 });
 
 const editGiftSchema = Joi.object({
   name: Joi.string(),
-  price: Joi.number(),
-}).min(1);
+  price: Joi.number().min(1),
+});
 
 const addGiftIdSchema = Joi.object({
   childId: Joi.string()
     .custom((value, helpers) => {
       const isValidObjectId = mongoose.Types.ObjectId.isValid(value);
       if (!isValidObjectId) {
-        return helpers.error("Invalid child id. Must be MongoDB object id");
+        return helpers.message({
+          custom: "Invalid 'childId'. Must be MongoDB ObjectId",
+        });
       }
       return value;
     })
@@ -40,7 +42,9 @@ const editOrDeleteGiftIdSchema = Joi.object({
     .custom((value, helpers) => {
       const isValidObjectId = mongoose.Types.ObjectId.isValid(value);
       if (!isValidObjectId) {
-        return helpers.error("Invalid gift id. Must be MongoDB object id");
+        return helpers.message({
+          custom: "Invalid 'giftId'. Must be MongoDB ObjectId",
+        });
       }
       return value;
     })

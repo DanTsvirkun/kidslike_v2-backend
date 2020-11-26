@@ -15,12 +15,12 @@ import {
 
 const addHabitSchema = Joi.object({
   name: Joi.string().required(),
-  rewardPerDay: Joi.number().required(),
+  rewardPerDay: Joi.number().required().min(1),
 });
 
 const editHabitSchema = Joi.object({
   name: Joi.string(),
-  rewardPerDay: Joi.number(),
+  rewardPerDay: Joi.number().min(1),
 }).min(1);
 
 const addHabitIdSchema = Joi.object({
@@ -28,7 +28,9 @@ const addHabitIdSchema = Joi.object({
     .custom((value, helpers) => {
       const isValidObjectId = mongoose.Types.ObjectId.isValid(value);
       if (!isValidObjectId) {
-        return helpers.error("Invalid child id. Must be MongoDB object id");
+        return helpers.message({
+          custom: "Invalid 'childId'. Must be MongoDB ObjectId",
+        });
       }
       return value;
     })
@@ -40,7 +42,9 @@ const editOrDeleteHabitIdSchema = Joi.object({
     .custom((value, helpers) => {
       const isValidObjectId = mongoose.Types.ObjectId.isValid(value);
       if (!isValidObjectId) {
-        return helpers.error("Invalid habit id. Must be MongoDB object id");
+        return helpers.message({
+          custom: "Invalid 'habitId'. Must be MongoDB ObjectId",
+        });
       }
       return value;
     })

@@ -16,14 +16,14 @@ import tryCatchWrapper from "../../helpers/function-helpers/try-catch-wrapper";
 
 const addTaskSchema = Joi.object({
   name: Joi.string().required(),
-  reward: Joi.number().required(),
-  daysToComplete: Joi.number(),
+  reward: Joi.number().required().min(1),
+  daysToComplete: Joi.number().min(1),
 });
 
 const editTaskSchema = Joi.object({
   name: Joi.string(),
-  reward: Joi.number(),
-  daysToComplete: Joi.number(),
+  reward: Joi.number().min(1),
+  daysToComplete: Joi.number().min(1),
 }).min(1);
 
 const addTaskIdSchema = Joi.object({
@@ -31,7 +31,9 @@ const addTaskIdSchema = Joi.object({
     .custom((value, helpers) => {
       const isValidObjectId = mongoose.Types.ObjectId.isValid(value);
       if (!isValidObjectId) {
-        return helpers.error("Invalid child id. Must be MongoDB object id");
+        return helpers.message({
+          custom: "Invalid 'childId'. Must be MongoDB ObjectId",
+        });
       }
       return value;
     })
@@ -43,7 +45,9 @@ const editOrDeleteTaskIdSchema = Joi.object({
     .custom((value, helpers) => {
       const isValidObjectId = mongoose.Types.ObjectId.isValid(value);
       if (!isValidObjectId) {
-        return helpers.error("Invalid task id. Must be MongoDB object id");
+        return helpers.message({
+          custom: "Invalid 'taskId'. Must be MongoDB ObjectId",
+        });
       }
       return value;
     })

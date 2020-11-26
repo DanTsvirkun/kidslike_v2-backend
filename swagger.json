@@ -34,6 +34,10 @@
     {
       "name": "Auth",
       "description": "Authorization endpoints"
+    },
+    {
+      "name": "User",
+      "description": "User endpoints"
     }
   ],
   "paths": {
@@ -1036,6 +1040,37 @@
             "schema": {
               "$ref": "#/components/schemas/AfterLogin"
             }
+          }
+        }
+      }
+    },
+    "/user": {
+      "delete": {
+        "tags": ["User"],
+        "summary": "Clear all your info",
+        "parameters": [
+          {
+            "name": "Request body",
+            "description": "Request body with your email and password",
+            "in": "body",
+            "schema": {
+              "$ref": "#/components/schemas/Login"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful operation",
+            "content": {}
+          },
+          "400": {
+            "description": "Bad request (invalid request body) / No token provided",
+            "content": {}
+          },
+          "401": {
+            "description": "Unauthorized (invalid access token)",
+            "content": {}
           }
         }
       }

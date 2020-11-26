@@ -8,6 +8,7 @@ import childRouter from "../REST-entities/child/child.router";
 import taskRouter from "../REST-entities/task/task.router";
 import habitRouter from "../REST-entities/habit/habit.router";
 import giftRouter from "../REST-entities/gift/gift.router";
+import userRouter from "../REST-entities/user/user.router";
 require("dotenv").config({ path: path.join(__dirname, "../../.env") });
 const swaggerDocument = require("../../swagger.json");
 
@@ -65,6 +66,7 @@ export default class Server {
     this.app.use("/task", taskRouter);
     this.app.use("/habit", habitRouter);
     this.app.use("/gift", giftRouter);
+    this.app.use("/user", userRouter);
     this.app.use(
       "/api-docs",
       swaggerUi.serve,

@@ -134,7 +134,7 @@ describe("Habit router test suite", () => {
       });
     });
 
-    context("Without providing an accessToken", () => {
+    context("Without providing 'accessToken'", () => {
       beforeAll(async () => {
         response = await supertest(app)
           .post(`/habit/${(createdChild as IChild)._id}`)
@@ -167,7 +167,7 @@ describe("Habit router test suite", () => {
       });
     });
 
-    context("With invalidReqBody", () => {
+    context("With invalidReqBody ('rewardPerDay' = 0)", () => {
       beforeAll(async () => {
         response = await supertest(app)
           .post(`/habit/${(createdChild as IChild)._id}`)
@@ -179,14 +179,14 @@ describe("Habit router test suite", () => {
         expect(response.status).toBe(400);
       });
 
-      it("Should say that rewardPerDay must be greater or equal to 1", () => {
+      it("Should say that 'rewardPerDay' must be greater than or equal to 1", () => {
         expect(response.body.message).toBe(
-          "rewardPerDay must be greater or equal to 1"
+          '"rewardPerDay" must be greater than or equal to 1'
         );
       });
     });
 
-    context("With secondInvalidReqBody", () => {
+    context("With secondInvalidReqBody (no 'rewardPerDay' provided)", () => {
       beforeAll(async () => {
         response = await supertest(app)
           .post(`/habit/${(createdChild as IChild)._id}`)
@@ -196,6 +196,10 @@ describe("Habit router test suite", () => {
 
       it("Should return a 400 status code", () => {
         expect(response.status).toBe(400);
+      });
+
+      it("Should say that 'rewardPerDay' is required", () => {
+        expect(response.body.message).toBe('"rewardPerDay" is required');
       });
     });
 
@@ -216,7 +220,7 @@ describe("Habit router test suite", () => {
       });
     });
 
-    context("With invalid id", () => {
+    context("With invalid 'habitId'", () => {
       beforeAll(async () => {
         response = await supertest(app)
           .post("/habit/qwerty123")
@@ -226,6 +230,12 @@ describe("Habit router test suite", () => {
 
       it("Should return a 400 status code", () => {
         expect(response.status).toBe(400);
+      });
+
+      it("Should say that 'childId' is invalid", () => {
+        expect(response.body.message).toBe(
+          "Invalid 'childId'. Must be MongoDB ObjectId"
+        );
       });
     });
   });
@@ -261,7 +271,7 @@ describe("Habit router test suite", () => {
       });
     });
 
-    context("Without providing an accessToken", () => {
+    context("Without providing 'accessToken'", () => {
       beforeAll(async () => {
         response = await supertest(app).get("/habit");
       });
@@ -275,7 +285,7 @@ describe("Habit router test suite", () => {
       });
     });
 
-    context("With invalid accessToken", () => {
+    context("With invalid 'accessToken'", () => {
       beforeAll(async () => {
         response = await supertest(app).get("/habit");
       });
@@ -337,7 +347,7 @@ describe("Habit router test suite", () => {
       });
     });
 
-    context("With invalidReqBody", () => {
+    context("With invalidReqBody (no fields provided)", () => {
       beforeAll(async () => {
         response = await supertest(app)
           .patch(`/habit/${(createdHabit as IHabit)._id}`)
@@ -348,9 +358,13 @@ describe("Habit router test suite", () => {
       it("Should return a 400 status code", () => {
         expect(response.status).toBe(400);
       });
+
+      it("Should say that at least one field is required", () => {
+        expect(response.body.message).toBe('"value" must have at least 1 key');
+      });
     });
 
-    context("Without providing an accessToken", () => {
+    context("Without providing 'accessToken'", () => {
       beforeAll(async () => {
         response = await supertest(app)
           .patch(`/habit/${(createdHabit as IHabit)._id}`)
@@ -383,7 +397,7 @@ describe("Habit router test suite", () => {
       });
     });
 
-    context("With secondInvalidReqBody", () => {
+    context("With secondInvalidReqBody ('rewardPerDay' = 0)", () => {
       beforeAll(async () => {
         response = await supertest(app)
           .patch(`/habit/${(createdHabit as IHabit)._id}`)
@@ -398,9 +412,9 @@ describe("Habit router test suite", () => {
         expect(response.status).toBe(400);
       });
 
-      it("Should say that rewardPerDay must be greater or equal to 1", () => {
+      it("Should say that 'rewardPerDay' must be greater than or equal to 1", () => {
         expect(response.body.message).toBe(
-          "rewardPerDay must be greater or equal to 1"
+          '"rewardPerDay" must be greater than or equal to 1'
         );
       });
     });
@@ -422,7 +436,7 @@ describe("Habit router test suite", () => {
       });
     });
 
-    context("With invalid id", () => {
+    context("With invalid 'habitId'", () => {
       beforeAll(async () => {
         response = await supertest(app)
           .patch("/habit/qwerty123")
@@ -432,6 +446,12 @@ describe("Habit router test suite", () => {
 
       it("Should return a 400 status code", () => {
         expect(response.status).toBe(400);
+      });
+
+      it("Should say that 'habitId' is invalid", () => {
+        expect(response.body.message).toBe(
+          "Invalid 'habitId'. Must be MongoDB ObjectId"
+        );
       });
     });
   });
@@ -473,7 +493,7 @@ describe("Habit router test suite", () => {
       });
     });
 
-    context("Without providing an accessToken", () => {
+    context("Without providing 'accessToken'", () => {
       beforeAll(async () => {
         response = await supertest(app).patch(
           `/habit/confirm/${(createdHabit as IHabit)._id}`
@@ -542,7 +562,7 @@ describe("Habit router test suite", () => {
       });
     });
 
-    context("With invalid id", () => {
+    context("With invalid 'habitId'", () => {
       beforeAll(async () => {
         response = await supertest(app)
           .patch("/habit/confirm/qwerty123")
@@ -551,6 +571,12 @@ describe("Habit router test suite", () => {
 
       it("Should return a 400 status code", () => {
         expect(response.status).toBe(400);
+      });
+
+      it("Should say that 'habitId' is invalid", () => {
+        expect(response.body.message).toBe(
+          "Invalid 'habitId'. Must be MongoDB ObjectId"
+        );
       });
     });
   });
@@ -594,7 +620,7 @@ describe("Habit router test suite", () => {
       });
     });
 
-    context("Without providing an accessToken", () => {
+    context("Without providing 'accessToken'", () => {
       beforeAll(async () => {
         response = await supertest(app).patch(
           `/habit/cancel/${(secondHabit as IHabit)._id}`
@@ -660,7 +686,7 @@ describe("Habit router test suite", () => {
       });
     });
 
-    context("With invalid id", () => {
+    context("With invalid 'habitId'", () => {
       beforeAll(async () => {
         response = await supertest(app)
           .patch("/habit/cancel/qwerty123")
@@ -669,6 +695,12 @@ describe("Habit router test suite", () => {
 
       it("Should return a 400 status code", () => {
         expect(response.status).toBe(400);
+      });
+
+      it("Should say that 'habitId' is invalid", () => {
+        expect(response.body.message).toBe(
+          "Invalid 'habitId'. Must be MongoDB ObjectId"
+        );
       });
     });
   });
@@ -707,7 +739,7 @@ describe("Habit router test suite", () => {
       });
     });
 
-    context("Without providing an accessToken", () => {
+    context("Without providing 'accessToken'", () => {
       beforeAll(async () => {
         response = await supertest(app).delete(
           `/habit/${createdHabit as IHabit}._id`
@@ -758,7 +790,7 @@ describe("Habit router test suite", () => {
       });
     });
 
-    context("With invalid id", () => {
+    context("With invalid 'habitId'", () => {
       beforeAll(async () => {
         response = await supertest(app)
           .delete("/habit/qwerty123")
@@ -767,6 +799,12 @@ describe("Habit router test suite", () => {
 
       it("Should return a 400 status code", () => {
         expect(response.status).toBe(400);
+      });
+
+      it("Should say that 'habitId' is invalid", () => {
+        expect(response.body.message).toBe(
+          "Invalid 'habitId'. Must be MongoDB ObjectId"
+        );
       });
     });
   });

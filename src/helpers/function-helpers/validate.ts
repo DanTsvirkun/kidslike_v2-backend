@@ -7,7 +7,7 @@ export default (schema: ObjectSchema, reqPart = "body"): ControllerFunction => {
   return (req: Request, res: Response, next: NextFunction) => {
     const validationResult = schema.validate(req[reqPart as ReqBodyParts]);
     if (validationResult.error) {
-      return res.status(400).send(validationResult.error);
+      return res.status(400).send({ message: validationResult.error.message });
     }
     next();
   };

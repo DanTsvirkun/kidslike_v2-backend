@@ -20,11 +20,6 @@ export const addHabit = async (req: Request, res: Response) => {
   if (!childToUpdateId) {
     return res.status(404).send({ message: "Child not found" });
   }
-  if (!(req.body.rewardPerDay >= 1)) {
-    return res
-      .status(400)
-      .send({ message: "rewardPerDay must be greater or equal to 1" });
-  }
   const habitDays: IHabitDays[] = [];
   const date = DateTime.local();
   for (let i = 0; i < 10; i++) {
@@ -56,14 +51,6 @@ export const editHabit = async (req: Request, res: Response) => {
   );
   if (!childToUpdate) {
     return res.status(404).send({ message: "Child not found" });
-  }
-  if (
-    (req.body.rewardPerDay || req.body.rewardPerDay === 0) &&
-    !(req.body.rewardPerDay >= 1)
-  ) {
-    return res
-      .status(400)
-      .send({ message: "rewardPerDay must be greater or equal to 1" });
   }
   const newHabit: IHabit = { ...habitToEdit.toObject(), ...req.body };
   await HabitModel.findByIdAndUpdate(req.params.habitId, newHabit, {

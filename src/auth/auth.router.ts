@@ -31,7 +31,9 @@ const refreshTokensSchema = Joi.object({
     .custom((value, helpers) => {
       const isValidObjectId = mongoose.Types.ObjectId.isValid(value);
       if (!isValidObjectId) {
-        return helpers.error("Invalid session id. Must be MongoDB object id");
+        return helpers.message({
+          custom: "Invalid 'sid'. Must be MongoDB ObjectId",
+        });
       }
       return value;
     })

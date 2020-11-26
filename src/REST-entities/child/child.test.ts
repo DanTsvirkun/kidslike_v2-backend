@@ -101,7 +101,7 @@ describe("Child router test suite", () => {
       });
     });
 
-    context("With invalidReqBody", () => {
+    context("With invalidReqBody (no 'gender' provided)", () => {
       beforeAll(async () => {
         response = await supertest(app)
           .post("/child")
@@ -112,9 +112,13 @@ describe("Child router test suite", () => {
       it("Should return a 400 status code", () => {
         expect(response.status).toBe(400);
       });
+
+      it("Should say that 'gender' is required", () => {
+        expect(response.body.message).toBe('"gender" is required');
+      });
     });
 
-    context("Without providing an accessToken", () => {
+    context("Without providing 'accessToken'", () => {
       beforeAll(async () => {
         response = await supertest(app).post("/child").send(validReqBody);
       });

@@ -90,7 +90,7 @@ describe("Auth router test suite", () => {
       });
     });
 
-    context("With invalidReqBody (no username provided)", () => {
+    context("With invalidReqBody (no 'username' provided)", () => {
       beforeAll(async () => {
         response = await supertest(app)
           .post("/auth/register")
@@ -99,6 +99,10 @@ describe("Auth router test suite", () => {
 
       it("Should return a 400 status code", () => {
         expect(response.status).toBe(400);
+      });
+
+      it("Should say that 'username' is required", () => {
+        expect(response.body.message).toBe('"username" is required');
       });
     });
   });
@@ -184,6 +188,10 @@ describe("Auth router test suite", () => {
       it("Should return a 400 status code", () => {
         expect(response.status).toBe(400);
       });
+
+      it("Should say that 'password' is required", () => {
+        expect(response.body.message).toBe('"password" is required');
+      });
     });
 
     context("With secondInvalidReqBody (wrong password)", () => {
@@ -242,7 +250,7 @@ describe("Auth router test suite", () => {
       expect(true).toBe(true);
     });
 
-    context("With invalidReqBody (no sid provided)", () => {
+    context("With invalidReqBody (invalid 'sid' type)", () => {
       beforeAll(async () => {
         response = await supertest(app)
           .get("/auth/refresh")
@@ -253,9 +261,13 @@ describe("Auth router test suite", () => {
       it("Should return a 400 status code", () => {
         expect(response.status).toBe(400);
       });
+
+      it("Should say that 'sid' is required", () => {
+        expect(response.body.message).toBe('"sid" must be a string');
+      });
     });
 
-    context("Without providing refreshToken", () => {
+    context("Without providing 'refreshToken'", () => {
       beforeAll(async () => {
         validReqBody.sid = sid;
         response = await supertest(app).get("/auth/refresh").send(validReqBody);
@@ -301,7 +313,7 @@ describe("Auth router test suite", () => {
       });
     });
 
-    context("With secondInvalidReqBody (invalid sid)", () => {
+    context("With secondInvalidReqBody (invalid 'sid')", () => {
       beforeAll(async () => {
         response = await supertest(app)
           .get("/auth/refresh")
@@ -311,6 +323,12 @@ describe("Auth router test suite", () => {
 
       it("Should return a 400 status code", () => {
         expect(response.status).toBe(400);
+      });
+
+      it("Should say that 'sid' is invalid", () => {
+        expect(response.body.message).toBe(
+          "Invalid 'sid'. Must be MongoDB ObjectId"
+        );
       });
     });
 
@@ -366,7 +384,7 @@ describe("Auth router test suite", () => {
       });
     });
 
-    context("Without providing an accessToken", () => {
+    context("Without providing 'accessToken'", () => {
       beforeAll(async () => {
         response = await supertest(app).post("/auth/logout");
       });

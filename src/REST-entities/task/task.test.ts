@@ -142,7 +142,7 @@ describe("Task router test suite", () => {
       });
     });
 
-    context("Without providing an accessToken", () => {
+    context("Without providing 'accessToken'", () => {
       beforeAll(async () => {
         response = await supertest(app)
           .post(`/task/${(createdChild as IChild)._id}`)
@@ -175,7 +175,7 @@ describe("Task router test suite", () => {
       });
     });
 
-    context("With invalidReqBody", () => {
+    context("With invalidReqBody ('reward' = 0)", () => {
       beforeAll(async () => {
         response = await supertest(app)
           .post(`/task/${(createdChild as IChild)._id}`)
@@ -187,14 +187,14 @@ describe("Task router test suite", () => {
         expect(response.status).toBe(400);
       });
 
-      it("Should say that reward must be greater or equal to 1", () => {
+      it("Should say that 'reward' must be greater than or equal to 1", () => {
         expect(response.body.message).toBe(
-          "reward must be greater or equal to 1"
+          '"reward" must be greater than or equal to 1'
         );
       });
     });
 
-    context("With secondInvalidReqBody", () => {
+    context("With secondInvalidReqBody ('daysToComplete' = 0)", () => {
       beforeAll(async () => {
         response = await supertest(app)
           .post(`/task/${(createdChild as IChild)._id}`)
@@ -206,14 +206,14 @@ describe("Task router test suite", () => {
         expect(response.status).toBe(400);
       });
 
-      it("Should say that daysToComplete must be greater or equal to 1", () => {
+      it("Should say that 'daysToComplete' must be greater than or equal to 1", () => {
         expect(response.body.message).toBe(
-          "daysToComplete must be greater or equal to 1"
+          '"daysToComplete" must be greater than or equal to 1'
         );
       });
     });
 
-    context("With thirdInvalidReqBody", () => {
+    context("With thirdInvalidReqBody (no 'reward' provided)", () => {
       beforeAll(async () => {
         response = await supertest(app)
           .post(`/task/${(createdChild as IChild)._id}`)
@@ -223,6 +223,10 @@ describe("Task router test suite", () => {
 
       it("Should return a 400 status code", () => {
         expect(response.status).toBe(400);
+      });
+
+      it("Should say that 'reward' is required", () => {
+        expect(response.body.message).toBe('"reward" is required');
       });
     });
 
@@ -243,7 +247,7 @@ describe("Task router test suite", () => {
       });
     });
 
-    context("With invalid id", () => {
+    context("With invalid 'taskId'", () => {
       beforeAll(async () => {
         response = await supertest(app)
           .post("/task/qwerty123")
@@ -253,6 +257,12 @@ describe("Task router test suite", () => {
 
       it("Should return a 400 status code", () => {
         expect(response.status).toBe(400);
+      });
+
+      it("Should say that 'childId' is invalid", () => {
+        expect(response.body.message).toBe(
+          "Invalid 'childId'. Must be MongoDB ObjectId"
+        );
       });
     });
   });
@@ -289,7 +299,7 @@ describe("Task router test suite", () => {
       });
     });
 
-    context("Without providing an accessToken", () => {
+    context("Without providing 'accessToken'", () => {
       beforeAll(async () => {
         response = await supertest(app).get("/task");
       });
@@ -371,7 +381,7 @@ describe("Task router test suite", () => {
       });
     });
 
-    context("With invalidReqBody", () => {
+    context("With invalidReqBody (no fields provided)", () => {
       beforeAll(async () => {
         response = await supertest(app)
           .patch(`/task/${(createdTask as ITask)._id}`)
@@ -382,9 +392,13 @@ describe("Task router test suite", () => {
       it("Should return a 400 status code", () => {
         expect(response.status).toBe(400);
       });
+
+      it("Should say that at least one field is required", () => {
+        expect(response.body.message).toBe('"value" must have at least 1 key');
+      });
     });
 
-    context("Without providing an accessToken", () => {
+    context("Without providing 'accessToken'", () => {
       beforeAll(async () => {
         response = await supertest(app)
           .patch(`/task/${(createdTask as ITask)._id}`)
@@ -417,7 +431,7 @@ describe("Task router test suite", () => {
       });
     });
 
-    context("With secondInvalidReqBody", () => {
+    context("With secondInvalidReqBody ('reward' = 0)", () => {
       beforeAll(async () => {
         response = await supertest(app)
           .patch(`/task/${(createdTask as ITask)._id}`)
@@ -429,14 +443,14 @@ describe("Task router test suite", () => {
         expect(response.status).toBe(400);
       });
 
-      it("Should say that reward must be greater or equal to 1", () => {
+      it("Should say that 'reward' must be greater than or equal to 1", () => {
         expect(response.body.message).toBe(
-          "reward must be greater or equal to 1"
+          '"reward" must be greater than or equal to 1'
         );
       });
     });
 
-    context("With thirdInvalidReqBody", () => {
+    context("With thirdInvalidReqBody ('daysToComplete' = 0)", () => {
       beforeAll(async () => {
         response = await supertest(app)
           .patch(`/task/${(createdTask as ITask)._id}`)
@@ -448,9 +462,9 @@ describe("Task router test suite", () => {
         expect(response.status).toBe(400);
       });
 
-      it("Should say that daysToComplete must be greater or equal to 1", () => {
+      it("Should say that 'daysToComplete' must be greater than or equal to 1", () => {
         expect(response.body.message).toBe(
-          "daysToComplete must be greater or equal to 1"
+          '"daysToComplete" must be greater than or equal to 1'
         );
       });
     });
@@ -460,7 +474,7 @@ describe("Task router test suite", () => {
         response = await supertest(app)
           .patch(`/task/${(createdTask as ITask)._id}`)
           .set("Authorization", `Bearer ${secondAccessToken}`)
-          .send(thirdInvalidReqBody);
+          .send(validReqBody);
       });
 
       it("Should return a 404 status code", () => {
@@ -472,7 +486,7 @@ describe("Task router test suite", () => {
       });
     });
 
-    context("With invalid id", () => {
+    context("With invalid 'taskId'", () => {
       beforeAll(async () => {
         response = await supertest(app)
           .patch("/task/qwerty123")
@@ -482,6 +496,12 @@ describe("Task router test suite", () => {
 
       it("Should return a 400 status code", () => {
         expect(response.status).toBe(400);
+      });
+
+      it("Should say that 'taskId' is invalid", () => {
+        expect(response.body.message).toBe(
+          "Invalid 'taskId'. Must be MongoDB ObjectId"
+        );
       });
     });
   });
@@ -522,7 +542,7 @@ describe("Task router test suite", () => {
       });
     });
 
-    context("Without providing an accessToken", () => {
+    context("Without providing 'accessToken'", () => {
       beforeAll(async () => {
         response = await supertest(app).patch(
           `/task/confirm/${(createdTask as ITask)._id}`
@@ -586,7 +606,7 @@ describe("Task router test suite", () => {
       });
     });
 
-    context("With invalid id", () => {
+    context("With invalid 'taskId'", () => {
       beforeAll(async () => {
         response = await supertest(app)
           .patch("/task/confirm/qwerty123")
@@ -595,6 +615,12 @@ describe("Task router test suite", () => {
 
       it("Should return a 400 status code", () => {
         expect(response.status).toBe(400);
+      });
+
+      it("Should say that 'taskId' is invalid", () => {
+        expect(response.body.message).toBe(
+          "Invalid 'taskId'. Must be MongoDB ObjectId"
+        );
       });
     });
   });
@@ -636,7 +662,7 @@ describe("Task router test suite", () => {
       });
     });
 
-    context("Without providing an accessToken", () => {
+    context("Without providing 'accessToken'", () => {
       beforeAll(async () => {
         response = await supertest(app).patch(
           `/task/cancel/${(secondTask as ITask)._id}`
@@ -700,7 +726,7 @@ describe("Task router test suite", () => {
       });
     });
 
-    context("With invalid id", () => {
+    context("With invalid 'taskId'", () => {
       beforeAll(async () => {
         response = await supertest(app)
           .patch("/task/cancel/qwerty123")
@@ -709,6 +735,12 @@ describe("Task router test suite", () => {
 
       it("Should return a 400 status code", () => {
         expect(response.status).toBe(400);
+      });
+
+      it("Should say that 'taskId' is invalid", () => {
+        expect(response.body.message).toBe(
+          "Invalid 'taskId'. Must be MongoDB ObjectId"
+        );
       });
     });
   });
@@ -746,7 +778,7 @@ describe("Task router test suite", () => {
       });
     });
 
-    context("Without providing an accessToken", () => {
+    context("Without providing 'accessToken'", () => {
       beforeAll(async () => {
         response = await supertest(app).patch(
           `/task/reset/${(createdTask as ITask)._id}`
@@ -810,7 +842,7 @@ describe("Task router test suite", () => {
       });
     });
 
-    context("With invalid id", () => {
+    context("With invalid 'taskId'", () => {
       beforeAll(async () => {
         response = await supertest(app)
           .patch("/task/reset/qwerty123")
@@ -819,6 +851,12 @@ describe("Task router test suite", () => {
 
       it("Should return a 400 status code", () => {
         expect(response.status).toBe(400);
+      });
+
+      it("Should say that 'taskId' is invalid", () => {
+        expect(response.body.message).toBe(
+          "Invalid 'taskId'. Must be MongoDB ObjectId"
+        );
       });
     });
   });
@@ -857,7 +895,7 @@ describe("Task router test suite", () => {
       });
     });
 
-    context("Without providing an accessToken", () => {
+    context("Without providing 'accessToken'", () => {
       beforeAll(async () => {
         response = await supertest(app).delete(
           `/task/${(createdTask as ITask)._id}`
@@ -908,7 +946,7 @@ describe("Task router test suite", () => {
       });
     });
 
-    context("With invalid id", () => {
+    context("With invalid 'taskId'", () => {
       beforeAll(async () => {
         response = await supertest(app)
           .delete("/task/qwerty123")
@@ -917,6 +955,12 @@ describe("Task router test suite", () => {
 
       it("Should return a 400 status code", () => {
         expect(response.status).toBe(400);
+      });
+
+      it("Should say that 'taskId' is invalid", () => {
+        expect(response.body.message).toBe(
+          "Invalid 'taskId'. Must be MongoDB ObjectId"
+        );
       });
     });
   });

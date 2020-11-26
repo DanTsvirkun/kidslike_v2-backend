@@ -127,7 +127,7 @@ describe("Gift router test suite", () => {
       });
     });
 
-    context("Without providing an accessToken", () => {
+    context("Without providing 'accessToken'", () => {
       beforeAll(async () => {
         response = await supertest(app)
           .post(`/gift/${(createdChild as IChild)._id}`)
@@ -162,7 +162,7 @@ describe("Gift router test suite", () => {
       });
     });
 
-    context("With invalid request body (not enough fields provided)", () => {
+    context("With invalid request body (no 'price' provided)", () => {
       beforeAll(async () => {
         response = await supertest(app)
           .post(`/gift/${(createdChild as IChild)._id}`)
@@ -173,9 +173,13 @@ describe("Gift router test suite", () => {
       it("Should return a 400 status code", () => {
         expect(response.status).toBe(400);
       });
+
+      it("Should say that 'username' is required", () => {
+        expect(response.body.message).toBe('"price" is required');
+      });
     });
 
-    context("With invalid request body (price = 0)", () => {
+    context("With invalid request body ('price' = 0)", () => {
       beforeAll(async () => {
         response = await supertest(app)
           .post(`/gift/${(createdChild as IChild)._id}`)
@@ -188,9 +192,9 @@ describe("Gift router test suite", () => {
         expect(response.status).toBe(400);
       });
 
-      it("Should say that price must be greater or equal to 1", () => {
+      it("Should say that 'price' must be greater than or equal to 1", () => {
         expect(response.body.message).toBe(
-          "Price must be greater or equal to 1"
+          '"price" must be greater than or equal to 1'
         );
       });
     });
@@ -232,7 +236,7 @@ describe("Gift router test suite", () => {
       });
     });
 
-    context("With invalid id", () => {
+    context("With invalid 'giftId'", () => {
       beforeAll(async () => {
         response = await supertest(app)
           .post(`/gift/qwerty123`)
@@ -243,6 +247,12 @@ describe("Gift router test suite", () => {
 
       it("Should return a 400 status code", () => {
         expect(response.status).toBe(400);
+      });
+
+      it("Should say that 'childId' is invalid", () => {
+        expect(response.body.message).toBe(
+          "Invalid 'childId'. Must be MongoDB ObjectId"
+        );
       });
     });
   });
@@ -278,7 +288,7 @@ describe("Gift router test suite", () => {
       });
     });
 
-    context("Without providing an accessToken", () => {
+    context("Without providing 'accessToken'", () => {
       beforeAll(async () => {
         response = await supertest(app).get("/gift");
       });
@@ -292,17 +302,19 @@ describe("Gift router test suite", () => {
       });
     });
 
-    context("With invalid accessToken", () => {
+    context("With invalid 'accessToken'", () => {
       beforeAll(async () => {
-        response = await supertest(app).get("/gift");
+        response = await supertest(app)
+          .get("/gift")
+          .set("Authorization", `Bearer qwerty123`);
       });
 
-      it("Should return a 400 status code", () => {
-        expect(response.status).toBe(400);
+      it("Should return a 401 status code", () => {
+        expect(response.status).toBe(401);
       });
 
-      it("Should say that token wasn't provided", () => {
-        expect(response.body.message).toBe("No token provided");
+      it("Should return an unauthorized status", () => {
+        expect(response.body.message).toBe("Unauthorized");
       });
     });
   });
@@ -352,9 +364,13 @@ describe("Gift router test suite", () => {
       it("Should return a 400 status code", () => {
         expect(response.status).toBe(400);
       });
+
+      it("Should say that at least one field is required", () => {
+        expect(response.body.message).toBe("At least one field is required");
+      });
     });
 
-    context("Without providing an accessToken", () => {
+    context("Without providing 'accessToken'", () => {
       beforeAll(async () => {
         response = await supertest(app).patch(
           `/gift/${(createdGift as IGift)._id}`
@@ -398,9 +414,9 @@ describe("Gift router test suite", () => {
         expect(response.status).toBe(400);
       });
 
-      it("Should say that price must be greater or equal to 1", () => {
+      it("Should say that 'price' must be greater than or equal to 1", () => {
         expect(response.body.message).toBe(
-          "Price must be greater or equal to 1"
+          '"price" must be greater than or equal to 1'
         );
       });
     });
@@ -422,7 +438,7 @@ describe("Gift router test suite", () => {
       });
     });
 
-    context("With invalid id", () => {
+    context("With invalid 'giftId'", () => {
       beforeAll(async () => {
         response = await supertest(app)
           .patch(`/gift/qwerty123`)
@@ -432,6 +448,12 @@ describe("Gift router test suite", () => {
 
       it("Should return a 400 status code", () => {
         expect(response.status).toBe(400);
+      });
+
+      it("Should say that 'giftId' is invalid", () => {
+        expect(response.body.message).toBe(
+          "Invalid 'giftId'. Must be MongoDB ObjectId"
+        );
       });
     });
   });
@@ -474,7 +496,7 @@ describe("Gift router test suite", () => {
       });
     });
 
-    context("Without providing an accessToken", () => {
+    context("Without providing 'accessToken'", () => {
       beforeAll(async () => {
         response = await supertest(app).patch(
           `/gift/buy/${(createdGift as IGift)._id}`
@@ -558,7 +580,7 @@ describe("Gift router test suite", () => {
       });
     });
 
-    context("With invalid id", () => {
+    context("With invalid 'giftId'", () => {
       beforeAll(async () => {
         response = await supertest(app)
           .patch(`/gift/buy/qwerty123`)
@@ -567,6 +589,12 @@ describe("Gift router test suite", () => {
 
       it("Should return a 400 status code", () => {
         expect(response.status).toBe(400);
+      });
+
+      it("Should say that 'giftId' is invalid", () => {
+        expect(response.body.message).toBe(
+          "Invalid 'giftId'. Must be MongoDB ObjectId"
+        );
       });
     });
   });
@@ -602,7 +630,7 @@ describe("Gift router test suite", () => {
       });
     });
 
-    context("Without providing an accessToken", () => {
+    context("Without providing 'accessToken'", () => {
       beforeAll(async () => {
         response = await supertest(app).delete(
           `/gift/${(createdGift as IGift)._id}`
@@ -650,7 +678,7 @@ describe("Gift router test suite", () => {
       });
     });
 
-    context("With invalid id", () => {
+    context("With invalid 'giftId'", () => {
       beforeAll(async () => {
         response = await supertest(app)
           .delete(`/gift/qwerty123`)
@@ -659,6 +687,12 @@ describe("Gift router test suite", () => {
 
       it("Should return a 400 status code", () => {
         expect(response.status).toBe(400);
+      });
+
+      it("Should say that 'giftId' is invalid", () => {
+        expect(response.body.message).toBe(
+          "Invalid 'giftId'. Must be MongoDB ObjectId"
+        );
       });
     });
   });

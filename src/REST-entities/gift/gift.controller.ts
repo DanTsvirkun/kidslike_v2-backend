@@ -18,11 +18,6 @@ export const addGift = async (req: Request, res: Response) => {
   if (!childToUpdateId) {
     return res.status(404).send({ message: "Child not found" });
   }
-  if (!(req.body.price >= 1)) {
-    return res
-      .status(400)
-      .send({ message: "Price must be greater or equal to 1" });
-  }
   const giftImage = req.file;
   if (req.fileValidationError) {
     return res.status(415).send({ message: req.fileValidationError });
@@ -51,10 +46,8 @@ export const editGift = async (req: Request, res: Response) => {
   if (!childToUpdate) {
     return res.status(404).send({ message: "Child not found" });
   }
-  if ((req.body.price || req.body.price === 0) && !(req.body.price >= 1)) {
-    return res
-      .status(400)
-      .send({ message: "Price must be greater or equal to 1" });
+  if (!req.file && !req.body.name && !req.body.price) {
+    return res.status(400).send({message: "At least one field is required"})
   }
   let imageUrl = (giftToEdit as IGift).imageUrl;
   const giftImage = req.file;
