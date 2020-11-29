@@ -31,9 +31,9 @@ export const register = async (req: Request, res: Response) => {
     username,
   });
   return res.status(201).send({
-    id: newParent._id,
     email,
     username,
+    id: newParent._id,
   });
 };
 
@@ -90,9 +90,17 @@ export const login = async (
       if (err) {
         next(err);
       }
-      return res
-        .status(200)
-        .send({ data, accessToken, refreshToken, sid: newSession._id });
+      return res.status(200).send({
+        accessToken,
+        refreshToken,
+        sid: newSession._id,
+        data: {
+          email: (data as IParent).email,
+          username: (data as IParent).username,
+          id: (data as IParent)._id,
+          children: (data as IParent).children,
+        },
+      });
     });
 };
 
@@ -260,9 +268,17 @@ export const googleRedirect = async (
       if (err) {
         next(err);
       }
-      return res
-        .status(200)
-        .send({ data, accessToken, refreshToken, sid: newSession._id });
+      return res.status(200).send({
+        data: {
+          email: (data as IParent).email,
+          username: (data as IParent).username,
+          id: (data as IParent)._id,
+          children: (data as IParent).children,
+        },
+        accessToken,
+        refreshToken,
+        sid: newSession._id,
+      });
     });
 };
 
@@ -345,8 +361,14 @@ export const facebookRedirect = async (
       if (err) {
         next(err);
       }
-      return res
-        .status(200)
-        .send({ data, accessToken, refreshToken, sid: newSession._id });
+      return res.status(200).send({
+        email: (data as IParent).email,
+        username: (data as IParent).username,
+        id: (data as IParent)._id,
+        children: (data as IParent).children,
+        accessToken,
+        refreshToken,
+        sid: newSession._id,
+      });
     });
 };

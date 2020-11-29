@@ -11,6 +11,7 @@ import {
   cancelTask,
   getTasks,
   resetTask,
+  getFinishedTasks,
 } from "./task.controller";
 import tryCatchWrapper from "../../helpers/function-helpers/try-catch-wrapper";
 
@@ -26,7 +27,7 @@ const editTaskSchema = Joi.object({
   daysToComplete: Joi.number().min(1),
 }).min(1);
 
-const addTaskIdSchema = Joi.object({
+const addOrGetTaskIdSchema = Joi.object({
   childId: Joi.string()
     .custom((value, helpers) => {
       const isValidObjectId = mongoose.Types.ObjectId.isValid(value);
@@ -60,7 +61,7 @@ router.get("/", authorize, tryCatchWrapper(getTasks));
 router.post(
   "/:childId",
   authorize,
-  validate(addTaskIdSchema, "params"),
+  validate(addOrGetTaskIdSchema, "params"),
   validate(addTaskSchema),
   tryCatchWrapper(addTask)
 );
@@ -94,6 +95,12 @@ router.patch(
   authorize,
   validate(editOrDeleteTaskIdSchema, "params"),
   tryCatchWrapper(resetTask)
+);
+router.get(
+  "/finished/:childId",
+  authorize,
+  validate(addOrGetTaskIdSchema, "params"),
+  tryCatchWrapper(getFinishedTasks)
 );
 
 export default router;

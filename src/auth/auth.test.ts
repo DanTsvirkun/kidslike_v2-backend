@@ -139,7 +139,7 @@ describe("Auth router test suite", () => {
       beforeAll(async () => {
         response = await supertest(app).post("/auth/login").send(validReqBody);
         createdSession = await SessionModel.findById(response.body.sid);
-        user = await UserModel.findById(response.body.data._id);
+        user = await UserModel.findById(response.body.data.id);
         accessToken = response.body.accessToken;
         refreshToken = response.body.refreshToken;
         sid = (createdSession as ISession)._id.toString();
@@ -153,11 +153,9 @@ describe("Auth router test suite", () => {
         expect(response.body).toEqual({
           data: {
             children: [],
-            _id: (user as IParent)._id.toString(),
-            email: (user as IParent).email,
-            passwordHash: (user as IParent).passwordHash,
-            username: (user as IParent).username,
-            __v: (user as IParent).__v,
+            id: (user as IParent)._id.toString(),
+            email: "test@email.com",
+            username: "Test",
           },
           accessToken,
           refreshToken,
@@ -398,7 +396,7 @@ describe("Auth router test suite", () => {
       });
     });
 
-    context("With invalid accessToken", () => {
+    context("With invalid 'accessToken'", () => {
       beforeAll(async () => {
         response = await supertest(app)
           .post("/auth/logout")

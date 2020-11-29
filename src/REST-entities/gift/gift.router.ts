@@ -10,6 +10,7 @@ import {
   deleteGift,
   buyGift,
   getGifts,
+  resetGift,
 } from "./gift.controller";
 import { multerMid } from "../../helpers/function-helpers/multer-config";
 
@@ -81,6 +82,12 @@ router.patch(
   authorize,
   validate(editOrDeleteGiftIdSchema, "params"),
   tryCatchWrapper(buyGift)
+);
+router.patch(
+  "/reset/:giftId",
+  authorize,
+  validate(editOrDeleteGiftIdSchema, "params"),
+  tryCatchWrapper(resetGift)
 );
 
 export default router;

@@ -9,8 +9,8 @@ import {
 } from "../../helpers/typescript-helpers/interfaces";
 import HabitModel from "./habit.model";
 import ChildModel from "../child/child.model";
-import { TaskStatus } from "../../helpers/typescript-helpers/enums";
 import UserModel from "../user/user.model";
+import { TaskStatus } from "../../helpers/typescript-helpers/enums";
 
 export const addHabit = async (req: Request, res: Response) => {
   const parent = req.user;
@@ -36,7 +36,13 @@ export const addHabit = async (req: Request, res: Response) => {
   await ChildModel.findByIdAndUpdate(childToUpdateId, {
     $push: { habits: habit },
   });
-  return res.status(201).send(habit);
+  return res.status(201).send({
+    days: (habit as IHabit).days,
+    name: (habit as IHabit).name,
+    rewardPerDay: (habit as IHabit).rewardPerDay,
+    childId: (habit as IHabit).childId,
+    id: (habit as IHabit).id,
+  });
 };
 
 export const editHabit = async (req: Request, res: Response) => {
@@ -57,7 +63,13 @@ export const editHabit = async (req: Request, res: Response) => {
     // @ts-ignore
     overwrite: true,
   });
-  return res.status(200).send(newHabit);
+  return res.status(200).send({
+    days: (newHabit as IHabit).days,
+    name: (newHabit as IHabit).name,
+    rewardPerDay: (newHabit as IHabit).rewardPerDay,
+    childId: (newHabit as IHabit).childId,
+    id: (newHabit as IHabit)._id,
+  });
 };
 
 export const deleteHabit = async (req: Request, res: Response) => {
@@ -143,7 +155,16 @@ export const habitDayConfirmed = async (req: Request, res: Response) => {
       $set: { rewards: updatedRewards },
     });
   }
-  return res.status(200).send({ updatedHabit, updatedRewards });
+  return res.status(200).send({
+    updatedHabit: {
+      days: (updatedHabit as IHabit).days,
+      name: (updatedHabit as IHabit).name,
+      rewardPerDay: (updatedHabit as IHabit).rewardPerDay,
+      childId: (updatedHabit as IHabit).childId,
+      id: (updatedHabit as IHabit)._id,
+    },
+    updatedRewards,
+  });
 };
 
 export const habitDayCanceled = async (req: Request, res: Response) => {
@@ -184,7 +205,13 @@ export const habitDayCanceled = async (req: Request, res: Response) => {
     { $set: { "days.$.isCompleted": TaskStatus.CANCELED } },
     { new: true }
   );
-  return res.status(200).send({ updatedHabit });
+  return res.status(200).send({
+    days: (updatedHabit as IHabit).days,
+    name: (updatedHabit as IHabit).name,
+    rewardPerDay: (updatedHabit as IHabit).rewardPerDay,
+    childId: (updatedHabit as IHabit).childId,
+    id: (updatedHabit as IHabit)._id,
+  });
 };
 
 export const getHabits = async (
@@ -203,12 +230,18 @@ export const getHabits = async (
       if (err) {
         next(err);
       }
-      return res
-        .status(200)
-        .send(
-          (data as IParent).children.map(
-            (child) => ((child as unknown) as IChild).habits
-          )
-        );
+      const dataToEdit = (data as IParent).children.map(
+        (child) => ((child as unknown) as IChild).habits
+      );
+      const dataToSend = dataToEdit.map((childArray) => {
+        return childArray.map((childHabit) => ({
+          days: ((childHabit as unknown) as IHabit).days,
+          name: ((childHabit as unknown) as IHabit).name,
+          rewardPerDay: ((childHabit as unknown) as IHabit).rewardPerDay,
+          childId: ((childHabit as unknown) as IHabit).childId,
+          id: ((childHabit as unknown) as IHabit)._id,
+        }));
+      });
+      return res.status(200).send(dataToSend);
     });
 };

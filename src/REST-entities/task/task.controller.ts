@@ -21,7 +21,7 @@ export const addTask = async (req: Request, res: Response) => {
   }
   const currentDate = DateTime.local();
   let endDate: DateTime;
-  if (req.body.daysToComplete || req.body.daysToComplete === 0) {
+  if (req.body.daysToComplete) {
     endDate = currentDate.plus({ days: req.body.daysToComplete });
     const task = await TaskModel.create({
       ...req.body,
@@ -32,17 +32,31 @@ export const addTask = async (req: Request, res: Response) => {
     await ChildModel.findByIdAndUpdate(childToUpdateId, {
       $push: { tasks: task },
     });
-    return res.status(201).send(task);
+    return res.status(201).send({
+      name: (task as ITask).name,
+      reward: (task as ITask).reward,
+      isCompleted: (task as ITask).isCompleted,
+      daysToComplete: (task as ITask).daysToComplete,
+      startDate: (task as ITask).startDate,
+      endDate: (task as ITask).endDate,
+      childId: (task as ITask).childId,
+      id: (task as ITask)._id,
+    });
   }
   const task = await TaskModel.create({
     ...req.body,
-    startDate: currentDate.toLocaleString(),
     childId: childToUpdateId,
   });
   await ChildModel.findByIdAndUpdate(childToUpdateId, {
     $push: { tasks: task },
   });
-  return res.status(201).send(task);
+  return res.status(201).send({
+    name: (task as ITask).name,
+    reward: (task as ITask).reward,
+    isCompleted: (task as ITask).isCompleted,
+    childId: (task as ITask).childId,
+    id: (task as ITask)._id,
+  });
 };
 
 export const editTask = async (req: Request, res: Response) => {
@@ -58,32 +72,68 @@ export const editTask = async (req: Request, res: Response) => {
     return res.status(404).send({ message: "Child not found" });
   }
   const currentDate = DateTime.local();
-  let endDate: DateTime;
-  if (req.body.daysToComplete || req.body.daysToComplete === 0) {
-    // @ts-ignore
-    if (!(req.body.daysToComplete >= 1)) {
-      return res
-        .status(400)
-        .send({ message: "daysToComplete must be greater than or equal to 1" });
+  let endDate: string;
+  let startDate: DateTime | string;
+  if (req.body.daysToComplete) {
+    if (!(taskToEdit as ITask).startDate) {
+      endDate = currentDate
+        .plus({ days: req.body.daysToComplete })
+        .toLocaleString();
+      startDate = currentDate.toLocaleString();
+    } else {
+      // @ts-ignore
+      startDate = taskToEdit.startDate;
+      endDate = DateTime.fromISO(startDate as string)
+        .plus({
+          days: req.body.daysToComplete,
+        })
+        .toLocaleString();
     }
-    endDate = currentDate.plus({ days: req.body.daysToComplete });
     const newTask: ITask = {
       ...taskToEdit.toObject(),
       ...req.body,
-      endDate: endDate.toLocaleString(),
+      startDate,
+      endDate,
     };
     await TaskModel.findByIdAndUpdate(req.params.taskId, newTask, {
       // @ts-ignore
       overwrite: true,
     });
-    return res.status(200).send(newTask);
+    return res.status(200).send({
+      name: newTask.name,
+      reward: newTask.reward,
+      daysToComplete: newTask.daysToComplete,
+      isCompleted: newTask.isCompleted,
+      childId: newTask.childId,
+      id: newTask._id,
+      startDate,
+      endDate,
+    });
   }
   const newTask: ITask = { ...taskToEdit.toObject(), ...req.body };
   await TaskModel.findByIdAndUpdate(req.params.taskId, newTask, {
     // @ts-ignore
     overwrite: true,
   });
-  return res.status(200).send(newTask);
+  if (newTask.startDate) {
+    return res.status(200).send({
+      name: newTask.name,
+      reward: newTask.reward,
+      daysToComplete: newTask.daysToComplete,
+      isCompleted: newTask.isCompleted,
+      startDate: newTask.startDate,
+      endDate: newTask.endDate,
+      childId: newTask.childId,
+      id: newTask._id,
+    });
+  }
+  return res.status(200).send({
+    name: newTask.name,
+    reward: newTask.reward,
+    isCompleted: newTask.isCompleted,
+    childId: newTask.childId,
+    id: newTask._id,
+  });
 };
 
 export const deleteTask = async (req: Request, res: Response) => {
@@ -141,7 +191,31 @@ export const confirmTask = async (req: Request, res: Response) => {
   await ChildModel.findByIdAndUpdate((confirmedTask as ITask).childId, {
     $set: { rewards: updatedRewards },
   });
-  return res.status(200).send({ confirmedTask, updatedRewards });
+  if ((confirmedTask as ITask).startDate) {
+    return res.status(200).send({
+      confirmedTask: {
+        name: (confirmedTask as ITask).name,
+        reward: (confirmedTask as ITask).reward,
+        daysToComplete: (confirmedTask as ITask).daysToComplete,
+        isCompleted: (confirmedTask as ITask).isCompleted,
+        startDate: (confirmedTask as ITask).startDate,
+        endDate: (confirmedTask as ITask).endDate,
+        childId: (confirmedTask as ITask).childId,
+        id: (confirmedTask as ITask)._id,
+      },
+      updatedRewards,
+    });
+  }
+  return res.status(200).send({
+    confirmedTask: {
+      name: (confirmedTask as ITask).name,
+      reward: (confirmedTask as ITask).reward,
+      isCompleted: (confirmedTask as ITask).isCompleted,
+      childId: (confirmedTask as ITask).childId,
+      id: (confirmedTask as ITask)._id,
+    },
+    updatedRewards,
+  });
 };
 
 export const cancelTask = async (req: Request, res: Response) => {
@@ -170,7 +244,25 @@ export const cancelTask = async (req: Request, res: Response) => {
     },
     { new: true }
   );
-  return res.status(200).send(canceledTask);
+  if ((canceledTask as ITask).startDate) {
+    return res.status(200).send({
+      name: (canceledTask as ITask).name,
+      reward: (canceledTask as ITask).reward,
+      daysToComplete: (canceledTask as ITask).daysToComplete,
+      isCompleted: (canceledTask as ITask).isCompleted,
+      startDate: (canceledTask as ITask).startDate,
+      endDate: (canceledTask as ITask).endDate,
+      childId: (canceledTask as ITask).childId,
+      id: (canceledTask as ITask)._id,
+    });
+  }
+  return res.status(200).send({
+    name: (canceledTask as ITask).name,
+    reward: (canceledTask as ITask).reward,
+    isCompleted: (canceledTask as ITask).isCompleted,
+    childId: (canceledTask as ITask).childId,
+    id: (canceledTask as ITask)._id,
+  });
 };
 
 export const resetTask = async (req: Request, res: Response) => {
@@ -196,7 +288,25 @@ export const resetTask = async (req: Request, res: Response) => {
     },
     { new: true }
   );
-  res.status(200).send(unknownTask);
+  if ((unknownTask as ITask).startDate) {
+    return res.status(200).send({
+      name: (unknownTask as ITask).name,
+      reward: (unknownTask as ITask).reward,
+      daysToComplete: (unknownTask as ITask).daysToComplete,
+      isCompleted: (unknownTask as ITask).isCompleted,
+      startDate: (unknownTask as ITask).startDate,
+      endDate: (unknownTask as ITask).endDate,
+      childId: (unknownTask as ITask).childId,
+      id: (unknownTask as ITask)._id,
+    });
+  }
+  return res.status(200).send({
+    name: (unknownTask as ITask).name,
+    reward: (unknownTask as ITask).reward,
+    isCompleted: (unknownTask as ITask).isCompleted,
+    childId: (unknownTask as ITask).childId,
+    id: (unknownTask as ITask)._id,
+  });
 };
 
 export const getTasks = async (
@@ -215,12 +325,68 @@ export const getTasks = async (
       if (err) {
         next(err);
       }
-      return res
-        .status(200)
-        .send(
-          (data as IParent).children.map(
-            (child) => ((child as unknown) as IChild).tasks
-          )
-        );
+      const dataToEdit = (data as IParent).children.map(
+        (child) => ((child as unknown) as IChild).tasks
+      );
+      const dataToSend = dataToEdit.map((childArray) => {
+        return childArray.map((childTask) => {
+          if (((childTask as unknown) as ITask).startDate) {
+            return {
+              name: ((childTask as unknown) as ITask).name,
+              reward: ((childTask as unknown) as ITask).reward,
+              isCompleted: ((childTask as unknown) as ITask).isCompleted,
+              daysToComplete: ((childTask as unknown) as ITask).daysToComplete,
+              childId: ((childTask as unknown) as ITask).childId,
+              id: ((childTask as unknown) as ITask)._id,
+            };
+          }
+          return {
+            name: ((childTask as unknown) as ITask).name,
+            reward: ((childTask as unknown) as ITask).reward,
+            isCompleted: ((childTask as unknown) as ITask).isCompleted,
+            childId: ((childTask as unknown) as ITask).childId,
+            id: ((childTask as unknown) as ITask)._id,
+          };
+        });
+      });
+      return res.status(200).send(dataToSend);
     });
+};
+
+export const getFinishedTasks = async (req: Request, res: Response) => {
+  const { childId } = req.params;
+  const existingChild = await ChildModel.findById(childId);
+  if (!existingChild) {
+    return res.status(404).send({ message: "Child not found" });
+  }
+  const childFinishedTasks = await TaskModel.find({
+    $and: [{ childId }, { isCompleted: "confirmed" }],
+  });
+  if (!childFinishedTasks.length) {
+    return res
+      .status(404)
+      .send({ message: "No finished tasks found for this child" });
+  }
+  const dataToSend = childFinishedTasks.map((finishedTask) => {
+    if ((finishedTask as ITask).startDate) {
+      return {
+        name: (finishedTask as ITask).name,
+        reward: (finishedTask as ITask).reward,
+        isCompleted: (finishedTask as ITask).isCompleted,
+        daysToComplete: (finishedTask as ITask).daysToComplete,
+        startDate: (finishedTask as ITask).startDate,
+        endDate: (finishedTask as ITask).endDate,
+        childId: (finishedTask as ITask).childId,
+        id: (finishedTask as ITask)._id,
+      };
+    }
+    return {
+      name: (finishedTask as ITask).name,
+      reward: (finishedTask as ITask).reward,
+      isCompleted: (finishedTask as ITask).isCompleted,
+      childId: (finishedTask as ITask).childId,
+      id: (finishedTask as ITask)._id,
+    };
+  });
+  return res.status(200).send(dataToSend);
 };

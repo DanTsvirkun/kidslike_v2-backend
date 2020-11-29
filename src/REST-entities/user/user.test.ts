@@ -2,6 +2,7 @@ import mongoose, { Document } from "mongoose";
 import supertest, { Response } from "supertest";
 import { Application } from "express";
 import Server from "../../server/server";
+import { Gender } from "../../helpers/typescript-helpers/enums";
 import UserModel from "./user.model";
 import SessionModel from "../session/session.model";
 import HabitModel from "../habit/habit.model";
@@ -39,7 +40,7 @@ describe("Child router test suite", () => {
     createdChild = await supertest(app)
       .post("/child")
       .set("Authorization", `Bearer ${accessToken}`)
-      .send({ name: "Test", gender: "male" });
+      .send({ name: "Test", gender: Gender.MALE });
     createdHabit = await supertest(app)
       .post(`/habit/${createdChild.body._id}`)
       .set("Authorization", `Bearer ${accessToken}`)

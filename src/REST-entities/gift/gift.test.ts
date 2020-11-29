@@ -59,8 +59,8 @@ describe("Gift router test suite", () => {
       .post("/child")
       .set("Authorization", `Bearer ${secondAccessToken}`)
       .send({ name: "Test", gender: Gender.FEMALE });
-    createdChild = await ChildModel.findById(thirdResponse.body._id);
-    secondCreatedChild = await ChildModel.findById(fourthResponse.body._id);
+    createdChild = await ChildModel.findById(thirdResponse.body.id);
+    secondCreatedChild = await ChildModel.findById(fourthResponse.body.id);
   });
 
   afterAll(async () => {
@@ -87,7 +87,7 @@ describe("Gift router test suite", () => {
         .field("name", "Test")
         .field("price", 1)
         .attach("file", path.join(__dirname, "./test-files/test.jpg"));
-      secondCreatedGift = await GiftModel.findById(response.body._id);
+      secondCreatedGift = await GiftModel.findById(response.body.id);
     });
 
     context("Valid request", () => {
@@ -98,7 +98,7 @@ describe("Gift router test suite", () => {
           .field("name", "Test")
           .field("price", 1)
           .attach("file", path.join(__dirname, "./test-files/test.jpg"));
-        createdGift = await GiftModel.findById(response.body._id);
+        createdGift = await GiftModel.findById(response.body.id);
         updatedChild = await ChildModel.findById((createdChild as IChild)._id);
       });
 
@@ -112,16 +112,19 @@ describe("Gift router test suite", () => {
 
       it("Should return an expected result", () => {
         expect(response.body).toEqual({
-          ...(createdGift as IGift).toObject(),
-          childId: (createdGift as IGift).childId.toString(),
-          _id: (createdGift as IGift)._id.toString(),
+          name: "Test",
+          price: 1,
+          isPurchased: false,
+          imageUrl: (createdGift as IGift).imageUrl,
+          childId: (createdChild as IChild)._id.toString(),
+          id: (createdGift as IGift)._id.toString(),
         });
       });
 
       it("Should add a new gift to child document in DB", () => {
         expect(
           (updatedChild as IChild).gifts.find(
-            (giftId) => giftId.toString() === response.body._id.toString()
+            (giftId) => giftId.toString() === response.body.id.toString()
           )
         ).toBeTruthy();
       });
@@ -279,9 +282,12 @@ describe("Gift router test suite", () => {
         expect(response.body).toEqual([
           [
             {
-              ...(createdGift as IGift).toObject(),
-              childId: (createdGift as IGift).childId.toString(),
-              _id: (createdGift as IGift)._id.toString(),
+              name: "Test",
+              price: 1,
+              isPurchased: false,
+              imageUrl: ((createdGift as unknown) as IGift).imageUrl,
+              childId: (createdChild as IChild)._id.toString(),
+              id: ((createdGift as unknown) as IGift)._id.toString(),
             },
           ],
         ]);
@@ -343,9 +349,12 @@ describe("Gift router test suite", () => {
 
       it("Should return an expected result", () => {
         expect(response.body).toEqual({
-          ...(updatedGift as IGift).toObject(),
-          childId: (updatedGift as IGift).childId.toString(),
-          _id: (updatedGift as IGift)._id.toString(),
+          name: "Test2",
+          price: 1,
+          isPurchased: false,
+          imageUrl: (updatedGift as IGift).imageUrl,
+          childId: (createdChild as IChild)._id.toString(),
+          id: (updatedGift as IGift)._id.toString(),
         });
       });
 
@@ -484,9 +493,12 @@ describe("Gift router test suite", () => {
         expect(response.body).toEqual({
           updatedRewards: 0,
           purchasedGift: {
-            ...(updatedGift as IGift).toObject(),
-            childId: (updatedGift as IGift).childId.toString(),
-            _id: (updatedGift as IGift)._id.toString(),
+            name: "Test2",
+            price: 1,
+            isPurchased: true,
+            imageUrl: (updatedGift as IGift).imageUrl,
+            childId: (createdChild as IChild)._id.toString(),
+            id: (updatedGift as IGift)._id.toString(),
           },
         });
       });
@@ -561,6 +573,127 @@ describe("Gift router test suite", () => {
         expect(response.body.message).toBe(
           "Not enough rewards for gaining this gift"
         );
+      });
+    });
+
+    context("With another account", () => {
+      beforeAll(async () => {
+        response = await supertest(app)
+          .patch(`/gift/buy/${(createdGift as IGift)._id}`)
+          .set("Authorization", `Bearer ${secondAccessToken}`);
+      });
+
+      it("Should return a 404 status code", () => {
+        expect(response.status).toBe(404);
+      });
+
+      it("Should say that child wasn't found", () => {
+        expect(response.body.message).toBe("Child not found");
+      });
+    });
+
+    context("With invalid 'giftId'", () => {
+      beforeAll(async () => {
+        response = await supertest(app)
+          .patch(`/gift/buy/qwerty123`)
+          .set("Authorization", `Bearer ${accessToken}`);
+      });
+
+      it("Should return a 400 status code", () => {
+        expect(response.status).toBe(400);
+      });
+
+      it("Should say that 'giftId' is invalid", () => {
+        expect(response.body.message).toBe(
+          "Invalid 'giftId'. Must be MongoDB ObjectId"
+        );
+      });
+    });
+  });
+
+  describe("PATCH /gift/reset/{giftId}", () => {
+    let response: Response;
+    let resetGift: Document | null;
+
+    it("Init endpoint testing", () => {
+      expect(true).toBe(true);
+    });
+
+    context("Valid request", () => {
+      beforeAll(async () => {
+        (createdChild as IChild).rewards = 1;
+        await (createdChild as IChild).save();
+        response = await supertest(app)
+          .patch(`/gift/reset/${(createdGift as IGift)._id}`)
+          .set("Authorization", `Bearer ${accessToken}`);
+        resetGift = await GiftModel.findById((createdGift as IGift)._id);
+      });
+
+      it("Should return a 200 status code", () => {
+        expect(response.status).toBe(200);
+      });
+
+      it("Should return an expected result", () => {
+        expect(response.body).toEqual({
+          name: "Test2",
+          price: 1,
+          isPurchased: false,
+          imageUrl: (resetGift as IGift).imageUrl,
+          childId: (createdChild as IChild)._id.toString(),
+          id: (resetGift as IGift)._id.toString(),
+        });
+      });
+
+      it("Should update a gift in DB", () => {
+        expect((resetGift as IGift).isPurchased).toBeFalsy();
+      });
+    });
+
+    context("Without providing 'accessToken'", () => {
+      beforeAll(async () => {
+        response = await supertest(app).patch(
+          `/gift/buy/${(createdGift as IGift)._id}`
+        );
+      });
+
+      it("Should return a 400 status code", () => {
+        expect(response.status).toBe(400);
+      });
+
+      it("Should say that token wasn't provided", () => {
+        expect(response.body.message).toBe("No token provided");
+      });
+    });
+
+    context("With invalid accessToken", () => {
+      beforeAll(async () => {
+        response = await supertest(app)
+          .patch(`/gift/buy/${(createdGift as IGift)._id}`)
+          .set("Authorization", `Bearer qwerty123`);
+      });
+
+      it("Should return a 401 status code", () => {
+        expect(response.status).toBe(401);
+      });
+
+      it("Should return an unauthorized status", () => {
+        expect(response.body.message).toBe("Unauthorized");
+      });
+    });
+
+    context("Reseting an already reset gift", () => {
+      beforeAll(async () => {
+        response = await supertest(app)
+          .patch(`/gift/reset/${(createdGift as IGift)._id}`)
+          .set("Authorization", `Bearer ${accessToken}`);
+      });
+
+      it("Should return a 403 status code", () => {
+        expect(response.status).toBe(403);
+      });
+
+      it("Should say that this gift has already been reset", () => {
+        expect(response.body.message).toBe("This gift has been already reset");
       });
     });
 

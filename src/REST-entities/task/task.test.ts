@@ -22,6 +22,7 @@ describe("Task router test suite", () => {
   let secondAccessToken: string;
   let createdTask: Document | null;
   let updatedChild: Document | null;
+  let confirmedTask: Document | null;
 
   beforeAll(async () => {
     app = new Server().startForTesting();
@@ -58,8 +59,8 @@ describe("Task router test suite", () => {
       .post("/child")
       .set("Authorization", `Bearer ${secondAccessToken}`)
       .send({ name: "Test", gender: Gender.FEMALE });
-    createdChild = await ChildModel.findById(thirdResponse.body._id);
-    secondCreatedChild = await ChildModel.findById(fourthResponse.body._id);
+    createdChild = await ChildModel.findById(thirdResponse.body.id);
+    secondCreatedChild = await ChildModel.findById(fourthResponse.body.id);
   });
 
   afterAll(async () => {
@@ -113,7 +114,7 @@ describe("Task router test suite", () => {
           .post(`/task/${(createdChild as IChild)._id}`)
           .set("Authorization", `Bearer ${accessToken}`)
           .send(validReqBody);
-        createdTask = await TaskModel.findById(response.body._id);
+        createdTask = await TaskModel.findById(response.body.id);
         updatedChild = await ChildModel.findById((createdChild as IChild)._id);
       });
 
@@ -127,16 +128,21 @@ describe("Task router test suite", () => {
 
       it("Should return an expected result", () => {
         expect(response.body).toEqual({
-          ...(createdTask as ITask).toObject(),
-          childId: (createdTask as ITask).childId.toString(),
-          _id: (createdTask as ITask)._id.toString(),
+          name: "Test",
+          reward: 1,
+          isCompleted: "unknown",
+          daysToComplete: 1,
+          startDate: (createdTask as ITask).startDate,
+          endDate: (createdTask as ITask).endDate,
+          childId: (createdChild as IChild)._id.toString(),
+          id: (createdTask as ITask)._id.toString(),
         });
       });
 
       it("Should add a new task to child document in DB", () => {
         expect(
           (updatedChild as IChild).tasks.find(
-            (taskId) => taskId.toString() === response.body._id.toString()
+            (taskId) => taskId.toString() === response.body.id.toString()
           )
         ).toBeTruthy();
       });
@@ -290,9 +296,12 @@ describe("Task router test suite", () => {
         expect(response.body).toEqual([
           [
             {
-              ...(createdTask as ITask).toObject(),
-              childId: (createdTask as ITask).childId.toString(),
-              _id: (createdTask as ITask)._id.toString(),
+              name: "Test",
+              reward: 1,
+              daysToComplete: 1,
+              isCompleted: "unknown",
+              childId: (createdChild as IChild)._id.toString(),
+              id: (createdTask as ITask)._id.toString(),
             },
           ],
         ]);
@@ -369,10 +378,14 @@ describe("Task router test suite", () => {
 
       it("Should return an expected result", () => {
         expect(response.body).toEqual({
-          ...(updatedTask as ITask).toObject(),
-          ...validReqBody,
-          childId: (updatedTask as ITask).childId.toString(),
-          _id: (updatedTask as ITask)._id.toString(),
+          name: "Test2",
+          reward: 1,
+          daysToComplete: 1,
+          isCompleted: "unknown",
+          startDate: (updatedTask as ITask).startDate,
+          endDate: (updatedTask as ITask).endDate,
+          childId: (createdChild as IChild)._id.toString(),
+          id: (updatedTask as ITask)._id.toString(),
         });
       });
 
@@ -508,7 +521,6 @@ describe("Task router test suite", () => {
 
   describe("PATCH /task/confirm/{taskId}", () => {
     let response: Response;
-    let confirmedTask: Document | null;
 
     it("Init endpoint testing", () => {
       expect(true).toBe(true);
@@ -529,9 +541,14 @@ describe("Task router test suite", () => {
       it("Should return an expected result", () => {
         expect(response.body).toEqual({
           confirmedTask: {
-            ...(confirmedTask as ITask).toObject(),
-            _id: (confirmedTask as ITask)._id.toString(),
-            childId: (confirmedTask as ITask).childId.toString(),
+            name: "Test2",
+            reward: 1,
+            daysToComplete: 1,
+            isCompleted: "confirmed",
+            startDate: (confirmedTask as ITask).startDate,
+            endDate: (confirmedTask as ITask).endDate,
+            childId: (createdChild as IChild)._id.toString(),
+            id: (confirmedTask as ITask)._id.toString(),
           },
           updatedRewards: 1,
         });
@@ -625,6 +642,87 @@ describe("Task router test suite", () => {
     });
   });
 
+  describe("GET /finished/{childId}", () => {
+    let response: Response;
+
+    context("Valid request", () => {
+      beforeAll(async () => {
+        response = await supertest(app)
+          .get(`/task/finished/${(createdChild as IChild)._id}`)
+          .set("Authorization", `Bearer ${accessToken}`);
+      });
+
+      it("Should return a 200 status code", () => {
+        expect(response.status).toBe(200);
+      });
+
+      it("Should return an expected result", () => {
+        expect(response.body).toEqual([
+          {
+            name: "Test2",
+            reward: 1,
+            daysToComplete: 1,
+            isCompleted: "confirmed",
+            startDate: (confirmedTask as ITask).startDate,
+            endDate: (confirmedTask as ITask).endDate,
+            childId: (createdChild as IChild)._id.toString(),
+            id: (confirmedTask as ITask)._id.toString(),
+          },
+        ]);
+      });
+    });
+
+    context("Without providing 'accessToken'", () => {
+      beforeAll(async () => {
+        response = await supertest(app).get(
+          `/task/finished/${(createdChild as IChild)._id}`
+        );
+      });
+
+      it("Should return a 400 status code", () => {
+        expect(response.status).toBe(400);
+      });
+
+      it("Should say that token wasn't provided", () => {
+        expect(response.body.message).toBe("No token provided");
+      });
+    });
+
+    context("With invalid 'accessToken'", () => {
+      beforeAll(async () => {
+        response = await supertest(app)
+          .get(`/task/finished/${(createdChild as IChild)._id}`)
+          .set("Authorization", `Bearer qwerty123`);
+      });
+
+      it("Should return a 401 status code", () => {
+        expect(response.status).toBe(401);
+      });
+
+      it("Should return an unauthorized status", () => {
+        expect(response.body.message).toBe("Unauthorized");
+      });
+    });
+
+    context("With invalid 'childId'", () => {
+      beforeAll(async () => {
+        response = await supertest(app)
+          .get(`/task/finished/qwerty123`)
+          .set("Authorization", `Bearer ${accessToken}`);
+      });
+
+      it("Should return a 400 status code", () => {
+        expect(response.status).toBe(400);
+      });
+
+      it("Should say that 'childId' is invalid", () => {
+        expect(response.body.message).toBe(
+          "Invalid 'childId'. Must be MongoDB ObjectId"
+        );
+      });
+    });
+  });
+
   describe("PATCH /task/cancel/{taskId}", () => {
     let response: Response;
     let canceledTask: Document | null;
@@ -651,9 +749,14 @@ describe("Task router test suite", () => {
 
       it("Should return an expected result", () => {
         expect(response.body).toEqual({
-          ...(canceledTask as ITask).toObject(),
-          _id: (canceledTask as ITask)._id.toString(),
-          childId: (canceledTask as ITask).childId.toString(),
+          name: "Test",
+          reward: 1,
+          daysToComplete: 1,
+          isCompleted: "canceled",
+          startDate: (canceledTask as ITask).startDate,
+          endDate: (canceledTask as ITask).endDate,
+          childId: (secondCreatedChild as IChild)._id.toString(),
+          id: (canceledTask as ITask)._id.toString(),
         });
       });
 
@@ -678,7 +781,7 @@ describe("Task router test suite", () => {
       });
     });
 
-    context("Without providing an accessToken", () => {
+    context("With invalid 'accessToken'", () => {
       beforeAll(async () => {
         response = await supertest(app)
           .patch(`/task/cancel/${(secondTask as ITask)._id}`)
@@ -767,9 +870,14 @@ describe("Task router test suite", () => {
 
       it("Should return an expected result", () => {
         expect(response.body).toEqual({
-          ...(unknownTask as ITask).toObject(),
-          _id: (unknownTask as ITask)._id.toString(),
-          childId: (unknownTask as ITask).childId.toString(),
+          name: "Test2",
+          reward: 1,
+          daysToComplete: 1,
+          isCompleted: "unknown",
+          startDate: (unknownTask as ITask).startDate,
+          endDate: (unknownTask as ITask).endDate,
+          childId: (createdChild as IChild)._id.toString(),
+          id: (unknownTask as ITask)._id.toString(),
         });
       });
 

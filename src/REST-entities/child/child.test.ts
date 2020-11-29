@@ -64,7 +64,7 @@ describe("Child router test suite", () => {
           .post("/child")
           .set("Authorization", `Bearer ${accessToken}`)
           .send(validReqBody);
-        createdChild = await ChildModel.findById(response.body._id);
+        createdChild = await ChildModel.findById(response.body.id);
         updatedParent = await UserModel.findOne({
           email: "test@email.com",
         });
@@ -84,10 +84,9 @@ describe("Child router test suite", () => {
           habits: [],
           tasks: [],
           gifts: [],
-          _id: (createdChild as IChild)._id.toString(),
-          name: (createdChild as IChild).name,
-          gender: (createdChild as IChild).gender,
-          __v: (createdChild as IChild).__v,
+          id: (createdChild as IChild)._id.toString(),
+          name: "Test",
+          gender: Gender.MALE,
         });
       });
 
@@ -132,7 +131,7 @@ describe("Child router test suite", () => {
       });
     });
 
-    context("Without providing an accessToken", () => {
+    context("With invalid 'accessToken'", () => {
       beforeAll(async () => {
         response = await supertest(app)
           .post("/child")
