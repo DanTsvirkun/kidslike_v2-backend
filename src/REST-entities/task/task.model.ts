@@ -4,9 +4,9 @@ const taskSchema = new Schema({
   name: String,
   reward: Number,
   isCompleted: { type: String, default: "unknown" },
-  daysToComplete: { type: Number, required: false },
-  startDate: { type: String, required: false },
-  endDate: { type: String, required: false },
+  daysToComplete: Number,
+  startDate: String,
+  endDate: String,
   childId: mongoose.Types.ObjectId,
 });
 

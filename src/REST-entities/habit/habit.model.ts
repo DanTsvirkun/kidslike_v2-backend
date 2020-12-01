@@ -3,7 +3,7 @@ import mongoose, { Schema } from "mongoose";
 const habitSchema = new Schema({
   name: String,
   rewardPerDay: Number,
-  days: Array,
+  days: [Object],
   childId: mongoose.Types.ObjectId,
 });
 

@@ -336,6 +336,8 @@ export const getTasks = async (
               reward: ((childTask as unknown) as ITask).reward,
               isCompleted: ((childTask as unknown) as ITask).isCompleted,
               daysToComplete: ((childTask as unknown) as ITask).daysToComplete,
+              startDate: ((childTask as unknown) as ITask).startDate,
+              endDate: ((childTask as unknown) as ITask).endDate,
               childId: ((childTask as unknown) as ITask).childId,
               id: ((childTask as unknown) as ITask)._id,
             };

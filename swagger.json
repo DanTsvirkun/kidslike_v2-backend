@@ -1,19 +1,17 @@
 {
-  "swagger": "2.0",
+  "openapi": "3.0.1",
   "info": {
-    "version": "1.0.0",
+    "version": "2.0.0",
     "title": "Kidslike V2 API docs",
-    "description": "API documentation for GoIT project 'Kidslike V2'. Backend github repository: https://github.com/DanTsvirkun/kidslike_v2-backend",
+    "description": "API documentation for GoIT project 'Kidslike V2'. [Backend github repository](https://github.com/DanTsvirkun/kidslike_v2-backend) | [Privacy Policy](https://kidslikev2.herokuapp.com/privacy-policy/)",
     "license": {
       "name": "MIT",
       "url": "https://opensource.org/licenses/MIT"
     }
   },
-  "host": "kidslikev2.herokuapp.com",
-  "basePath": "",
-  "schemes": ["https"],
   "consumes": ["application/json"],
   "produces": ["application/json"],
+  "servers": [{ "url": "https://kidslikev2.herokuapp.com" }],
   "tags": [
     {
       "name": "Auth",
@@ -45,22 +43,27 @@
       "post": {
         "tags": ["Auth"],
         "summary": "User registration",
-        "parameters": [
-          {
-            "name": "Request body",
-            "in": "body",
-            "description": "Registration's object",
-            "required": true,
-            "schema": {
-              "$ref": "#/components/schemas/Registration"
+        "parameters": [],
+        "requestBody": {
+          "description": "Registration's object",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RegistrationRequest"
+              }
             }
           }
-        ],
+        },
         "responses": {
           "201": {
             "description": "Successful operation",
-            "schema": {
-              "$ref": "#/components/schemas/AfterRegistration"
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RegistrationResponse"
+                }
+              }
             }
           },
           "400": {
@@ -78,22 +81,27 @@
       "post": {
         "tags": ["Auth"],
         "summary": "User authentication",
-        "parameters": [
-          {
-            "name": "Request body",
-            "in": "body",
-            "description": "Authentication's object",
-            "required": true,
-            "schema": {
-              "$ref": "#/components/schemas/Login"
+        "parameters": [],
+        "requestBody": {
+          "description": "Authentication's object",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginRequest"
+              }
             }
           }
-        ],
+        },
         "responses": {
           "200": {
             "description": "Successful operation",
-            "schema": {
-              "$ref": "#/components/schemas/AfterLogin"
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LoginResponse"
+                }
+              }
             }
           },
           "403": {
@@ -107,15 +115,8 @@
       "post": {
         "tags": ["Auth"],
         "summary": "Logout",
-        "parameters": [
-          {
-            "name": "Access token",
-            "description": "'accessToken' field you get after authentication",
-            "in": "header",
-            "type": "string",
-            "required": true
-          }
-        ],
+        "security": [{ "Bearer": [] }],
+        "parameters": [],
         "responses": {
           "204": {
             "description": "Successful operation",
@@ -137,19 +138,10 @@
       }
     },
     "/auth/refresh": {
-      "get": {
+      "post": {
         "tags": ["Auth"],
         "summary": "Get new pair of tokens",
         "parameters": [
-          {
-            "name": "Request body",
-            "description": "Request body with session's id",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/components/schemas/RefreshTokens"
-            }
-          },
           {
             "name": "Refresh token",
             "description": "'refreshToken' field you get after authentication",
@@ -158,11 +150,26 @@
             "required": true
           }
         ],
+        "requestBody": {
+          "description": "Object with session's id",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RefreshTokensRequest"
+              }
+            }
+          }
+        },
         "responses": {
           "200": {
             "description": "Successful operation",
-            "schema": {
-              "$ref": "#/components/schemas/AfterRefreshTokens"
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RefreshTokensResponse"
+                }
+              }
             }
           },
           "400": {
@@ -187,8 +194,12 @@
         "responses": {
           "200": {
             "description": "Successful operation",
-            "schema": {
-              "$ref": "#/components/schemas/AfterLogin"
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LoginResponse"
+                }
+              }
             }
           }
         }
@@ -201,8 +212,12 @@
         "responses": {
           "200": {
             "description": "Successful operation",
-            "schema": {
-              "$ref": "#/components/schemas/AfterLogin"
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LoginResponse"
+                }
+              }
             }
           }
         }
@@ -212,27 +227,28 @@
       "post": {
         "tags": ["Child"],
         "summary": "Add a child",
-        "parameters": [
-          {
-            "name": "Request body",
-            "in": "body",
-            "description": "Child's object",
-            "required": true,
-            "schema": { "$ref": "#/components/schemas/Child" }
-          },
-          {
-            "name": "Access token",
-            "description": "'accessToken' field you get after authentication",
-            "in": "header",
-            "type": "string",
-            "required": true
+        "security": [{ "Bearer": [] }],
+        "parameters": [],
+        "requestBody": {
+          "description": "Child's object",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ChildRequest"
+              }
+            }
           }
-        ],
+        },
         "responses": {
           "201": {
             "description": "Successful operation",
-            "schema": {
-              "$ref": "#/components/schemas/NewChild"
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ChildResponse"
+                }
+              }
             }
           },
           "400": {
@@ -254,20 +270,17 @@
       "get": {
         "tags": ["Habit"],
         "summary": "Get all children habits for current user",
-        "parameters": [
-          {
-            "name": "Access token",
-            "description": "'accessToken' field you get after authentication",
-            "in": "header",
-            "type": "string",
-            "required": true
-          }
-        ],
+        "security": [{ "Bearer": [] }],
+        "parameters": [],
         "responses": {
           "200": {
             "description": "Successful operation",
-            "schema": {
-              "$ref": "#/components/schemas/GetHabits"
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetHabitsRequest"
+                }
+              }
             }
           },
           "400": {
@@ -289,34 +302,36 @@
       "post": {
         "tags": ["Habit"],
         "summary": "Add habit for the child",
+        "security": [{ "Bearer": [] }],
         "parameters": [
-          {
-            "name": "Request body",
-            "in": "body",
-            "description": "Habit's object",
-            "required": true,
-            "schema": { "$ref": "#/components/schemas/Habit" }
-          },
           {
             "name": "Child's id",
             "in": "path",
             "description": "Id of the child you want to update ('id' field in child's object)",
             "required": true,
             "type": "string"
-          },
-          {
-            "name": "Access token",
-            "description": "'accessToken' field you get after authentication",
-            "in": "header",
-            "type": "string",
-            "required": true
           }
         ],
+        "requestBody": {
+          "description": "Habit's object",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PostHabitRequest"
+              }
+            }
+          }
+        },
         "responses": {
           "201": {
             "description": "Successful operation",
-            "schema": {
-              "$ref": "#/components/schemas/NewHabit"
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HabitResponse"
+                }
+              }
             }
           },
           "400": {
@@ -338,33 +353,35 @@
       "patch": {
         "tags": ["Habit"],
         "summary": "Edit habit",
+        "security": [{ "Bearer": [] }],
         "parameters": [
-          {
-            "name": "Request body",
-            "in": "body",
-            "description": "Request body. At least one field is required.",
-            "required": true,
-            "schema": { "$ref": "#/components/schemas/PatchHabit" }
-          },
           {
             "name": "Habit's id",
             "in": "path",
             "description": "Habit's id ('id' field in habit's object)",
             "required": true,
             "type": "string"
-          },
-          {
-            "name": "Access token",
-            "description": "'accessToken' field you get after authentication",
-            "in": "header",
-            "type": "string",
-            "required": true
           }
         ],
+        "requestBody": {
+          "description": "Habit's object. At least one field is required",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PatchHabitRequest"
+              }
+            }
+          }
+        },
         "responses": {
           "200": {
             "description": "Successful operation",
-            "schema": { "$ref": "#/components/schemas/NewHabit" }
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/HabitResponse" }
+              }
+            }
           },
           "400": {
             "description": "Bad request (invalid request body or id) / No token provided",
@@ -383,6 +400,7 @@
       "delete": {
         "tags": ["Habit"],
         "summary": "Delete habit",
+        "security": [{ "Bearer": [] }],
         "parameters": [
           {
             "name": "Habit's id",
@@ -390,13 +408,6 @@
             "description": "Habit's id ('id' field in habit's object)",
             "required": true,
             "type": "string"
-          },
-          {
-            "name": "Access token",
-            "description": "'accessToken' field you get after authentication",
-            "in": "header",
-            "type": "string",
-            "required": true
           }
         ],
         "responses": {
@@ -423,6 +434,7 @@
       "patch": {
         "tags": ["Habit"],
         "summary": "Set habit's current day status to confirmed",
+        "security": [{ "Bearer": [] }],
         "parameters": [
           {
             "name": "Habit's id",
@@ -430,20 +442,17 @@
             "description": "Habit's id ('id' field in habit's object)",
             "required": true,
             "type": "string"
-          },
-          {
-            "name": "Access token",
-            "description": "'accessToken' field you get after authentication",
-            "in": "header",
-            "type": "string",
-            "required": true
           }
         ],
         "responses": {
           "200": {
             "description": "Successful operation",
-            "schema": {
-              "$ref": "#/components/schemas/HabitConfirmedDay"
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HabitConfirmResponse"
+                }
+              }
             }
           },
           "400": {
@@ -469,6 +478,7 @@
       "patch": {
         "tags": ["Habit"],
         "summary": "Set habit's current day to canceled (child did not fulfill his task)",
+        "security": [{ "Bearer": [] }],
         "parameters": [
           {
             "name": "Habit's id",
@@ -476,20 +486,17 @@
             "description": "Habit's id ('id' field in habit's object)",
             "required": true,
             "type": "string"
-          },
-          {
-            "name": "Access token",
-            "description": "'accessToken' field you get after authentication",
-            "in": "header",
-            "type": "string",
-            "required": true
           }
         ],
         "responses": {
           "200": {
             "description": "Successful operation",
-            "schema": {
-              "$ref": "#/components/schemas/HabitDayCanceled"
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HabitCancelResponse"
+                }
+              }
             }
           },
           "400": {
@@ -515,20 +522,17 @@
       "get": {
         "tags": ["Task"],
         "summary": "Get all children tasks for current user",
-        "parameters": [
-          {
-            "name": "Access token",
-            "description": "'accessToken' field you get after authentication",
-            "in": "header",
-            "type": "string",
-            "required": true
-          }
-        ],
+        "security": [{ "Bearer": [] }],
+        "parameters": [],
         "responses": {
           "200": {
             "description": "Successful operation",
-            "schema": {
-              "$ref": "#/components/schemas/GetTasks"
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetTasksResponse"
+                }
+              }
             }
           },
           "400": {
@@ -550,34 +554,36 @@
       "post": {
         "tags": ["Task"],
         "summary": "Add task for the child",
+        "security": [{ "Bearer": [] }],
         "parameters": [
-          {
-            "name": "Request body",
-            "in": "body",
-            "description": "Task's object",
-            "required": true,
-            "schema": { "$ref": "#/components/schemas/Task" }
-          },
           {
             "name": "Child's id",
             "in": "path",
             "description": "Id of the child you want to update ('id' field in child's object)",
             "required": true,
             "type": "string"
-          },
-          {
-            "name": "Access token",
-            "description": "'accessToken' field you get after authentication",
-            "in": "header",
-            "type": "string",
-            "required": true
           }
         ],
+        "requestBody": {
+          "description": "Task's object",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PostTaskRequest"
+              }
+            }
+          }
+        },
         "responses": {
           "201": {
             "description": "Successful operation",
-            "schema": {
-              "$ref": "#/components/schemas/NewTask"
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TaskResponse"
+                }
+              }
             }
           },
           "400": {
@@ -599,33 +605,35 @@
       "patch": {
         "tags": ["Task"],
         "summary": "Edit task",
+        "security": [{ "Bearer": [] }],
         "parameters": [
-          {
-            "name": "Request body",
-            "in": "body",
-            "description": "Request body. At least one field is required.",
-            "required": true,
-            "schema": { "$ref": "#/components/schemas/PatchTask" }
-          },
           {
             "name": "Task's id",
             "in": "path",
             "description": "Task's id ('id' field in task's object)",
             "required": true,
             "type": "string"
-          },
-          {
-            "name": "Access token",
-            "description": "'accessToken' field you get after authentication",
-            "in": "header",
-            "type": "string",
-            "required": true
           }
         ],
+        "requestBody": {
+          "description": "Task's object. At least one field is required",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PatchTaskRequest"
+              }
+            }
+          }
+        },
         "responses": {
           "200": {
             "description": "Successful operation",
-            "schema": { "$ref": "#/components/schemas/NewTask" }
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/TaskResponse" }
+              }
+            }
           },
           "400": {
             "description": "Bad request (invalid request body or id) / No token provided",
@@ -651,13 +659,6 @@
             "description": "Task's id ('id' field in task's object)",
             "required": true,
             "type": "string"
-          },
-          {
-            "name": "Access token",
-            "description": "'accessToken' field you get after authentication",
-            "in": "header",
-            "type": "string",
-            "required": true
           }
         ],
         "responses": {
@@ -684,6 +685,7 @@
       "patch": {
         "tags": ["Task"],
         "summary": "Set task's status to confirmed",
+        "security": [{ "Bearer": [] }],
         "parameters": [
           {
             "name": "Task's id",
@@ -691,19 +693,16 @@
             "description": "Task's id ('id' field in task's object)",
             "required": true,
             "type": "string"
-          },
-          {
-            "name": "Access token",
-            "description": "'accessToken' field you get after authentication",
-            "in": "header",
-            "type": "string",
-            "required": true
           }
         ],
         "responses": {
           "200": {
             "description": "Successful operation",
-            "schema": { "$ref": "#/components/schemas/ConfirmTask" }
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/TaskConfirmResponse" }
+              }
+            }
           },
           "400": {
             "description": "Bad request (invalid id) / No token provided",
@@ -728,6 +727,7 @@
       "patch": {
         "tags": ["Task"],
         "summary": "Set task's status to canceled",
+        "security": [{ "Bearer": [] }],
         "parameters": [
           {
             "name": "Task's id",
@@ -735,19 +735,16 @@
             "description": "Task's id ('id' field in task's object)",
             "required": true,
             "type": "string"
-          },
-          {
-            "name": "Access token",
-            "description": "'accessToken' field you get after authentication",
-            "in": "header",
-            "type": "string",
-            "required": true
           }
         ],
         "responses": {
           "200": {
             "description": "Successful operation",
-            "schema": { "$ref": "#/components/schemas/CancelTask" }
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/TaskCancelResponse" }
+              }
+            }
           },
           "400": {
             "description": "Bad request (invalid id) / No token provided",
@@ -772,6 +769,7 @@
       "patch": {
         "tags": ["Task"],
         "summary": "Reset task's status",
+        "security": [{ "Bearer": [] }],
         "parameters": [
           {
             "name": "Task's id",
@@ -779,19 +777,16 @@
             "description": "Task's id ('id' field in task's object)",
             "required": true,
             "type": "string"
-          },
-          {
-            "name": "Access token",
-            "description": "'accessToken' field you get after authentication",
-            "in": "header",
-            "type": "string",
-            "required": true
           }
         ],
         "responses": {
           "200": {
             "description": "Successful operation",
-            "schema": { "$ref": "#/components/schemas/ResetTask" }
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/TaskResetResponse" }
+              }
+            }
           },
           "400": {
             "description": "Bad request (invalid id) / No token provided",
@@ -816,6 +811,7 @@
       "get": {
         "tags": ["Task"],
         "summary": "Get finished tasks from one child",
+        "security": [{ "Bearer": [] }],
         "parameters": [
           {
             "name": "Child's id",
@@ -823,19 +819,18 @@
             "description": "Child's id ('id' field in child's object)",
             "required": true,
             "type": "string"
-          },
-          {
-            "name": "Access token",
-            "description": "'accessToken' field you get after authentication",
-            "in": "header",
-            "type": "string",
-            "required": true
           }
         ],
         "responses": {
           "200": {
             "description": "Successful operation",
-            "schema": { "$ref": "#/components/schemas/GetFinishedTasks" }
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetFinishedTasksResponse"
+                }
+              }
+            }
           },
           "400": {
             "description": "Bad request (invalid id) / No token provided",
@@ -856,20 +851,17 @@
       "get": {
         "tags": ["Gift"],
         "summary": "Get all children gifts for current user",
-        "parameters": [
-          {
-            "name": "Access token",
-            "description": "'accessToken' field you get after authentication",
-            "in": "header",
-            "type": "string",
-            "required": true
-          }
-        ],
+        "security": [{ "Bearer": [] }],
+        "parameters": [],
         "responses": {
           "200": {
             "description": "Successful operation",
-            "schema": {
-              "$ref": "#/components/schemas/GetGifts"
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetGiftsResponse"
+                }
+              }
             }
           },
           "400": {
@@ -891,34 +883,36 @@
       "post": {
         "tags": ["Gift"],
         "summary": "Add gift for the child",
+        "security": [{ "Bearer": [] }],
         "parameters": [
-          {
-            "name": "Request body",
-            "in": "body",
-            "description": "Gift's object",
-            "required": true,
-            "schema": { "$ref": "#/components/schemas/Gift" }
-          },
           {
             "name": "Child's id",
             "in": "path",
             "description": "Id of the child you want to update ('id' field in child's object)",
             "required": true,
             "type": "string"
-          },
-          {
-            "name": "Access token",
-            "description": "'accessToken' field you get after authentication",
-            "in": "header",
-            "type": "string",
-            "required": true
           }
         ],
+        "requestBody": {
+          "description": "Gift's object",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PostGiftRequest"
+              }
+            }
+          }
+        },
         "responses": {
           "201": {
             "description": "Successful operation",
-            "schema": {
-              "$ref": "#/components/schemas/NewGift"
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GiftResponse"
+                }
+              }
             }
           },
           "400": {
@@ -944,33 +938,35 @@
       "patch": {
         "tags": ["Gift"],
         "summary": "Edit gift",
+        "security": [{ "Bearer": [] }],
         "parameters": [
-          {
-            "name": "Request body",
-            "in": "body",
-            "description": "Request body. At least one field is required.",
-            "required": true,
-            "schema": { "$ref": "#/components/schemas/PatchGift" }
-          },
           {
             "name": "Gift's id",
             "in": "path",
             "description": "Gift's id ('id' field in habit's object)",
             "required": true,
             "type": "string"
-          },
-          {
-            "name": "Access token",
-            "description": "'accessToken' field you get after authentication",
-            "in": "header",
-            "type": "string",
-            "required": true
           }
         ],
+        "requestBody": {
+          "description": "Gift's object. At least one field is required",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PatchGiftRequest"
+              }
+            }
+          }
+        },
         "responses": {
           "200": {
             "description": "Successful operation",
-            "schema": { "$ref": "#/components/schemas/NewGift" }
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/GiftResponse" }
+              }
+            }
           },
           "400": {
             "description": "Bad request (invalid request body or id) / No token provided",
@@ -993,6 +989,7 @@
       "delete": {
         "tags": ["Gift"],
         "summary": "Delete gift",
+        "security": [{ "Bearer": [] }],
         "parameters": [
           {
             "name": "Gift's id",
@@ -1000,13 +997,6 @@
             "description": "Gift's id ('id' field in habit's object)",
             "required": true,
             "type": "string"
-          },
-          {
-            "name": "Access token",
-            "description": "'accessToken' field you get after authentication",
-            "in": "header",
-            "type": "string",
-            "required": true
           }
         ],
         "responses": {
@@ -1033,6 +1023,7 @@
       "patch": {
         "tags": ["Gift"],
         "summary": "Buy gift for the child",
+        "security": [{ "Bearer": [] }],
         "parameters": [
           {
             "name": "Gift's id",
@@ -1040,20 +1031,17 @@
             "description": "Gift's id ('id' field in habit's object)",
             "required": true,
             "type": "string"
-          },
-          {
-            "name": "Access token",
-            "description": "'accessToken' field you get after authentication",
-            "in": "header",
-            "type": "string",
-            "required": true
           }
         ],
         "responses": {
           "200": {
             "description": "Successful operation",
-            "schema": {
-              "$ref": "#/components/schemas/PurchasedGift"
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PurchasedGift"
+                }
+              }
             }
           },
           "400": {
@@ -1083,6 +1071,7 @@
       "patch": {
         "tags": ["Gift"],
         "summary": "Reset gift if it's purchased",
+        "security": [{ "Bearer": [] }],
         "parameters": [
           {
             "name": "Gift's id",
@@ -1090,20 +1079,17 @@
             "description": "Gift's id ('id' field in habit's object)",
             "required": true,
             "type": "string"
-          },
-          {
-            "name": "Access token",
-            "description": "'accessToken' field you get after authentication",
-            "in": "header",
-            "type": "string",
-            "required": true
           }
         ],
         "responses": {
           "200": {
             "description": "Successful operation",
-            "schema": {
-              "$ref": "#/components/schemas/NewGift"
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GiftResponse"
+                }
+              }
             }
           },
           "400": {
@@ -1129,17 +1115,18 @@
       "delete": {
         "tags": ["User"],
         "summary": "Clear all your info",
-        "parameters": [
-          {
-            "name": "Request body",
-            "description": "Request body with your email and password",
-            "in": "body",
-            "schema": {
-              "$ref": "#/components/schemas/Login"
-            },
-            "required": true
+        "parameters": [],
+        "requestBody": {
+          "description": "Authentication's object",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginRequest"
+              }
+            }
           }
-        ],
+        },
         "responses": {
           "204": {
             "description": "Successful operation",
@@ -1159,778 +1146,7 @@
   },
   "components": {
     "schemas": {
-      "Child": {
-        "required": ["name", "gender"],
-        "type": "object",
-        "properties": {
-          "name": {
-            "type": "string",
-            "description": "Child's name",
-            "example": "Adam"
-          },
-          "gender": {
-            "type": "string",
-            "description": "Child's gender",
-            "enum": ["male", "female"]
-          }
-        }
-      },
-      "NewChild": {
-        "type": "object",
-        "properties": {
-          "rewards": {
-            "type": "integer",
-            "description": "Child's rewards"
-          },
-          "habits": {
-            "type": "array",
-            "description": "Child's habits",
-            "items": {}
-          },
-          "tasks": {
-            "type": "array",
-            "description": "Child's tasks",
-            "items": {}
-          },
-          "gifts": {
-            "type": "array",
-            "description": "Child's gifts",
-            "items": {}
-          },
-          "name": {
-            "type": "string",
-            "description": "Child's name",
-            "example": "Adam"
-          },
-          "gender": {
-            "type": "string",
-            "description": "Child's gender",
-            "enum": ["male", "female"]
-          },
-          "id": {
-            "type": "string",
-            "description": "Child's id",
-            "example": "507f1f77bcf86cd799439011"
-          }
-        }
-      },
-      "Habit": {
-        "required": ["name", "rewardPerDay"],
-        "type": "object",
-        "properties": {
-          "name": {
-            "type": "string",
-            "description": "Habit's name",
-            "example": "Name of the habit"
-          },
-          "rewardPerDay": {
-            "type": "integer",
-            "minimum": 1,
-            "description": "Habit's reward for a single day",
-            "example": 1
-          }
-        }
-      },
-      "GetHabits": {
-        "type": "array",
-        "items": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "properties": {
-              "days": {
-                "type": "array",
-                "description": "Habit days",
-                "items": {
-                  "type": "object",
-                  "properties": {
-                    "date": {
-                      "type": "string",
-                      "description": "Day's date",
-                      "example": "2020-12-31"
-                    },
-                    "isCompleted": {
-                      "type": "string",
-                      "description": "Day's status",
-                      "enum": ["unknown", "confirmed", "canceled"]
-                    }
-                  }
-                }
-              },
-              "name": {
-                "type": "string",
-                "description": "Habit's name",
-                "example": "Name of the habit"
-              },
-              "rewardPerDay": {
-                "type": "integer",
-                "description": "Habit's reward for a single day",
-                "example": 1
-              },
-              "childId": {
-                "type": "string",
-                "description": "Id of the child whose habit it is",
-                "example": "507f1f77bcf86cd799439011"
-              },
-              "id": {
-                "type": "string",
-                "description": "Habit's id",
-                "example": "507f1f77bcf86cd799439012"
-              }
-            }
-          }
-        }
-      },
-      "NewHabit": {
-        "type": "object",
-        "properties": {
-          "days": {
-            "type": "array",
-            "description": "Habit days",
-            "items": {
-              "type": "object",
-              "properties": {
-                "date": {
-                  "type": "string",
-                  "description": "Day's date",
-                  "example": "2020-12-31"
-                },
-                "isCompleted": {
-                  "type": "string",
-                  "description": "Day's status",
-                  "enum": ["unknown", "confirmed", "canceled"]
-                }
-              }
-            }
-          },
-          "name": {
-            "type": "string",
-            "description": "Habit's name",
-            "example": "Name of the habit"
-          },
-          "rewardPerDay": {
-            "type": "integer",
-            "description": "Habit's reward for a single day",
-            "example": 1
-          },
-          "childId": {
-            "type": "string",
-            "description": "Id of the child whose habit it is",
-            "example": "507f1f77bcf86cd799439011"
-          },
-          "id": {
-            "type": "string",
-            "description": "Habit's id",
-            "example": "507f1f77bcf86cd799439012"
-          }
-        }
-      },
-      "PatchHabit": {
-        "type": "object",
-        "properties": {
-          "name": {
-            "type": "string",
-            "description": "Habit's name",
-            "example": "Name of the habit"
-          },
-          "rewardPerDay": {
-            "type": "integer",
-            "minimum": 1,
-            "description": "Habit's reward for a single day",
-            "example": 1
-          }
-        }
-      },
-      "HabitConfirmedDay": {
-        "type": "object",
-        "properties": {
-          "updatedHabit": {
-            "type": "object",
-            "description": "Updated habit",
-            "properties": {
-              "days": {
-                "type": "array",
-                "description": "Habit days",
-                "items": {
-                  "type": "object",
-                  "properties": {
-                    "date": {
-                      "type": "string",
-                      "description": "Day's date",
-                      "example": "2020-12-31"
-                    },
-                    "isCompleted": {
-                      "type": "string",
-                      "description": "Habit's status",
-                      "enum": ["confirmed"]
-                    }
-                  }
-                }
-              },
-              "name": {
-                "type": "string",
-                "description": "Habit's name",
-                "example": "Name of the habit"
-              },
-              "rewardPerDay": {
-                "type": "integer",
-                "description": "Habit's reward for a single day",
-                "minimum": 1,
-                "example": 1
-              },
-              "childId": {
-                "type": "string",
-                "description": "Id of the child whose habit it is",
-                "example": "507f1f77bcf86cd799439011"
-              },
-              "id": {
-                "type": "string",
-                "description": "Habit's id",
-                "example": "507f1f77bcf86cd799439012"
-              }
-            }
-          },
-          "updatedRewards": {
-            "type": "integer",
-            "description": "Child's new rewards amount",
-            "minimum": 1,
-            "example": 1
-          }
-        }
-      },
-      "HabitDayCanceled": {
-        "type": "object",
-        "properties": {
-          "days": {
-            "type": "array",
-            "description": "Habit days",
-            "items": {
-              "type": "object",
-              "properties": {
-                "date": {
-                  "type": "string",
-                  "description": "Day's date",
-                  "example": "2020-12-31"
-                },
-                "isCompleted": {
-                  "type": "string",
-                  "description": "Day's status",
-                  "enum": ["canceled"]
-                }
-              }
-            }
-          },
-          "name": {
-            "type": "string",
-            "description": "Habit's name",
-            "example": "Name of the habit"
-          },
-          "rewardPerDay": {
-            "type": "integer",
-            "description": "Habit's reward for a single day",
-            "minimum": 1,
-            "example": 1
-          },
-          "childId": {
-            "type": "string",
-            "description": "Id of the child whose habit it is",
-            "example": "507f1f77bcf86cd799439011"
-          },
-          "id": {
-            "type": "string",
-            "description": "Habit's id",
-            "example": "507f1f77bcf86cd799439012"
-          }
-        }
-      },
-      "Task": {
-        "required": ["name", "reward"],
-        "type": "object",
-        "properties": {
-          "name": {
-            "type": "string",
-            "description": "Task's name",
-            "example": "Name of the task"
-          },
-          "reward": {
-            "type": "integer",
-            "description": "Task's reward",
-            "minimum": 1,
-            "example": 1
-          },
-          "daysToComplete": {
-            "type": "integer",
-            "minimum": 1,
-            "description": "Days for a task to be completed (optional)",
-            "example": 1
-          }
-        }
-      },
-      "ConfirmTask": {
-        "type": "object",
-        "properties": {
-          "updatedTask": {
-            "type": "object",
-            "properties": {
-              "name": {
-                "type": "string",
-                "description": "Task's name",
-                "example": "Name of the task"
-              },
-              "reward": {
-                "type": "string",
-                "description": "Task's reward",
-                "minimum": 1,
-                "example": 1
-              },
-              "isCompleted": {
-                "type": "string",
-                "description": "Task's status",
-                "enum": ["confirmed"]
-              },
-              "childId": {
-                "type": "string",
-                "description": "Id of the child whose task it is",
-                "example": "507f1f77bcf86cd799439011"
-              },
-              "id": {
-                "type": "string",
-                "description": "Task's id",
-                "example": "507f1f77bcf86cd799439012"
-              }
-            }
-          },
-          "updatedRewards": {
-            "type": "integer",
-            "description": "Child's new rewards amount",
-            "minimum": 1,
-            "example": 1
-          }
-        }
-      },
-      "CancelTask": {
-        "type": "object",
-        "properties": {
-          "name": {
-            "type": "string",
-            "description": "Task's name",
-            "example": "Name of the task"
-          },
-          "reward": {
-            "type": "string",
-            "description": "Task's reward",
-            "minimum": 1,
-            "example": 1
-          },
-          "isCompleted": {
-            "type": "string",
-            "description": "Task's status",
-            "enum": ["canceled"]
-          },
-          "childId": {
-            "type": "string",
-            "description": "Id of the child whose task it is",
-            "example": "507f1f77bcf86cd799439011"
-          },
-          "id": {
-            "type": "string",
-            "description": "Task's id",
-            "example": "507f1f77bcf86cd799439012"
-          }
-        }
-      },
-      "ResetTask": {
-        "type": "object",
-        "properties": {
-          "name": {
-            "type": "string",
-            "description": "Task's name",
-            "example": "Name of the task"
-          },
-          "reward": {
-            "type": "string",
-            "description": "Task's reward",
-            "minimum": 1,
-            "example": 1
-          },
-          "isCompleted": {
-            "type": "string",
-            "description": "Task's status",
-            "enum": ["unknown"]
-          },
-          "childId": {
-            "type": "string",
-            "description": "Id of the child whose task it is",
-            "example": "507f1f77bcf86cd799439011"
-          },
-          "id": {
-            "type": "string",
-            "description": "Task's id",
-            "example": "507f1f77bcf86cd799439012"
-          }
-        }
-      },
-      "GetTasks": {
-        "type": "array",
-        "items": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "properties": {
-              "name": {
-                "type": "string",
-                "description": "Task's name",
-                "example": "Name of the task"
-              },
-              "reward": {
-                "type": "string",
-                "description": "Task's reward",
-                "minimum": 1,
-                "example": 1
-              },
-              "isCompleted": {
-                "type": "string",
-                "description": "Task's status",
-                "enum": ["unknown", "confirmed", "canceled"]
-              },
-              "daysToComplete": {
-                "type": "integer",
-                "description": "Amount of days to complete this task (optional)",
-                "minimum": 1,
-                "example": 1
-              },
-              "startDate": {
-                "type": "string",
-                "description": "Task's start date (if 'daysToComplete' field was provided)",
-                "example": "2020-12-31"
-              },
-              "endDate": {
-                "type": "string",
-                "description": "Task's end date (if 'daysToComplete' field was provided)",
-                "example": "2021-01-01"
-              },
-              "childId": {
-                "type": "string",
-                "description": "Id of the child whose task it is",
-                "example": "507f1f77bcf86cd799439011"
-              },
-              "id": {
-                "type": "string",
-                "description": "Task's id",
-                "example": "507f1f77bcf86cd799439012"
-              }
-            }
-          }
-        }
-      },
-      "GetFinishedTasks": {
-        "type": "array",
-        "items": {
-          "type": "object",
-          "properties": {
-            "name": {
-              "type": "string",
-              "description": "Task's name",
-              "example": "Name of the task"
-            },
-            "reward": {
-              "type": "string",
-              "description": "Task's reward",
-              "minimum": 1,
-              "example": 1
-            },
-            "isCompleted": {
-              "type": "string",
-              "description": "Task's status",
-              "enum": ["unknown", "confirmed", "canceled"],
-              "example": "confirmed"
-            },
-            "daysToComplete": {
-              "type": "integer",
-              "description": "Amount of days to complete this task (optional)",
-              "minimum": 1,
-              "example": 1
-            },
-            "startDate": {
-              "type": "string",
-              "description": "Task's start date (if 'daysToComplete' field was provided)",
-              "example": "2020-12-31"
-            },
-            "endDate": {
-              "type": "string",
-              "description": "Task's end date (if 'daysToComplete' field was provided)",
-              "example": "2021-01-01"
-            },
-            "childId": {
-              "type": "string",
-              "description": "Id of the child whose task it is",
-              "example": "507f1f77bcf86cd799439011"
-            },
-            "id": {
-              "type": "string",
-              "description": "Task's id",
-              "example": "507f1f77bcf86cd799439012"
-            }
-          }
-        }
-      },
-      "NewTask": {
-        "type": "object",
-        "properties": {
-          "name": {
-            "type": "string",
-            "description": "Task's name",
-            "example": "Name of the task"
-          },
-          "reward": {
-            "type": "string",
-            "description": "Task's reward",
-            "minimum": 1,
-            "example": 1
-          },
-          "isCompleted": {
-            "type": "string",
-            "description": "Task's status",
-            "enum": ["unknown", "confirmed", "canceled"]
-          },
-          "daysToComplete": {
-            "type": "integer",
-            "description": "Amount of days to complete this task (optional)",
-            "minimum": 1,
-            "example": 1
-          },
-          "startDate": {
-            "type": "string",
-            "description": "Task's start date (if 'daysToComplete' field was provided)",
-            "example": "2020-12-31"
-          },
-          "endDate": {
-            "type": "string",
-            "description": "Task's end date (if 'daysToComplete' field was provided)",
-            "example": "2021-01-01"
-          },
-          "childId": {
-            "type": "string",
-            "description": "Id of the child whose task it is",
-            "example": "507f1f77bcf86cd799439011"
-          },
-          "id": {
-            "type": "string",
-            "description": "Task's id",
-            "example": "507f1f77bcf86cd799439012"
-          }
-        }
-      },
-      "PatchTask": {
-        "type": "object",
-        "properties": {
-          "name": {
-            "type": "string",
-            "description": "Task's name",
-            "example": "Name of the task"
-          },
-          "reward": {
-            "type": "integer",
-            "description": "Task's reward",
-            "minimum": 1,
-            "example": 1
-          },
-          "isCompleted": {
-            "type": "string",
-            "description": "Task's status",
-            "enum": ["unknown", "confirmed", "canceled"]
-          },
-          "daysToComplete": {
-            "type": "integer",
-            "minimum": 1,
-            "description": "Days for a task to be completed (optional)",
-            "example": 1
-          },
-          "startDate": {
-            "type": "string",
-            "description": "Task's start date (appears if 'daysToComplete' field is passed)",
-            "example": "2020-12-31"
-          },
-          "endDate": {
-            "type": "string",
-            "description": "Task's end date (appears if 'daysToComplete' field is passed)",
-            "example": "2021-01-01"
-          },
-          "childId": {
-            "type": "string",
-            "description": "Id of the child this task was created for",
-            "example": "507f1f77bcf86cd799439011"
-          },
-          "id": {
-            "type": "string",
-            "description": "Task's id",
-            "example": "507f1f77bcf86cd799439012"
-          }
-        }
-      },
-      "Gift": {
-        "required": ["name", "price"],
-        "type": "object",
-        "properties": {
-          "name": {
-            "type": "string",
-            "description": "Gift's name",
-            "example": "Name of the gift"
-          },
-          "price": {
-            "type": "integer",
-            "description": "Gift's price",
-            "minimum": 1,
-            "example": 1
-          },
-          "file": {
-            "type": "file",
-            "description": "Gift's image ('file' field in multipart/form-data content-type, optional)"
-          }
-        }
-      },
-      "GetGifts": {
-        "type": "array",
-        "items": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "properties": {
-              "name": {
-                "type": "string",
-                "description": "Gift's name",
-                "example": "Name of the gift"
-              },
-              "price": {
-                "type": "integer",
-                "description": "Gift's price",
-                "minimum": 1,
-                "example": 1
-              },
-              "isPurchased": {
-                "type": "boolean",
-                "description": "Gift's status"
-              },
-              "imageUrl": {
-                "type": "string",
-                "description": "Gift's image url (created if 'file' field was provided while adding new gift)"
-              },
-              "childId": {
-                "type": "string",
-                "description": "Id of the child this gift was created for",
-                "example": "507f1f77bcf86cd799439011"
-              },
-              "id": {
-                "type": "string",
-                "description": "Gift's id",
-                "example": "507f1f77bcf86cd799439012"
-              }
-            }
-          }
-        }
-      },
-      "NewGift": {
-        "type": "object",
-        "properties": {
-          "name": {
-            "type": "string",
-            "description": "Gift's name",
-            "example": "Name of the gift"
-          },
-          "price": {
-            "type": "integer",
-            "description": "Gift's price",
-            "minimum": 1,
-            "example": 1
-          },
-          "isPurchased": {
-            "type": "boolean",
-            "description": "Gift's status",
-            "example": false
-          },
-          "imageUrl": {
-            "type": "string",
-            "description": "Gift's image url (created if 'file' field was provided while adding new gift)"
-          },
-          "childId": {
-            "type": "string",
-            "description": "Id of the child this gift was created for",
-            "example": "507f1f77bcf86cd799439011"
-          },
-          "id": {
-            "type": "string",
-            "description": "Gift's id",
-            "example": "507f1f77bcf86cd799439012"
-          }
-        }
-      },
-      "PatchGift": {
-        "type": "object",
-        "properties": {
-          "name": {
-            "type": "string",
-            "description": "Gift's name",
-            "example": "Name of the gift"
-          },
-          "price": {
-            "type": "integer",
-            "description": "Gift's price",
-            "minimum": 1,
-            "example": 1
-          },
-          "file": {
-            "type": "file",
-            "description": "Gift's image ('file' field in multipart/form-data content-type, optional)"
-          }
-        }
-      },
-      "PurchasedGift": {
-        "type": "object",
-        "properties": {
-          "updatedRewards": {
-            "type": "integer",
-            "description": "Child's new rewards amount",
-            "minimum": 1,
-            "example": 1
-          },
-          "purchasedGift": {
-            "type": "object",
-            "description": "Obtained gift",
-            "properties": {
-              "name": {
-                "type": "string",
-                "description": "Gift's name",
-                "example": "Name of the gift"
-              },
-              "price": {
-                "type": "integer",
-                "description": "Gift's price",
-                "minimum": 1,
-                "example": 1
-              },
-              "isPurchased": {
-                "type": "boolean",
-                "description": "Gift's status"
-              },
-              "imageUrl": {
-                "type": "string",
-                "description": "Gift's image url (created if 'file' field was provided while adding new gift)"
-              },
-              "childId": {
-                "type": "string",
-                "description": "Id of the child this gift was created for",
-                "example": "507f1f77bcf86cd799439011"
-              },
-              "id": {
-                "type": "string",
-                "description": "Gift's id",
-                "example": "507f1f77bcf86cd799439012"
-              }
-            }
-          }
-        }
-      },
-      "Registration": {
+      "RegistrationRequest": {
         "required": ["email", "password", "username"],
         "type": "object",
         "properties": {
@@ -1951,7 +1167,7 @@
           }
         }
       },
-      "AfterRegistration": {
+      "RegistrationResponse": {
         "type": "object",
         "properties": {
           "email": {
@@ -1971,7 +1187,7 @@
           }
         }
       },
-      "Login": {
+      "LoginRequest": {
         "required": ["email", "password"],
         "type": "object",
         "properties": {
@@ -1987,7 +1203,7 @@
           }
         }
       },
-      "AfterLogin": {
+      "LoginResponse": {
         "type": "object",
         "properties": {
           "email": {
@@ -2193,7 +1409,7 @@
           }
         }
       },
-      "RefreshTokens": {
+      "RefreshTokensRequest": {
         "type": "object",
         "properties": {
           "sid": {
@@ -2203,7 +1419,7 @@
           }
         }
       },
-      "AfterRefreshTokens": {
+      "RefreshTokensResponse": {
         "type": "object",
         "properties": {
           "accessToken": {
@@ -2222,6 +1438,807 @@
             "example": "507f1f77bcf86cd799439011"
           }
         }
+      },
+      "ChildRequest": {
+        "required": ["name", "gender"],
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Child's name",
+            "example": "Adam"
+          },
+          "gender": {
+            "type": "string",
+            "description": "Child's gender",
+            "enum": ["male", "female"]
+          }
+        }
+      },
+      "ChildResponse": {
+        "type": "object",
+        "properties": {
+          "rewards": {
+            "type": "integer",
+            "description": "Child's rewards"
+          },
+          "habits": {
+            "type": "array",
+            "description": "Child's habits",
+            "items": {}
+          },
+          "tasks": {
+            "type": "array",
+            "description": "Child's tasks",
+            "items": {}
+          },
+          "gifts": {
+            "type": "array",
+            "description": "Child's gifts",
+            "items": {}
+          },
+          "name": {
+            "type": "string",
+            "description": "Child's name",
+            "example": "Adam"
+          },
+          "gender": {
+            "type": "string",
+            "description": "Child's gender",
+            "enum": ["male", "female"]
+          },
+          "id": {
+            "type": "string",
+            "description": "Child's id",
+            "example": "507f1f77bcf86cd799439011"
+          }
+        }
+      },
+      "PostHabitRequest": {
+        "required": ["name", "rewardPerDay"],
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Habit's name",
+            "example": "Name of the habit"
+          },
+          "rewardPerDay": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "Habit's reward for a single day",
+            "example": 1
+          }
+        }
+      },
+      "GetHabitsRequest": {
+        "type": "array",
+        "items": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "days": {
+                "type": "array",
+                "description": "Habit days",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "date": {
+                      "type": "string",
+                      "description": "Day's date",
+                      "example": "2020-12-31"
+                    },
+                    "isCompleted": {
+                      "type": "string",
+                      "description": "Day's status",
+                      "enum": ["unknown", "confirmed", "canceled"]
+                    }
+                  }
+                }
+              },
+              "name": {
+                "type": "string",
+                "description": "Habit's name",
+                "example": "Name of the habit"
+              },
+              "rewardPerDay": {
+                "type": "integer",
+                "description": "Habit's reward for a single day",
+                "example": 1
+              },
+              "childId": {
+                "type": "string",
+                "description": "Id of the child whose habit it is",
+                "example": "507f1f77bcf86cd799439011"
+              },
+              "id": {
+                "type": "string",
+                "description": "Habit's id",
+                "example": "507f1f77bcf86cd799439012"
+              }
+            }
+          }
+        }
+      },
+      "PatchHabitRequest": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Habit's name",
+            "example": "Name of the habit"
+          },
+          "rewardPerDay": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "Habit's reward for a single day",
+            "example": 1
+          }
+        }
+      },
+      "HabitResponse": {
+        "type": "object",
+        "properties": {
+          "days": {
+            "type": "array",
+            "description": "Habit days",
+            "items": {
+              "type": "object",
+              "properties": {
+                "date": {
+                  "type": "string",
+                  "description": "Day's date",
+                  "example": "2020-12-31"
+                },
+                "isCompleted": {
+                  "type": "string",
+                  "description": "Day's status",
+                  "enum": ["unknown", "confirmed", "canceled"]
+                }
+              }
+            }
+          },
+          "name": {
+            "type": "string",
+            "description": "Habit's name",
+            "example": "Name of the habit"
+          },
+          "rewardPerDay": {
+            "type": "integer",
+            "description": "Habit's reward for a single day",
+            "example": 1
+          },
+          "childId": {
+            "type": "string",
+            "description": "Id of the child whose habit it is",
+            "example": "507f1f77bcf86cd799439011"
+          },
+          "id": {
+            "type": "string",
+            "description": "Habit's id",
+            "example": "507f1f77bcf86cd799439012"
+          }
+        }
+      },
+      "HabitConfirmResponse": {
+        "type": "object",
+        "properties": {
+          "updatedHabit": {
+            "type": "object",
+            "description": "Updated habit",
+            "properties": {
+              "days": {
+                "type": "array",
+                "description": "Habit days",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "date": {
+                      "type": "string",
+                      "description": "Day's date",
+                      "example": "2020-12-31"
+                    },
+                    "isCompleted": {
+                      "type": "string",
+                      "description": "Habit's status",
+                      "enum": ["confirmed"]
+                    }
+                  }
+                }
+              },
+              "name": {
+                "type": "string",
+                "description": "Habit's name",
+                "example": "Name of the habit"
+              },
+              "rewardPerDay": {
+                "type": "integer",
+                "description": "Habit's reward for a single day",
+                "minimum": 1,
+                "example": 1
+              },
+              "childId": {
+                "type": "string",
+                "description": "Id of the child whose habit it is",
+                "example": "507f1f77bcf86cd799439011"
+              },
+              "id": {
+                "type": "string",
+                "description": "Habit's id",
+                "example": "507f1f77bcf86cd799439012"
+              }
+            }
+          },
+          "updatedRewards": {
+            "type": "integer",
+            "description": "Child's new rewards amount",
+            "minimum": 1,
+            "example": 1
+          }
+        }
+      },
+      "HabitCancelResponse": {
+        "type": "object",
+        "properties": {
+          "days": {
+            "type": "array",
+            "description": "Habit days",
+            "items": {
+              "type": "object",
+              "properties": {
+                "date": {
+                  "type": "string",
+                  "description": "Day's date",
+                  "example": "2020-12-31"
+                },
+                "isCompleted": {
+                  "type": "string",
+                  "description": "Day's status",
+                  "enum": ["canceled"]
+                }
+              }
+            }
+          },
+          "name": {
+            "type": "string",
+            "description": "Habit's name",
+            "example": "Name of the habit"
+          },
+          "rewardPerDay": {
+            "type": "integer",
+            "description": "Habit's reward for a single day",
+            "minimum": 1,
+            "example": 1
+          },
+          "childId": {
+            "type": "string",
+            "description": "Id of the child whose habit it is",
+            "example": "507f1f77bcf86cd799439011"
+          },
+          "id": {
+            "type": "string",
+            "description": "Habit's id",
+            "example": "507f1f77bcf86cd799439012"
+          }
+        }
+      },
+      "PostTaskRequest": {
+        "required": ["name", "reward"],
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Task's name",
+            "example": "Name of the task"
+          },
+          "reward": {
+            "type": "integer",
+            "description": "Task's reward",
+            "minimum": 1,
+            "example": 1
+          },
+          "daysToComplete": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "Days for a task to be completed (optional)",
+            "example": 1
+          }
+        }
+      },
+      "PatchTaskRequest": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Task's name",
+            "example": "Name of the task"
+          },
+          "reward": {
+            "type": "integer",
+            "description": "Task's reward",
+            "minimum": 1,
+            "example": 1
+          },
+          "daysToComplete": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "Days for a task to be completed (optional)",
+            "example": 1
+          }
+        }
+      },
+      "TaskResponse": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Task's name",
+            "example": "Name of the task"
+          },
+          "reward": {
+            "type": "string",
+            "description": "Task's reward",
+            "minimum": 1,
+            "example": 1
+          },
+          "isCompleted": {
+            "type": "string",
+            "description": "Task's status",
+            "enum": ["unknown", "confirmed", "canceled"]
+          },
+          "daysToComplete": {
+            "type": "integer",
+            "description": "Amount of days to complete this task (optional)",
+            "minimum": 1,
+            "example": 1
+          },
+          "startDate": {
+            "type": "string",
+            "description": "Task's start date (if 'daysToComplete' field was provided)",
+            "example": "2020-12-31"
+          },
+          "endDate": {
+            "type": "string",
+            "description": "Task's end date (if 'daysToComplete' field was provided)",
+            "example": "2021-01-01"
+          },
+          "childId": {
+            "type": "string",
+            "description": "Id of the child whose task it is",
+            "example": "507f1f77bcf86cd799439011"
+          },
+          "id": {
+            "type": "string",
+            "description": "Task's id",
+            "example": "507f1f77bcf86cd799439012"
+          }
+        }
+      },
+      "TaskConfirmResponse": {
+        "type": "object",
+        "properties": {
+          "updatedTask": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string",
+                "description": "Task's name",
+                "example": "Name of the task"
+              },
+              "reward": {
+                "type": "string",
+                "description": "Task's reward",
+                "minimum": 1,
+                "example": 1
+              },
+              "isCompleted": {
+                "type": "string",
+                "description": "Task's status",
+                "enum": ["confirmed"]
+              },
+              "daysToComplete": {
+                "type": "integer",
+                "description": "Amount of days to complete this task (might not be here)",
+                "minimum": 1,
+                "example": 1
+              },
+              "startDate": {
+                "type": "string",
+                "description": "Task's start date (might not be here)",
+                "example": "2020-12-31"
+              },
+              "endDate": {
+                "type": "string",
+                "description": "Task's end date (might not be here)",
+                "example": "2021-01-01"
+              },
+              "childId": {
+                "type": "string",
+                "description": "Id of the child whose task it is",
+                "example": "507f1f77bcf86cd799439011"
+              },
+              "id": {
+                "type": "string",
+                "description": "Task's id",
+                "example": "507f1f77bcf86cd799439012"
+              }
+            }
+          },
+          "updatedRewards": {
+            "type": "integer",
+            "description": "Child's new rewards amount",
+            "minimum": 1,
+            "example": 1
+          }
+        }
+      },
+      "TaskCancelResponse": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Task's name",
+            "example": "Name of the task"
+          },
+          "reward": {
+            "type": "string",
+            "description": "Task's reward",
+            "minimum": 1,
+            "example": 1
+          },
+          "isCompleted": {
+            "type": "string",
+            "description": "Task's status",
+            "enum": ["canceled"]
+          },
+          "daysToComplete": {
+            "type": "integer",
+            "description": "Amount of days to complete this task (might not be here)",
+            "minimum": 1,
+            "example": 1
+          },
+          "startDate": {
+            "type": "string",
+            "description": "Task's start date (might not be here)",
+            "example": "2020-12-31"
+          },
+          "endDate": {
+            "type": "string",
+            "description": "Task's end date (might not be here)",
+            "example": "2021-01-01"
+          },
+          "childId": {
+            "type": "string",
+            "description": "Id of the child whose task it is",
+            "example": "507f1f77bcf86cd799439011"
+          },
+          "id": {
+            "type": "string",
+            "description": "Task's id",
+            "example": "507f1f77bcf86cd799439012"
+          }
+        }
+      },
+      "TaskResetResponse": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Task's name",
+            "example": "Name of the task"
+          },
+          "reward": {
+            "type": "string",
+            "description": "Task's reward",
+            "minimum": 1,
+            "example": 1
+          },
+          "isCompleted": {
+            "type": "string",
+            "description": "Task's status",
+            "enum": ["unknown"]
+          },
+          "daysToComplete": {
+            "type": "integer",
+            "description": "Amount of days to complete this task (might not be here)",
+            "minimum": 1,
+            "example": 1
+          },
+          "startDate": {
+            "type": "string",
+            "description": "Task's start date (might not be here)",
+            "example": "2020-12-31"
+          },
+          "endDate": {
+            "type": "string",
+            "description": "Task's end date (might not be here)",
+            "example": "2021-01-01"
+          },
+          "childId": {
+            "type": "string",
+            "description": "Id of the child whose task it is",
+            "example": "507f1f77bcf86cd799439011"
+          },
+          "id": {
+            "type": "string",
+            "description": "Task's id",
+            "example": "507f1f77bcf86cd799439012"
+          }
+        }
+      },
+      "GetTasksResponse": {
+        "type": "array",
+        "items": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string",
+                "description": "Task's name",
+                "example": "Name of the task"
+              },
+              "reward": {
+                "type": "string",
+                "description": "Task's reward",
+                "minimum": 1,
+                "example": 1
+              },
+              "isCompleted": {
+                "type": "string",
+                "description": "Task's status",
+                "enum": ["unknown", "confirmed", "canceled"]
+              },
+              "daysToComplete": {
+                "type": "integer",
+                "description": "Amount of days to complete this task (optional)",
+                "minimum": 1,
+                "example": 1
+              },
+              "startDate": {
+                "type": "string",
+                "description": "Task's start date (if 'daysToComplete' field was provided)",
+                "example": "2020-12-31"
+              },
+              "endDate": {
+                "type": "string",
+                "description": "Task's end date (if 'daysToComplete' field was provided)",
+                "example": "2021-01-01"
+              },
+              "childId": {
+                "type": "string",
+                "description": "Id of the child whose task it is",
+                "example": "507f1f77bcf86cd799439011"
+              },
+              "id": {
+                "type": "string",
+                "description": "Task's id",
+                "example": "507f1f77bcf86cd799439012"
+              }
+            }
+          }
+        }
+      },
+      "GetFinishedTasksResponse": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string",
+              "description": "Task's name",
+              "example": "Name of the task"
+            },
+            "reward": {
+              "type": "string",
+              "description": "Task's reward",
+              "minimum": 1,
+              "example": 1
+            },
+            "isCompleted": {
+              "type": "string",
+              "description": "Task's status",
+              "enum": ["unknown", "confirmed", "canceled"],
+              "example": "confirmed"
+            },
+            "daysToComplete": {
+              "type": "integer",
+              "description": "Amount of days to complete this task (optional)",
+              "minimum": 1,
+              "example": 1
+            },
+            "startDate": {
+              "type": "string",
+              "description": "Task's start date (if 'daysToComplete' field was provided)",
+              "example": "2020-12-31"
+            },
+            "endDate": {
+              "type": "string",
+              "description": "Task's end date (if 'daysToComplete' field was provided)",
+              "example": "2021-01-01"
+            },
+            "childId": {
+              "type": "string",
+              "description": "Id of the child whose task it is",
+              "example": "507f1f77bcf86cd799439011"
+            },
+            "id": {
+              "type": "string",
+              "description": "Task's id",
+              "example": "507f1f77bcf86cd799439012"
+            }
+          }
+        }
+      },
+      "PostGiftRequest": {
+        "required": ["name", "price"],
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Gift's name",
+            "example": "Name of the gift"
+          },
+          "price": {
+            "type": "integer",
+            "description": "Gift's price",
+            "minimum": 1,
+            "example": 1
+          },
+          "file": {
+            "type": "file",
+            "description": "Gift's image ('file' field in multipart/form-data content-type, optional)"
+          }
+        }
+      },
+      "GiftResponse": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Gift's name",
+            "example": "Name of the gift"
+          },
+          "price": {
+            "type": "integer",
+            "description": "Gift's price",
+            "minimum": 1,
+            "example": 1
+          },
+          "isPurchased": {
+            "type": "boolean",
+            "description": "Gift's status",
+            "example": false
+          },
+          "imageUrl": {
+            "type": "string",
+            "description": "Gift's image url (created if 'file' field was provided while adding new gift)"
+          },
+          "childId": {
+            "type": "string",
+            "description": "Id of the child this gift was created for",
+            "example": "507f1f77bcf86cd799439011"
+          },
+          "id": {
+            "type": "string",
+            "description": "Gift's id",
+            "example": "507f1f77bcf86cd799439012"
+          }
+        }
+      },
+      "PatchGiftRequest": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Gift's name",
+            "example": "Name of the gift"
+          },
+          "price": {
+            "type": "integer",
+            "description": "Gift's price",
+            "minimum": 1,
+            "example": 1
+          },
+          "file": {
+            "type": "file",
+            "description": "Gift's image ('file' field in multipart/form-data content-type, optional)"
+          }
+        }
+      },
+      "PurchasedGift": {
+        "type": "object",
+        "properties": {
+          "updatedRewards": {
+            "type": "integer",
+            "description": "Child's new rewards amount",
+            "minimum": 1,
+            "example": 1
+          },
+          "purchasedGift": {
+            "type": "object",
+            "description": "Obtained gift",
+            "properties": {
+              "name": {
+                "type": "string",
+                "description": "Gift's name",
+                "example": "Name of the gift"
+              },
+              "price": {
+                "type": "integer",
+                "description": "Gift's price",
+                "minimum": 1,
+                "example": 1
+              },
+              "isPurchased": {
+                "type": "boolean",
+                "description": "Gift's status"
+              },
+              "imageUrl": {
+                "type": "string",
+                "description": "Gift's image url (created if 'file' field was provided while adding new gift)"
+              },
+              "childId": {
+                "type": "string",
+                "description": "Id of the child this gift was created for",
+                "example": "507f1f77bcf86cd799439011"
+              },
+              "id": {
+                "type": "string",
+                "description": "Gift's id",
+                "example": "507f1f77bcf86cd799439012"
+              }
+            }
+          }
+        }
+      },
+      "GetGiftsResponse": {
+        "type": "array",
+        "items": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string",
+                "description": "Gift's name",
+                "example": "Name of the gift"
+              },
+              "price": {
+                "type": "integer",
+                "description": "Gift's price",
+                "minimum": 1,
+                "example": 1
+              },
+              "isPurchased": {
+                "type": "boolean",
+                "description": "Gift's status"
+              },
+              "imageUrl": {
+                "type": "string",
+                "description": "Gift's image url (created if 'file' field was provided while adding new gift)"
+              },
+              "childId": {
+                "type": "string",
+                "description": "Id of the child this gift was created for",
+                "example": "507f1f77bcf86cd799439011"
+              },
+              "id": {
+                "type": "string",
+                "description": "Gift's id",
+                "example": "507f1f77bcf86cd799439012"
+              }
+            }
+          }
+        }
+      }
+    },
+    "securitySchemes": {
+      "Bearer": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
       }
     }
   }

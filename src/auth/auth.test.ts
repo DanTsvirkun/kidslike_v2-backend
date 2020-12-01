@@ -251,7 +251,7 @@ describe("Auth router test suite", () => {
     context("With invalidReqBody (invalid 'sid' type)", () => {
       beforeAll(async () => {
         response = await supertest(app)
-          .get("/auth/refresh")
+          .post("/auth/refresh")
           .set("Authorization", `Bearer ${refreshToken}`)
           .send(invalidReqBody);
       });
@@ -268,7 +268,9 @@ describe("Auth router test suite", () => {
     context("Without providing 'refreshToken'", () => {
       beforeAll(async () => {
         validReqBody.sid = sid;
-        response = await supertest(app).get("/auth/refresh").send(validReqBody);
+        response = await supertest(app)
+          .post("/auth/refresh")
+          .send(validReqBody);
       });
 
       it("Should return a 400 status code", () => {
@@ -284,7 +286,7 @@ describe("Auth router test suite", () => {
       beforeAll(async () => {
         validReqBody.sid = sid;
         response = await supertest(app)
-          .get("/auth/refresh")
+          .post("/auth/refresh")
           .set("Authorization", `Bearer qwerty123`)
           .send(validReqBody);
         session = await SessionModel.findById(sid);
@@ -314,7 +316,7 @@ describe("Auth router test suite", () => {
     context("With secondInvalidReqBody (invalid 'sid')", () => {
       beforeAll(async () => {
         response = await supertest(app)
-          .get("/auth/refresh")
+          .post("/auth/refresh")
           .set("Authorization", `Bearer ${refreshToken}`)
           .send(secondInvalidReqBody);
       });
@@ -334,7 +336,7 @@ describe("Auth router test suite", () => {
       beforeAll(async () => {
         validReqBody.sid = sid;
         response = await supertest(app)
-          .get("/auth/refresh")
+          .post("/auth/refresh")
           .set("Authorization", `Bearer ${refreshToken}`)
           .send(validReqBody);
         createdSession = await SessionModel.findById(response.body.sid);

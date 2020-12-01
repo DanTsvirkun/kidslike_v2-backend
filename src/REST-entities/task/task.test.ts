@@ -21,6 +21,7 @@ describe("Task router test suite", () => {
   let accessToken: string;
   let secondAccessToken: string;
   let createdTask: Document | null;
+  let secondCreatedTask: Document | null;
   let updatedChild: Document | null;
   let confirmedTask: Document | null;
 
@@ -82,6 +83,11 @@ describe("Task router test suite", () => {
       daysToComplete: 1,
     };
 
+    const secondValidReqBody = {
+      name: "Test",
+      reward: 1,
+    };
+
     const invalidReqBody = {
       name: "Test",
       reward: 0,
@@ -136,6 +142,43 @@ describe("Task router test suite", () => {
           endDate: (createdTask as ITask).endDate,
           childId: (createdChild as IChild)._id.toString(),
           id: (createdTask as ITask)._id.toString(),
+        });
+      });
+
+      it("Should add a new task to child document in DB", () => {
+        expect(
+          (updatedChild as IChild).tasks.find(
+            (taskId) => taskId.toString() === response.body.id.toString()
+          )
+        ).toBeTruthy();
+      });
+    });
+
+    context("With secondValidReqBody", () => {
+      beforeAll(async () => {
+        response = await supertest(app)
+          .post(`/task/${(createdChild as IChild)._id}`)
+          .set("Authorization", `Bearer ${accessToken}`)
+          .send(secondValidReqBody);
+        secondCreatedTask = await TaskModel.findById(response.body.id);
+        updatedChild = await ChildModel.findById((createdChild as IChild)._id);
+      });
+
+      it("Should return a 201 status code", () => {
+        expect(response.status).toBe(201);
+      });
+
+      it("Should create a new task in DB", () => {
+        expect(secondCreatedTask).toBeTruthy();
+      });
+
+      it("Should return an expected result", () => {
+        expect(response.body).toEqual({
+          name: "Test",
+          reward: 1,
+          isCompleted: "unknown",
+          childId: (createdChild as IChild)._id.toString(),
+          id: (secondCreatedTask as ITask)._id.toString(),
         });
       });
 
@@ -275,7 +318,6 @@ describe("Task router test suite", () => {
 
   describe("GET /task", () => {
     let response: Response;
-    let updatedTask: Document | null;
 
     it("Init endpoint testing", () => {
       expect(true).toBe(true);
@@ -298,10 +340,19 @@ describe("Task router test suite", () => {
             {
               name: "Test",
               reward: 1,
-              daysToComplete: 1,
               isCompleted: "unknown",
+              daysToComplete: 1,
+              startDate: (createdTask as ITask).startDate,
+              endDate: (createdTask as ITask).endDate,
               childId: (createdChild as IChild)._id.toString(),
               id: (createdTask as ITask)._id.toString(),
+            },
+            {
+              name: "Test",
+              reward: 1,
+              isCompleted: "unknown",
+              childId: (createdChild as IChild)._id.toString(),
+              id: (secondCreatedTask as ITask)._id.toString(),
             },
           ],
         ]);
@@ -384,6 +435,36 @@ describe("Task router test suite", () => {
           isCompleted: "unknown",
           startDate: (updatedTask as ITask).startDate,
           endDate: (updatedTask as ITask).endDate,
+          childId: (createdChild as IChild)._id.toString(),
+          id: (updatedTask as ITask)._id.toString(),
+        });
+      });
+
+      it("Should update a task in DB", () => {
+        expect((updatedTask as ITask).name).toBe("Test2");
+      });
+    });
+
+    context("Updating secondCreatedTask", () => {
+      beforeAll(async () => {
+        response = await supertest(app)
+          .patch(`/task/${(secondCreatedTask as ITask)._id}`)
+          .set("Authorization", `Bearer ${accessToken}`)
+          .send(validReqBody);
+        updatedTask = await TaskModel.findById(
+          (secondCreatedTask as ITask)._id
+        );
+      });
+
+      it("Should return a 200 status code", () => {
+        expect(response.status).toBe(200);
+      });
+
+      it("Should return an expected result", () => {
+        expect(response.body).toEqual({
+          name: "Test2",
+          reward: 1,
+          isCompleted: "unknown",
           childId: (createdChild as IChild)._id.toString(),
           id: (updatedTask as ITask)._id.toString(),
         });
@@ -982,6 +1063,9 @@ describe("Task router test suite", () => {
       await supertest(app)
         .delete(`/task/${(secondTask as ITask)._id}`)
         .set("Authorization", `Bearer ${secondAccessToken}`);
+      await supertest(app)
+        .delete(`/task/${(secondCreatedTask as ITask)._id}`)
+        .set("Authorization", `Bearer ${accessToken}`);
     });
 
     context("Valid request", () => {
@@ -989,9 +1073,7 @@ describe("Task router test suite", () => {
         response = await supertest(app)
           .delete(`/task/${(createdTask as ITask)._id}`)
           .set("Authorization", `Bearer ${accessToken}`);
-        deletedTask = await TaskModel.findOne({
-          childId: (createdChild as IChild)._id,
-        });
+        deletedTask = await TaskModel.findById((createdTask as ITask)._id);
       });
 
       it("Should return a 204 status code", () => {
