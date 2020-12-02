@@ -105,7 +105,7 @@ describe("Habit router test suite", () => {
           .post(`/habit/${(createdChild as IChild)._id}`)
           .set("Authorization", `Bearer ${accessToken}`)
           .send(validReqBody);
-        createdHabit = await HabitModel.findById(response.body.id);
+        createdHabit = await HabitModel.findById(response.body.id).lean();
         updatedChild = await ChildModel.findById((createdChild as IChild)._id);
       });
 
@@ -119,7 +119,7 @@ describe("Habit router test suite", () => {
 
       it("Should return an expected result", () => {
         expect(response.body).toEqual({
-          days: Array.from((createdHabit as IHabit).days),
+          days: (createdHabit as IHabit).days,
           name: "Test",
           rewardPerDay: 1,
           childId: (createdChild as IChild)._id.toString(),
@@ -264,7 +264,7 @@ describe("Habit router test suite", () => {
         expect(response.body).toEqual([
           [
             {
-              days: Array.from((createdHabit as IHabit).days),
+              days: (createdHabit as IHabit).days,
               name: "Test",
               rewardPerDay: 1,
               childId: (createdChild as IChild)._id.toString(),
@@ -330,7 +330,9 @@ describe("Habit router test suite", () => {
           .patch(`/habit/${(createdHabit as IHabit)._id}`)
           .set("Authorization", `Bearer ${accessToken}`)
           .send(validReqBody);
-        updatedHabit = await HabitModel.findById((createdHabit as IHabit)._id);
+        updatedHabit = await HabitModel.findById(
+          (createdHabit as IHabit)._id
+        ).lean();
       });
 
       it("Should return a 200 status code", () => {
@@ -339,7 +341,7 @@ describe("Habit router test suite", () => {
 
       it("Should return an expected result", () => {
         expect(response.body).toEqual({
-          days: Array.from((updatedHabit as IHabit).days),
+          days: (updatedHabit as IHabit).days,
           name: "Test2",
           rewardPerDay: 1,
           childId: (createdChild as IChild)._id.toString(),
@@ -475,7 +477,9 @@ describe("Habit router test suite", () => {
         response = await supertest(app)
           .patch(`/habit/confirm/${(createdHabit as IHabit)._id}`)
           .set("Authorization", `Bearer ${accessToken}`);
-        updatedHabit = await HabitModel.findById((createdHabit as IHabit)._id);
+        updatedHabit = await HabitModel.findById(
+          (createdHabit as IHabit)._id
+        ).lean();
       });
 
       it("Should return a 200 status code", () => {
@@ -485,7 +489,7 @@ describe("Habit router test suite", () => {
       it("Should return an expected result", () => {
         expect(response.body).toEqual({
           updatedHabit: {
-            days: Array.from((updatedHabit as IHabit).days),
+            days: (updatedHabit as IHabit).days,
             name: "Test2",
             rewardPerDay: 1,
             childId: (createdChild as IChild)._id.toString(),
@@ -605,7 +609,9 @@ describe("Habit router test suite", () => {
         response = await supertest(app)
           .patch(`/habit/cancel/${(secondHabit as IHabit)._id}`)
           .set("Authorization", `Bearer ${secondAccessToken}`);
-        updatedHabit = await HabitModel.findById((secondHabit as IHabit)._id);
+        updatedHabit = await HabitModel.findById(
+          (secondHabit as IHabit)._id
+        ).lean();
       });
 
       it("Should return a 200 status code", () => {
@@ -614,7 +620,7 @@ describe("Habit router test suite", () => {
 
       it("Should return an expected result", () => {
         expect(response.body).toEqual({
-          days: Array.from((updatedHabit as IHabit).days),
+          days: (updatedHabit as IHabit).days,
           name: "Test",
           rewardPerDay: 1,
           childId: (secondCreatedChild as IChild)._id.toString(),

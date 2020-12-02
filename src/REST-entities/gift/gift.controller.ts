@@ -6,6 +6,8 @@ import {
   IParent,
   IChild,
   IGift,
+  IParentPopulated,
+  IChildPopulated,
 } from "../../helpers/typescript-helpers/interfaces";
 import ChildModel from "../child/child.model";
 import UserModel from "../user/user.model";
@@ -164,17 +166,17 @@ export const getGifts = async (
       if (err) {
         next(err);
       }
-      const dataToEdit = (data as IParent).children.map(
-        (child) => ((child as unknown) as IChild).gifts
+      const dataToEdit = (data as IParentPopulated).children.map(
+        (child) => (child as IChildPopulated).gifts
       );
       const dataToSend = dataToEdit.map((childArray) => {
         return childArray.map((childGift) => ({
-          name: ((childGift as unknown) as IGift).name,
-          price: ((childGift as unknown) as IGift).price,
-          isPurchased: ((childGift as unknown) as IGift).isPurchased,
-          imageUrl: ((childGift as unknown) as IGift).imageUrl,
-          childId: ((childGift as unknown) as IGift).childId,
-          id: ((childGift as unknown) as IGift)._id,
+          name: (childGift as IGift).name,
+          price: (childGift as IGift).price,
+          isPurchased: (childGift as IGift).isPurchased,
+          imageUrl: (childGift as IGift).imageUrl,
+          childId: (childGift as IGift).childId,
+          id: (childGift as IGift)._id,
         }));
       });
       return res.status(200).send(dataToSend);

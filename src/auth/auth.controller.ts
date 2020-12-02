@@ -5,7 +5,11 @@ import * as queryString from "query-string";
 import axios from "axios";
 import { URL } from "url";
 import { Document } from "mongoose";
-import { IParent, IJWTPayload } from "../helpers/typescript-helpers/interfaces";
+import {
+  IParent,
+  IParentPopulated,
+  IJWTPayload,
+} from "../helpers/typescript-helpers/interfaces";
 import UserModel from "../REST-entities/user/user.model";
 import SessionModel from "../REST-entities/session/session.model";
 import ChildModel from "../REST-entities/child/child.model";
@@ -95,10 +99,10 @@ export const login = async (
         refreshToken,
         sid: newSession._id,
         data: {
-          email: (data as IParent).email,
-          username: (data as IParent).username,
-          id: (data as IParent)._id,
-          children: (data as IParent).children,
+          email: (data as IParentPopulated).email,
+          username: (data as IParentPopulated).username,
+          id: (data as IParentPopulated)._id,
+          children: (data as IParentPopulated).children,
         },
       });
     });
@@ -234,21 +238,20 @@ export const googleRedirect = async (
   if (!existingParent) {
     const email = userData.data.email;
     const username = userData.data.name;
-    //@ts-ignore
     existingParent = await UserModel.create({ email, username });
   }
   const newSession = await SessionModel.create({
-    uid: ((existingParent as unknown) as IParent)._id,
+    uid: (existingParent as IParent)._id,
   });
   const accessToken = jwt.sign(
-    { uid: ((existingParent as unknown) as IParent)._id, sid: newSession._id },
+    { uid: (existingParent as IParent)._id, sid: newSession._id },
     process.env.JWT_SECRET as string,
     {
       expiresIn: process.env.JWT_ACCESS_EXPIRE_TIME,
     }
   );
   const refreshToken = jwt.sign(
-    { uid: ((existingParent as unknown) as IParent)._id, sid: newSession._id },
+    { uid: (existingParent as IParent)._id, sid: newSession._id },
     process.env.JWT_SECRET as string,
     {
       expiresIn: process.env.JWT_REFRESH_EXPIRE_TIME,
@@ -270,10 +273,10 @@ export const googleRedirect = async (
       }
       return res.status(200).send({
         data: {
-          email: (data as IParent).email,
-          username: (data as IParent).username,
-          id: (data as IParent)._id,
-          children: (data as IParent).children,
+          email: (data as IParentPopulated).email,
+          username: (data as IParentPopulated).username,
+          id: (data as IParentPopulated)._id,
+          children: (data as IParentPopulated).children,
         },
         accessToken,
         refreshToken,
@@ -327,21 +330,20 @@ export const facebookRedirect = async (
   if (!existingParent) {
     const email = userData.data.email;
     const username = userData.data.first_name;
-    //@ts-ignore
     existingParent = await UserModel.create({ email, username });
   }
   const newSession = await SessionModel.create({
-    uid: ((existingParent as unknown) as IParent)._id,
+    uid: (existingParent as IParent)._id,
   });
   const accessToken = jwt.sign(
-    { uid: ((existingParent as unknown) as IParent)._id, sid: newSession._id },
+    { uid: (existingParent as IParent)._id, sid: newSession._id },
     process.env.JWT_SECRET as string,
     {
       expiresIn: process.env.JWT_ACCESS_EXPIRE_TIME,
     }
   );
   const refreshToken = jwt.sign(
-    { uid: ((existingParent as unknown) as IParent)._id, sid: newSession._id },
+    { uid: (existingParent as IParent)._id, sid: newSession._id },
     process.env.JWT_SECRET as string,
     {
       expiresIn: process.env.JWT_REFRESH_EXPIRE_TIME,
@@ -362,10 +364,10 @@ export const facebookRedirect = async (
         next(err);
       }
       return res.status(200).send({
-        email: (data as IParent).email,
-        username: (data as IParent).username,
-        id: (data as IParent)._id,
-        children: (data as IParent).children,
+        email: (data as IParentPopulated).email,
+        username: (data as IParentPopulated).username,
+        id: (data as IParentPopulated)._id,
+        children: (data as IParentPopulated).children,
         accessToken,
         refreshToken,
         sid: newSession._id,

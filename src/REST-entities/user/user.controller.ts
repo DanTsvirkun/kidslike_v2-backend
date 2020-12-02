@@ -4,6 +4,10 @@ import {
   IParent,
   IChild,
   IHabit,
+  ITask,
+  IGift,
+  IParentPopulated,
+  IChildPopulated,
 } from "../../helpers/typescript-helpers/interfaces";
 import UserModel from "./user.model";
 import ChildModel from "../child/child.model";
@@ -44,23 +48,23 @@ export const clearAllInfo = async (
       if (err) {
         next(err);
       }
-      (data as IParent).children.forEach(async (child) => {
-        ((child as unknown) as IChild).habits.forEach(async (habit) => {
+      (data as IParentPopulated).children.forEach(async (child) => {
+        (child as IChildPopulated).habits.forEach(async (habit) => {
           await HabitModel.deleteOne({
-            _id: ((habit as unknown) as IHabit)._id,
+            _id: (habit as IHabit)._id,
           });
         });
-        ((child as unknown) as IChild).tasks.forEach(async (task) => {
+        (child as IChildPopulated).tasks.forEach(async (task) => {
           await TaskModel.deleteOne({
-            _id: ((task as unknown) as IHabit)._id,
+            _id: (task as ITask)._id,
           });
         });
-        ((child as unknown) as IChild).gifts.forEach(async (gift) => {
+        (child as IChildPopulated).gifts.forEach(async (gift) => {
           await GiftModel.deleteOne({
-            _id: ((gift as unknown) as IHabit)._id,
+            _id: (gift as IGift)._id,
           });
         });
-        await ChildModel.deleteOne({ _id: ((child as unknown) as IChild)._id });
+        await ChildModel.deleteOne({ _id: (child as IChildPopulated)._id });
       });
     });
   await UserModel.deleteOne({ email });

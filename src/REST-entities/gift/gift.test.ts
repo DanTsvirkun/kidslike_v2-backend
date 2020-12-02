@@ -285,9 +285,9 @@ describe("Gift router test suite", () => {
               name: "Test",
               price: 1,
               isPurchased: false,
-              imageUrl: ((createdGift as unknown) as IGift).imageUrl,
+              imageUrl: (createdGift as IGift).imageUrl,
               childId: (createdChild as IChild)._id.toString(),
-              id: ((createdGift as unknown) as IGift)._id.toString(),
+              id: (createdGift as IGift)._id.toString(),
             },
           ],
         ]);

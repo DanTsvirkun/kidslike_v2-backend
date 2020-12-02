@@ -16,11 +16,10 @@ export default class Server {
   app: Application;
 
   constructor() {
-    this.app = (null as unknown) as Application;
+    this.app = express();
   }
 
   async start() {
-    this.initServer();
     this.initMiddlewares();
     await this.initDbConnection();
     this.initRoutes();
@@ -29,15 +28,10 @@ export default class Server {
   }
 
   startForTesting() {
-    this.initServer();
     this.initMiddlewares();
     this.initRoutes();
     this.initErrorHandling();
     return this.app;
-  }
-
-  private initServer() {
-    this.app = express();
   }
 
   private initMiddlewares() {

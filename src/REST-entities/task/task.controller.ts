@@ -5,6 +5,8 @@ import {
   IParent,
   IChild,
   ITask,
+  IParentPopulated,
+  IChildPopulated,
 } from "../../helpers/typescript-helpers/interfaces";
 import ChildModel from "../child/child.model";
 import TaskModel from "./task.model";
@@ -186,8 +188,7 @@ export const confirmTask = async (req: Request, res: Response) => {
     (confirmedTask as ITask).childId
   );
   const updatedRewards =
-    ((childToUpdate as unknown) as IChild).rewards +
-    (confirmedTask as ITask).reward;
+    (childToUpdate as IChild).rewards + (confirmedTask as ITask).reward;
   await ChildModel.findByIdAndUpdate((confirmedTask as ITask).childId, {
     $set: { rewards: updatedRewards },
   });
@@ -325,29 +326,29 @@ export const getTasks = async (
       if (err) {
         next(err);
       }
-      const dataToEdit = (data as IParent).children.map(
-        (child) => ((child as unknown) as IChild).tasks
+      const dataToEdit = (data as IParentPopulated).children.map(
+        (child) => (child as IChildPopulated).tasks
       );
       const dataToSend = dataToEdit.map((childArray) => {
         return childArray.map((childTask) => {
-          if (((childTask as unknown) as ITask).startDate) {
+          if ((childTask as ITask).startDate) {
             return {
-              name: ((childTask as unknown) as ITask).name,
-              reward: ((childTask as unknown) as ITask).reward,
-              isCompleted: ((childTask as unknown) as ITask).isCompleted,
-              daysToComplete: ((childTask as unknown) as ITask).daysToComplete,
-              startDate: ((childTask as unknown) as ITask).startDate,
-              endDate: ((childTask as unknown) as ITask).endDate,
-              childId: ((childTask as unknown) as ITask).childId,
-              id: ((childTask as unknown) as ITask)._id,
+              name: (childTask as ITask).name,
+              reward: (childTask as ITask).reward,
+              isCompleted: (childTask as ITask).isCompleted,
+              daysToComplete: (childTask as ITask).daysToComplete,
+              startDate: (childTask as ITask).startDate,
+              endDate: (childTask as ITask).endDate,
+              childId: (childTask as ITask).childId,
+              id: (childTask as ITask)._id,
             };
           }
           return {
-            name: ((childTask as unknown) as ITask).name,
-            reward: ((childTask as unknown) as ITask).reward,
-            isCompleted: ((childTask as unknown) as ITask).isCompleted,
-            childId: ((childTask as unknown) as ITask).childId,
-            id: ((childTask as unknown) as ITask)._id,
+            name: (childTask as ITask).name,
+            reward: (childTask as ITask).reward,
+            isCompleted: (childTask as ITask).isCompleted,
+            childId: (childTask as ITask).childId,
+            id: (childTask as ITask)._id,
           };
         });
       });

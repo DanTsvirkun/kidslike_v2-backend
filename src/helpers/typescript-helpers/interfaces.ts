@@ -9,6 +9,13 @@ export interface IParent extends Document {
   children: MongoDBObjectId[];
 }
 
+export interface IParentPopulated extends Document {
+  email: string;
+  passwordHash: string;
+  username: string;
+  children: IChildPopulated[];
+}
+
 export interface IChild extends Document {
   name: string;
   rewards: number;
@@ -16,6 +23,15 @@ export interface IChild extends Document {
   habits: MongoDBObjectId[];
   tasks: MongoDBObjectId[];
   gifts: MongoDBObjectId[];
+}
+
+export interface IChildPopulated extends Document {
+  name: string;
+  rewards: number;
+  gender: Gender;
+  habits: IHabit[];
+  tasks: ITask[];
+  gifts: IGift[];
 }
 
 export interface ISession extends Document {

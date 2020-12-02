@@ -6,6 +6,8 @@ import {
   IChild,
   IHabit,
   IHabitDays,
+  IParentPopulated,
+  IChildPopulated,
 } from "../../helpers/typescript-helpers/interfaces";
 import HabitModel from "./habit.model";
 import ChildModel from "../child/child.model";
@@ -230,16 +232,16 @@ export const getHabits = async (
       if (err) {
         next(err);
       }
-      const dataToEdit = (data as IParent).children.map(
-        (child) => ((child as unknown) as IChild).habits
+      const dataToEdit = (data as IParentPopulated).children.map(
+        (child) => (child as IChildPopulated).habits
       );
       const dataToSend = dataToEdit.map((childArray) => {
         return childArray.map((childHabit) => ({
-          days: ((childHabit as unknown) as IHabit).days,
-          name: ((childHabit as unknown) as IHabit).name,
-          rewardPerDay: ((childHabit as unknown) as IHabit).rewardPerDay,
-          childId: ((childHabit as unknown) as IHabit).childId,
-          id: ((childHabit as unknown) as IHabit)._id,
+          days: (childHabit as IHabit).days,
+          name: (childHabit as IHabit).name,
+          rewardPerDay: (childHabit as IHabit).rewardPerDay,
+          childId: (childHabit as IHabit).childId,
+          id: (childHabit as IHabit)._id,
         }));
       });
       return res.status(200).send(dataToSend);
