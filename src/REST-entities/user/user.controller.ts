@@ -2,7 +2,6 @@ import { Request, Response, NextFunction } from "express";
 import bcrypt from "bcryptjs";
 import {
   IParent,
-  IChild,
   IHabit,
   ITask,
   IGift,

@@ -202,7 +202,7 @@ export const googleAuth = async (req: Request, res: Response) => {
     access_type: "offline",
     prompt: "consent",
   });
-  res.redirect(
+  return res.redirect(
     `https://accounts.google.com/o/oauth2/v2/auth?${stringifiedParams}`
   );
 };
@@ -257,32 +257,11 @@ export const googleRedirect = async (
       expiresIn: process.env.JWT_REFRESH_EXPIRE_TIME,
     }
   );
-  return UserModel.findOne({ email: (existingParent as IParent).email })
-    .populate({
-      path: "children",
-      model: ChildModel,
-      populate: [
-        { path: "habits", model: HabitModel },
-        { path: "tasks", model: TaskModel },
-        { path: "gifts", model: GiftModel },
-      ],
-    })
-    .exec((err, data) => {
-      if (err) {
-        next(err);
-      }
-      return res.status(200).send({
-        data: {
-          email: (data as IParentPopulated).email,
-          username: (data as IParentPopulated).username,
-          id: (data as IParentPopulated)._id,
-          children: (data as IParentPopulated).children,
-        },
-        accessToken,
-        refreshToken,
-        sid: newSession._id,
-      });
-    });
+  return res.redirect(
+    `${req.protocol}://${req.get(
+      "host"
+    )}?token=${accessToken}&refreshToken=${refreshToken}&sid=${newSession._id}`
+  );
 };
 
 export const facebookAuth = async (req: Request, res: Response) => {
@@ -294,7 +273,7 @@ export const facebookAuth = async (req: Request, res: Response) => {
     auth_type: "rerequest",
     display: "popup",
   });
-  res.redirect(
+  return res.redirect(
     `https://www.facebook.com/v4.0/dialog/oauth?${stringifiedParams}`
   );
 };
@@ -349,28 +328,9 @@ export const facebookRedirect = async (
       expiresIn: process.env.JWT_REFRESH_EXPIRE_TIME,
     }
   );
-  return UserModel.findOne({ email: (existingParent as IParent).email })
-    .populate({
-      path: "children",
-      model: ChildModel,
-      populate: [
-        { path: "habits", model: HabitModel },
-        { path: "tasks", model: TaskModel },
-        { path: "gifts", model: GiftModel },
-      ],
-    })
-    .exec((err, data) => {
-      if (err) {
-        next(err);
-      }
-      return res.status(200).send({
-        email: (data as IParentPopulated).email,
-        username: (data as IParentPopulated).username,
-        id: (data as IParentPopulated)._id,
-        children: (data as IParentPopulated).children,
-        accessToken,
-        refreshToken,
-        sid: newSession._id,
-      });
-    });
+  return res.redirect(
+    `${req.protocol}://${req.get(
+      "host"
+    )}?token=${accessToken}&refreshToken=${refreshToken}&sid=${newSession._id}`
+  );
 };
