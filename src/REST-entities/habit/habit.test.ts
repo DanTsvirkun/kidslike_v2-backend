@@ -649,7 +649,7 @@ describe("Habit router test suite", () => {
       });
     });
 
-    context("With invalid token", () => {
+    context("With invalid 'accessToken'", () => {
       beforeAll(async () => {
         response = await supertest(app)
           .patch(`/habit/cancel/${(secondHabit as IHabit)._id}`)

@@ -190,17 +190,15 @@
     "/auth/google": {
       "get": {
         "tags": ["Auth"],
-        "summary": "Google authentication",
+        "summary": "Google authentication. WARNING: Works only for sign-in, after registered on front-end (if you're writing your back-end for a SPECIFIC front-end, then you can configure it right to work both for sign-up & sign-in)",
         "responses": {
           "200": {
-            "description": "Successful operation",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/LoginResponse"
-                }
-              }
-            }
+            "description": "Successful operation (redirect to front-end with accessToken, refreshToken and sid in query). Then use GET /user",
+            "content": {}
+          },
+          "403": {
+            "description": "Not registered or registered with postman",
+            "content": {}
           }
         }
       }
@@ -208,17 +206,15 @@
     "/auth/facebook": {
       "get": {
         "tags": ["Auth"],
-        "summary": "Google authentication",
+        "summary": "Facebook authentication. WARNING: Works only for sign-in, after registered on front-end (if you're writing your back-end for a SPECIFIC front-end, then you can configure it right to work both for sign-up & sign-in)",
         "responses": {
           "200": {
-            "description": "Successful operation",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/LoginResponse"
-                }
-              }
-            }
+            "description": "Successful operation (redirect to front-end with accessToken, refreshToken and sid in query). Then use GET /user",
+            "content": {}
+          },
+          "403": {
+            "description": "Not registered or registered with postman",
+            "content": {}
           }
         }
       }
@@ -652,6 +648,7 @@
       "delete": {
         "tags": ["Task"],
         "summary": "Delete task",
+        "security": [{ "Bearer": [] }],
         "parameters": [
           {
             "name": "Task's id",
@@ -1112,6 +1109,32 @@
       }
     },
     "/user": {
+      "get": {
+        "tags": ["User"],
+        "summary": "Get all your info",
+        "parameters": [],
+        "security": [{ "Bearer": [] }],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetUserInfo"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "No token provided",
+            "content": {}
+          },
+          "401": {
+            "description": "Unauthorized (invalid access token)",
+            "content": {}
+          }
+        }
+      },
       "delete": {
         "tags": ["User"],
         "summary": "Clear all your info",
@@ -1133,11 +1156,7 @@
             "content": {}
           },
           "400": {
-            "description": "Bad request (invalid request body) / No token provided",
-            "content": {}
-          },
-          "401": {
-            "description": "Unauthorized (invalid access token)",
+            "description": "Bad request (invalid request body)",
             "content": {}
           }
         }
@@ -1206,16 +1225,6 @@
       "LoginResponse": {
         "type": "object",
         "properties": {
-          "email": {
-            "type": "string",
-            "description": "User's email",
-            "format": "email"
-          },
-          "username": {
-            "type": "string",
-            "description": "User's name",
-            "example": "Adam"
-          },
           "accessToken": {
             "type": "string",
             "description": "Session's access token (needed for all requests)",
@@ -1231,14 +1240,24 @@
             "description": "Session's id (needed for /auth/refresh)",
             "example": "507f1f77bcf86cd799439011"
           },
-          "id": {
-            "type": "string",
-            "description": "User's id",
-            "example": "507f1f77bcf86cd799439012"
-          },
           "data": {
             "type": "object",
             "properties": {
+              "email": {
+                "type": "string",
+                "description": "User's email",
+                "format": "email"
+              },
+              "username": {
+                "type": "string",
+                "description": "User's name",
+                "example": "Adam"
+              },
+              "id": {
+                "type": "string",
+                "description": "User's id",
+                "example": "507f1f77bcf86cd799439012"
+              },
               "children": {
                 "type": "array",
                 "description": "User's children",
@@ -1436,6 +1455,193 @@
             "type": "string",
             "description": "New session's id",
             "example": "507f1f77bcf86cd799439011"
+          }
+        }
+      },
+      "GetUserInfo": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "description": "User's email",
+            "format": "email"
+          },
+          "username": {
+            "type": "string",
+            "description": "User's name",
+            "example": "Adam"
+          },
+          "id": {
+            "type": "string",
+            "description": "User's id",
+            "example": "507f1f77bcf86cd799439012"
+          },
+
+          "children": {
+            "type": "array",
+            "description": "User's children",
+            "items": {
+              "type": "object",
+              "properties": {
+                "rewards": {
+                  "type": "integer",
+                  "description": "Child's rewards"
+                },
+                "habits": {
+                  "type": "array",
+                  "description": "Child's habits",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "days": {
+                        "type": "array",
+                        "description": "Habit days",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "date": {
+                              "type": "string",
+                              "description": "Day's date",
+                              "example": "2020-12-31"
+                            },
+                            "isCompleted": {
+                              "type": "string",
+                              "description": "Day's status",
+                              "enum": ["unknown", "confirmed", "canceled"]
+                            }
+                          }
+                        }
+                      },
+                      "_id": {
+                        "type": "string",
+                        "description": "Habit's id",
+                        "example": "507f1f77bcf86cd799439011"
+                      },
+                      "name": {
+                        "type": "string",
+                        "description": "Habit's name",
+                        "example": "Name of the habit"
+                      },
+                      "rewardPerDay": {
+                        "type": "integer",
+                        "description": "Habit's reward for a single day",
+                        "minimum": 1,
+                        "example": 1
+                      },
+                      "childId": {
+                        "type": "string",
+                        "description": "Id of the child whose habit it is",
+                        "example": "507f1f77bcf86cd799439011"
+                      },
+                      "__v": {
+                        "type": "integer",
+                        "description": "MongoDB document service versionKey (ignore)"
+                      }
+                    }
+                  }
+                },
+                "tasks": {
+                  "type": "array",
+                  "description": "Child's tasks",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "_id": {
+                        "type": "string",
+                        "description": "Task's id",
+                        "example": "507f1f77bcf86cd799439011"
+                      },
+                      "name": {
+                        "type": "string",
+                        "description": "Task's name",
+                        "example": "Name of the task"
+                      },
+                      "reward": {
+                        "type": "string",
+                        "description": "Task's reward",
+                        "minimum": 1,
+                        "example": 1
+                      },
+                      "isCompleted": {
+                        "type": "string",
+                        "description": "Task's status",
+                        "enum": ["unknown", "confirmed", "canceled"]
+                      },
+                      "childId": {
+                        "type": "string",
+                        "description": "Id of the child whose task it is",
+                        "example": "507f1f77bcf86cd799439011"
+                      },
+                      "__v": {
+                        "type": "integer",
+                        "description": "MongoDB document service versionKey (ignore)"
+                      }
+                    }
+                  }
+                },
+                "gifts": {
+                  "type": "array",
+                  "description": "Child's gifts",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "_id": {
+                        "type": "string",
+                        "description": "Gift's id",
+                        "example": "507f1f77bcf86cd799439011"
+                      },
+                      "name": {
+                        "type": "string",
+                        "description": "Gift's name",
+                        "example": "Name of the gift"
+                      },
+                      "price": {
+                        "type": "integer",
+                        "description": "Gift's price",
+                        "minimum": 1,
+                        "example": 1
+                      },
+                      "isPurchased": {
+                        "type": "boolean",
+                        "description": "Gift's status"
+                      },
+                      "imageUrl": {
+                        "type": "string",
+                        "description": "Gift's image url (created if 'file' field was provided while adding new gift)"
+                      },
+                      "childId": {
+                        "type": "string",
+                        "description": "Id of the child this gift was created for",
+                        "example": "507f1f77bcf86cd799439011"
+                      },
+                      "__v": {
+                        "type": "integer",
+                        "description": "MongoDB document service versionKey (ignore)"
+                      }
+                    }
+                  }
+                },
+                "_id": {
+                  "type": "string",
+                  "description": "Child's id",
+                  "example": "507f1f77bcf86cd799439011"
+                },
+                "name": {
+                  "type": "string",
+                  "description": "Child's name",
+                  "example": "Adam"
+                },
+                "gender": {
+                  "type": "string",
+                  "description": "Child's gender",
+                  "enum": ["male", "female"]
+                },
+                "__v": {
+                  "type": "integer",
+                  "description": "MongoDB document service versionKey (ignore)"
+                }
+              }
+            }
           }
         }
       },

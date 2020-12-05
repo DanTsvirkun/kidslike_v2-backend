@@ -14,6 +14,35 @@ import HabitModel from "../habit/habit.model";
 import TaskModel from "../task/task.model";
 import GiftModel from "../gift/gift.model";
 
+export const getAllInfo = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const email = (req.user as IParent).email;
+  return UserModel.findOne({ email })
+    .populate({
+      path: "children",
+      model: ChildModel,
+      populate: [
+        { path: "habits", model: HabitModel },
+        { path: "tasks", model: TaskModel },
+        { path: "gifts", model: GiftModel },
+      ],
+    })
+    .exec((err, data) => {
+      if (err) {
+        next(err);
+      }
+      return res.status(200).send({
+        email: (data as IParentPopulated).email,
+        username: (data as IParentPopulated).username,
+        id: (data as IParentPopulated)._id,
+        children: (data as IParentPopulated).children,
+      });
+    });
+};
+
 export const clearAllInfo = async (
   req: Request,
   res: Response,

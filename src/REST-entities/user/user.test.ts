@@ -3,6 +3,10 @@ import supertest, { Response } from "supertest";
 import { Application } from "express";
 import Server from "../../server/server";
 import { Gender } from "../../helpers/typescript-helpers/enums";
+import {
+  IParentPopulated,
+  IChildPopulated,
+} from "../../helpers/typescript-helpers/interfaces";
 import UserModel from "./user.model";
 import SessionModel from "../session/session.model";
 import HabitModel from "../habit/habit.model";
@@ -18,6 +22,12 @@ describe("Child router test suite", () => {
   let createdHabit: Response;
   let createdTask: Response;
   let createdGift: Response;
+  let populatedData: {
+    email: string;
+    username: string;
+    id: string;
+    children: object[];
+  };
 
   beforeAll(async () => {
     app = new Server().startForTesting();
@@ -42,21 +52,108 @@ describe("Child router test suite", () => {
       .set("Authorization", `Bearer ${accessToken}`)
       .send({ name: "Test", gender: Gender.MALE });
     createdHabit = await supertest(app)
-      .post(`/habit/${createdChild.body._id}`)
+      .post(`/habit/${createdChild.body.id}`)
       .set("Authorization", `Bearer ${accessToken}`)
       .send({ name: "Test", rewardPerDay: 5 });
     createdTask = await supertest(app)
-      .post(`/task/${createdChild.body._id}`)
+      .post(`/task/${createdChild.body.id}`)
       .set("Authorization", `Bearer ${accessToken}`)
       .send({ name: "Test", reward: 5 });
     createdGift = await supertest(app)
-      .post(`/gift/${createdChild.body._id}`)
+      .post(`/gift/${createdChild.body.id}`)
       .set("Authorization", `Bearer ${accessToken}`)
       .send({ name: "Test", price: 5 });
+    await UserModel.findOne({ email: "test@email.com" })
+      .lean()
+      .populate({
+        path: "children",
+        model: ChildModel,
+        populate: [
+          { path: "habits", model: HabitModel },
+          { path: "tasks", model: TaskModel },
+          { path: "gifts", model: GiftModel },
+        ],
+      })
+      .exec((err, data) => {
+        populatedData = {
+          email: (data as IParentPopulated).email,
+          username: (data as IParentPopulated).username,
+          id: (data as IParentPopulated)._id.toString(),
+          children: (data as IParentPopulated).children.map((child) => {
+            child._id = child._id.toString();
+            child.habits.map((habit) => {
+              habit._id = habit._id.toString();
+              ((habit.childId as unknown) as string) = habit.childId.toString();
+              return habit;
+            });
+            child.tasks.map((task) => {
+              task._id = task._id.toString();
+              ((task.childId as unknown) as string) = task.childId.toString();
+              return task;
+            });
+            child.gifts.map((gift) => {
+              gift._id = gift._id.toString();
+              ((gift.childId as unknown) as string) = gift.childId.toString();
+              return gift;
+            });
+            return child;
+          }),
+        };
+      });
   });
 
   afterAll(async () => {
     await SessionModel.deleteOne({ _id: response.body.sid });
+  });
+
+  describe("GET /user", () => {
+    let response: Response;
+
+    context("Valid request", () => {
+      beforeAll(async () => {
+        response = await supertest(app)
+          .get("/user")
+          .set("Authorization", `Bearer ${accessToken}`);
+      });
+
+      it("Should return a 200 status code", () => {
+        expect(response.status).toBe(200);
+      });
+
+      it("Should return an expected result", () => {
+        expect(response.body).toEqual(populatedData);
+      });
+    });
+
+    context("Without providing 'accessToken'", () => {
+      beforeAll(async () => {
+        response = await supertest(app).get("/user");
+      });
+
+      it("Should return a 400 status code", () => {
+        expect(response.status).toBe(400);
+      });
+
+      it("Should say that token wasn't provided", () => {
+        expect(response.body.message).toBe("No token provided");
+      });
+    });
+
+    context("With invalid 'accessToken'", () => {
+      beforeAll(async () => {
+        response = await supertest(app)
+          .get("/user")
+          .set("Authorization", `Bearer qwerty123`);
+      });
+
+      it("Should return a 401 status code", () => {
+        expect(response.status).toBe(401);
+      });
+
+      it("Should return an unauthorized status", () => {
+        expect(response.body.message).toBe("Unauthorized");
+      });
+    });
   });
 
   describe("DELETE /user", () => {

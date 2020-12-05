@@ -262,7 +262,9 @@ export const googleRedirect = async (
   return res.redirect(
     `${
       (existingParent as IParent).originUrl
-    }?token=${accessToken}&refreshToken=${refreshToken}&sid=${newSession._id}`
+    }?accessToken=${accessToken}&refreshToken=${refreshToken}&sid=${
+      newSession._id
+    }`
   );
 };
 
@@ -330,6 +332,8 @@ export const facebookRedirect = async (req: Request, res: Response) => {
   return res.redirect(
     `${
       (existingParent as IParent).originUrl
-    }?token=${accessToken}&refreshToken=${refreshToken}&sid=${newSession._id}`
+    }?accessToken=${accessToken}&refreshToken=${refreshToken}&sid=${
+      newSession._id
+    }`
   );
 };
