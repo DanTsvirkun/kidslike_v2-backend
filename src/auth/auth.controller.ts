@@ -33,6 +33,7 @@ export const register = async (req: Request, res: Response) => {
     email,
     passwordHash,
     username,
+    originUrl: req.headers.origin,
   });
   return res.status(201).send({
     email,
@@ -235,10 +236,11 @@ export const googleRedirect = async (
     },
   });
   let existingParent = await UserModel.findOne({ email: userData.data.email });
-  if (!existingParent) {
-    const email = userData.data.email;
-    const username = userData.data.name;
-    existingParent = await UserModel.create({ email, username });
+  if (!existingParent || !(existingParent as IParent).originUrl) {
+    return res.status(403).send({
+      message:
+        "You should register from front-end first (not postman). Google/Facebook are only for sign-in",
+    });
   }
   const newSession = await SessionModel.create({
     uid: (existingParent as IParent)._id,
@@ -258,9 +260,9 @@ export const googleRedirect = async (
     }
   );
   return res.redirect(
-    `${req.protocol}://${req.get(
-      "host"
-    )}?token=${accessToken}&refreshToken=${refreshToken}&sid=${newSession._id}`
+    `${
+      (existingParent as IParent).originUrl
+    }?token=${accessToken}&refreshToken=${refreshToken}&sid=${newSession._id}`
   );
 };
 
@@ -278,11 +280,7 @@ export const facebookAuth = async (req: Request, res: Response) => {
   );
 };
 
-export const facebookRedirect = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
+export const facebookRedirect = async (req: Request, res: Response) => {
   const fullUrl = `${req.protocol}://${req.get("host")}${req.originalUrl}`;
   const urlObj = new URL(fullUrl);
   const urlParams = queryString.parse(urlObj.search);
@@ -306,10 +304,11 @@ export const facebookRedirect = async (
     },
   });
   let existingParent = await UserModel.findOne({ email: userData.data.email });
-  if (!existingParent) {
-    const email = userData.data.email;
-    const username = userData.data.first_name;
-    existingParent = await UserModel.create({ email, username });
+  if (!existingParent || !(existingParent as IParent).originUrl) {
+    return res.status(403).send({
+      message:
+        "You should register from front-end first (not postman). Google/Facebook are only for sign-in",
+    });
   }
   const newSession = await SessionModel.create({
     uid: (existingParent as IParent)._id,
@@ -329,8 +328,8 @@ export const facebookRedirect = async (
     }
   );
   return res.redirect(
-    `${req.protocol}://${req.get(
-      "host"
-    )}?token=${accessToken}&refreshToken=${refreshToken}&sid=${newSession._id}`
+    `${
+      (existingParent as IParent).originUrl
+    }?token=${accessToken}&refreshToken=${refreshToken}&sid=${newSession._id}`
   );
 };

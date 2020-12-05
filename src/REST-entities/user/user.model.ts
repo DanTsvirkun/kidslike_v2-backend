@@ -5,6 +5,7 @@ const userSchema = new Schema({
   passwordHash: String,
   username: String,
   children: [{ type: mongoose.Types.ObjectId, ref: "Child" }],
+  originUrl: String,
 });
 
 export default mongoose.model("User", userSchema);
