@@ -144,16 +144,9 @@
     "/auth/refresh": {
       "post": {
         "tags": ["Auth"],
-        "summary": "Get new pair of tokens",
-        "parameters": [
-          {
-            "name": "Refresh token",
-            "description": "'refreshToken' field you get after authentication",
-            "in": "header",
-            "type": "string",
-            "required": true
-          }
-        ],
+        "summary": "Get new pair of tokens (use Bearer {refreshToken} instead of accessToken)",
+        "security": [{ "Bearer": [] }],
+        "parameters": [],
         "requestBody": {
           "description": "Object with session's id",
           "required": true,
