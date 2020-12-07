@@ -3,13 +3,13 @@ import path from "path";
 import express, { Application, Request, Response, NextFunction } from "express";
 import mongoose from "mongoose";
 import swaggerUi from "swagger-ui-express";
+require("dotenv").config({ path: path.join(__dirname, "../../.env") });
 import authRouter from "../auth/auth.router";
 import childRouter from "../REST-entities/child/child.router";
 import taskRouter from "../REST-entities/task/task.router";
 import habitRouter from "../REST-entities/habit/habit.router";
 import giftRouter from "../REST-entities/gift/gift.router";
 import userRouter from "../REST-entities/user/user.router";
-require("dotenv").config({ path: path.join(__dirname, "../../.env") });
 const swaggerDocument = require("../../swagger.json");
 
 export default class Server {

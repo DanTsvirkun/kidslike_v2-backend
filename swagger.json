@@ -104,6 +104,10 @@
               }
             }
           },
+          "400": {
+            "description": "Bad request (invalid request body)",
+            "content": {}
+          },
           "403": {
             "description": "Email doesn't exist / Password is wrong",
             "content": {}
@@ -301,7 +305,7 @@
         "security": [{ "Bearer": [] }],
         "parameters": [
           {
-            "name": "Child's id",
+            "name": "childId",
             "in": "path",
             "description": "Id of the child you want to update ('id' field in child's object)",
             "required": true,
@@ -352,7 +356,7 @@
         "security": [{ "Bearer": [] }],
         "parameters": [
           {
-            "name": "Habit's id",
+            "name": "habitId",
             "in": "path",
             "description": "Habit's id ('id' field in habit's object)",
             "required": true,
@@ -399,7 +403,7 @@
         "security": [{ "Bearer": [] }],
         "parameters": [
           {
-            "name": "Habit's id",
+            "name": "habitId",
             "in": "path",
             "description": "Habit's id ('id' field in habit's object)",
             "required": true,
@@ -433,7 +437,7 @@
         "security": [{ "Bearer": [] }],
         "parameters": [
           {
-            "name": "Habit's id",
+            "name": "habitId",
             "in": "path",
             "description": "Habit's id ('id' field in habit's object)",
             "required": true,
@@ -477,7 +481,7 @@
         "security": [{ "Bearer": [] }],
         "parameters": [
           {
-            "name": "Habit's id",
+            "name": "habitId",
             "in": "path",
             "description": "Habit's id ('id' field in habit's object)",
             "required": true,
@@ -553,7 +557,7 @@
         "security": [{ "Bearer": [] }],
         "parameters": [
           {
-            "name": "Child's id",
+            "name": "childId",
             "in": "path",
             "description": "Id of the child you want to update ('id' field in child's object)",
             "required": true,
@@ -604,7 +608,7 @@
         "security": [{ "Bearer": [] }],
         "parameters": [
           {
-            "name": "Task's id",
+            "name": "taskId",
             "in": "path",
             "description": "Task's id ('id' field in task's object)",
             "required": true,
@@ -651,7 +655,7 @@
         "security": [{ "Bearer": [] }],
         "parameters": [
           {
-            "name": "Task's id",
+            "name": "taskId",
             "in": "path",
             "description": "Task's id ('id' field in task's object)",
             "required": true,
@@ -685,7 +689,7 @@
         "security": [{ "Bearer": [] }],
         "parameters": [
           {
-            "name": "Task's id",
+            "name": "taskId",
             "in": "path",
             "description": "Task's id ('id' field in task's object)",
             "required": true,
@@ -727,7 +731,7 @@
         "security": [{ "Bearer": [] }],
         "parameters": [
           {
-            "name": "Task's id",
+            "name": "taskId",
             "in": "path",
             "description": "Task's id ('id' field in task's object)",
             "required": true,
@@ -769,7 +773,7 @@
         "security": [{ "Bearer": [] }],
         "parameters": [
           {
-            "name": "Task's id",
+            "name": "taskId",
             "in": "path",
             "description": "Task's id ('id' field in task's object)",
             "required": true,
@@ -811,7 +815,7 @@
         "security": [{ "Bearer": [] }],
         "parameters": [
           {
-            "name": "Child's id",
+            "name": "childId",
             "in": "path",
             "description": "Child's id ('id' field in child's object)",
             "required": true,
@@ -883,7 +887,7 @@
         "security": [{ "Bearer": [] }],
         "parameters": [
           {
-            "name": "Child's id",
+            "name": "childId",
             "in": "path",
             "description": "Id of the child you want to update ('id' field in child's object)",
             "required": true,
@@ -925,7 +929,7 @@
             "content": {}
           },
           "415": {
-            "description": "File isn't an image",
+            "description": "File is not an image",
             "content": {}
           }
         }
@@ -938,7 +942,7 @@
         "security": [{ "Bearer": [] }],
         "parameters": [
           {
-            "name": "Gift's id",
+            "name": "giftId",
             "in": "path",
             "description": "Gift's id ('id' field in habit's object)",
             "required": true,
@@ -978,7 +982,7 @@
             "content": {}
           },
           "415": {
-            "description": "File isn't an image",
+            "description": "File is not an image",
             "content": {}
           }
         }
@@ -989,7 +993,7 @@
         "security": [{ "Bearer": [] }],
         "parameters": [
           {
-            "name": "Gift's id",
+            "name": "giftId",
             "in": "path",
             "description": "Gift's id ('id' field in habit's object)",
             "required": true,
@@ -1023,7 +1027,7 @@
         "security": [{ "Bearer": [] }],
         "parameters": [
           {
-            "name": "Gift's id",
+            "name": "giftId",
             "in": "path",
             "description": "Gift's id ('id' field in habit's object)",
             "required": true,
@@ -1071,7 +1075,7 @@
         "security": [{ "Bearer": [] }],
         "parameters": [
           {
-            "name": "Gift's id",
+            "name": "giftId",
             "in": "path",
             "description": "Gift's id ('id' field in habit's object)",
             "required": true,
