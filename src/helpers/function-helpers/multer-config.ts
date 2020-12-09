@@ -31,22 +31,12 @@ export const uploadImage = (file: Express.Multer.File) => {
     return null;
   }
   return new Promise((resolve, reject) => {
-    const { originalname, buffer } = file;
+    const { originalname } = file;
     const fileName = uuid();
     const blob = bucket.file(originalname.replace(/.*(?=\.)/, fileName));
-    const blobStream = blob.createWriteStream({
-      resumable: false,
-    });
-    blobStream
-      .on("finish", () => {
-        const publicUrl = util.format(
-          `https://storage.googleapis.com/${bucket.name}/${blob.name}`
-        );
-        resolve(publicUrl);
-      })
-      .on("error", () => {
-        reject(`Unable to upload image, something went wrong`);
-      })
-      .end(buffer);
+    const publicUrl = util.format(
+      `https://storage.googleapis.com/${bucket.name}/${blob.name}`
+    );
+    resolve(publicUrl);
   });
 };
