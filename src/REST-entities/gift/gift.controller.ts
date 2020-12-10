@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from "express";
-import { Types } from "mongoose";
+import mongoose from "mongoose";
 import GiftModel from "./gift.model";
 import { uploadImage } from "../../helpers/function-helpers/multer-config";
 import {
@@ -9,6 +9,7 @@ import {
   IParentPopulated,
   IChildPopulated,
 } from "../../helpers/typescript-helpers/interfaces";
+import { MongoDBObjectId } from "../../helpers/typescript-helpers/types";
 import ChildModel from "../child/child.model";
 import UserModel from "../user/user.model";
 
@@ -24,22 +25,23 @@ export const addGift = async (req: Request, res: Response) => {
   if (req.fileValidationError) {
     return res.status(415).send({ message: req.fileValidationError });
   }
-  const imageUrl = await uploadImage(giftImage);
+  const imageUrl = (await uploadImage(giftImage)) as string;
   const gift = await GiftModel.create({
     ...req.body,
     imageUrl,
+    isPurchased: false,
     childId: childToUpdateId,
   });
   await ChildModel.findByIdAndUpdate(childToUpdateId, {
     $push: { gifts: gift },
   });
   return res.status(201).send({
-    name: (gift as IGift).name,
-    price: (gift as IGift).price,
-    isPurchased: (gift as IGift).isPurchased,
-    imageUrl: (gift as IGift).imageUrl,
-    childId: (gift as IGift).childId,
-    id: (gift as IGift)._id,
+    name: gift.name,
+    price: gift.price,
+    isPurchased: gift.isPurchased,
+    imageUrl: gift.imageUrl,
+    childId: gift.childId,
+    id: gift._id,
   });
 };
 
@@ -50,7 +52,7 @@ export const editGift = async (req: Request, res: Response) => {
     return res.status(404).send({ message: "Gift not found" });
   }
   const childToUpdate = (parent as IParent).children.find(
-    (childId) => childId.toString() === (giftToEdit as IGift).childId.toString()
+    (childId) => childId.toString() === giftToEdit.childId.toString()
   );
   if (!childToUpdate) {
     return res.status(404).send({ message: "Child not found" });
@@ -58,14 +60,13 @@ export const editGift = async (req: Request, res: Response) => {
   if (!req.file && !req.body.name && !req.body.price) {
     return res.status(400).send({ message: "At least one field is required" });
   }
-  let imageUrl = (giftToEdit as IGift).imageUrl;
+  let imageUrl = giftToEdit.imageUrl;
   const giftImage = req.file;
   if (req.fileValidationError) {
     return res.status(415).send({ message: req.fileValidationError });
   }
   if (giftImage) {
-    // @ts-ignore
-    imageUrl = await uploadImage(req.file);
+    imageUrl = (await uploadImage(req.file)) as string;
   }
   const newGift: IGift = { ...giftToEdit.toObject(), ...req.body, imageUrl };
   await GiftModel.findByIdAndUpdate(req.params.giftId, newGift, {
@@ -73,12 +74,12 @@ export const editGift = async (req: Request, res: Response) => {
     overwrite: true,
   });
   return res.status(200).send({
-    name: (newGift as IGift).name,
-    price: (newGift as IGift).price,
-    isPurchased: (newGift as IGift).isPurchased,
-    imageUrl: (newGift as IGift).imageUrl,
-    childId: (newGift as IGift).childId,
-    id: (newGift as IGift)._id,
+    name: newGift.name,
+    price: newGift.price,
+    isPurchased: newGift.isPurchased,
+    imageUrl: newGift.imageUrl,
+    childId: newGift.childId,
+    id: newGift._id,
   });
 };
 
@@ -89,15 +90,14 @@ export const deleteGift = async (req: Request, res: Response) => {
     return res.status(404).send({ message: "Gift not found" });
   }
   const childToUpdate = (parent as IParent).children.find(
-    (childId) =>
-      childId.toString() === (giftToDelete as IGift).childId.toString()
+    (childId) => childId.toString() === giftToDelete.childId.toString()
   );
   if (!childToUpdate) {
     return res.status(404).send({ message: "Child not found" });
   }
   const deletedGift = await GiftModel.findByIdAndDelete(req.params.giftId);
   await ChildModel.findByIdAndUpdate((deletedGift as IGift).childId, {
-    $pull: { gifts: Types.ObjectId((deletedGift as IGift)._id) },
+    $pull: { gifts: mongoose.Types.ObjectId((deletedGift as IGift)._id) },
   });
   return res.status(204).end();
 };
@@ -109,13 +109,13 @@ export const buyGift = async (req: Request, res: Response) => {
     return res.status(404).send({ message: "Gift not found" });
   }
   const childToUpdateId = (parent as IParent).children.find(
-    (childId) => childId.toString() === (giftToBuy as IGift).childId.toString()
+    (childId) => childId.toString() === giftToBuy.childId.toString()
   );
   if (!childToUpdateId) {
     return res.status(404).send({ message: "Child not found" });
   }
   const childToUpdate = await ChildModel.findById(childToUpdateId);
-  if ((giftToBuy as IGift).isPurchased) {
+  if (giftToBuy.isPurchased) {
     return res
       .status(403)
       .send({ message: "This gift has already been purchased" });
@@ -171,12 +171,12 @@ export const getGifts = async (
       );
       const dataToSend = dataToEdit.map((childArray) => {
         return childArray.map((childGift) => ({
-          name: (childGift as IGift).name,
-          price: (childGift as IGift).price,
-          isPurchased: (childGift as IGift).isPurchased,
-          imageUrl: (childGift as IGift).imageUrl,
-          childId: (childGift as IGift).childId,
-          id: (childGift as IGift)._id,
+          name: childGift.name,
+          price: childGift.price,
+          isPurchased: childGift.isPurchased,
+          imageUrl: childGift.imageUrl,
+          childId: childGift.childId,
+          id: childGift._id,
         }));
       });
       return res.status(200).send(dataToSend);
@@ -190,25 +190,24 @@ export const resetGift = async (req: Request, res: Response) => {
     return res.status(404).send({ message: "Gift not found" });
   }
   const childToUpdateId = (parent as IParent).children.find(
-    (childId) =>
-      childId.toString() === (giftToReset as IGift).childId.toString()
+    (childId) => childId.toString() === giftToReset.childId.toString()
   );
   if (!childToUpdateId) {
     return res.status(404).send({ message: "Child not found" });
   }
-  if (!(giftToReset as IGift).isPurchased) {
+  if (!giftToReset.isPurchased) {
     return res
       .status(403)
       .send({ message: "This gift has been already reset" });
   }
-  (giftToReset as IGift).isPurchased = false;
+  giftToReset.isPurchased = false;
   await giftToReset.save();
   res.status(200).send({
-    name: (giftToReset as IGift).name,
-    price: (giftToReset as IGift).price,
-    isPurchased: (giftToReset as IGift).isPurchased,
-    imageUrl: (giftToReset as IGift).imageUrl,
-    childId: (giftToReset as IGift).childId,
-    id: (giftToReset as IGift)._id,
+    name: giftToReset.name,
+    price: giftToReset.price,
+    isPurchased: giftToReset.isPurchased,
+    imageUrl: giftToReset.imageUrl,
+    childId: giftToReset.childId,
+    id: giftToReset._id,
   });
 };

@@ -1,8 +1,12 @@
-import mongoose, { Document } from "mongoose";
+import mongoose from "mongoose";
 import supertest, { Response } from "supertest";
 import { Application } from "express";
 import Server from "../../server/server";
-import { IChild, IHabit } from "../../helpers/typescript-helpers/interfaces";
+import {
+  IChild,
+  IChildPopulated,
+  IHabit,
+} from "../../helpers/typescript-helpers/interfaces";
 import { Gender } from "../../helpers/typescript-helpers/enums";
 import UserModel from "../user/user.model";
 import SessionModel from "../session/session.model";
@@ -11,16 +15,16 @@ import HabitModel from "./habit.model";
 
 describe("Habit router test suite", () => {
   let app: Application;
-  let createdChild: Document | null;
-  let secondCreatedChild: Document | null;
+  let createdChild: IChild | IChildPopulated | null;
+  let secondCreatedChild: IChild | IChildPopulated | null;
   let response: Response;
   let secondResponse: Response;
   let thirdResponse: Response;
   let fourthResponse: Response;
   let accessToken: string;
   let secondAccessToken: string;
-  let createdHabit: Document | null;
-  let updatedChild: Document | null;
+  let createdHabit: IHabit | null;
+  let updatedChild: IChild | IChildPopulated | null;
 
   beforeAll(async () => {
     app = new Server().startForTesting();
@@ -306,8 +310,8 @@ describe("Habit router test suite", () => {
 
   describe("PATCH /habit/{habitId}", () => {
     let response: Response;
-    let updatedHabit: Document | null;
-    let secondHabit: Document | null;
+    let updatedHabit: IHabit | null;
+    let secondHabit: IHabit | null;
 
     const validReqBody = {
       name: "Test2",
@@ -465,8 +469,8 @@ describe("Habit router test suite", () => {
 
   describe("PATCH /habit/confirm/{habitId}", () => {
     let response: Response;
-    let updatedHabit: Document | null;
-    let secondHabit: Document | null;
+    let updatedHabit: IHabit | null;
+    let secondHabit: IHabit | null;
 
     it("Init endpoint testing", () => {
       expect(true).toBe(true);
@@ -594,8 +598,8 @@ describe("Habit router test suite", () => {
 
   describe("PATCH /habit/cancel/{habitId}", () => {
     let response: Response;
-    let updatedHabit: Document | null;
-    let secondHabit: Document | null;
+    let updatedHabit: IHabit | null;
+    let secondHabit: IHabit | null;
 
     it("Init endpoint testing", () => {
       expect(true).toBe(true);
@@ -720,8 +724,8 @@ describe("Habit router test suite", () => {
 
   describe("DELETE /habit/{habitId}", () => {
     let response: Response;
-    let secondHabit: Document | null;
-    let deletedHabit: Document | null;
+    let secondHabit: IHabit | null;
+    let deletedHabit: IHabit | null;
 
     it("Init endpoint testing", () => {
       expect(true).toBe(true);

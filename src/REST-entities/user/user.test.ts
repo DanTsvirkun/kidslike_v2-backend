@@ -1,11 +1,16 @@
-import mongoose, { Document } from "mongoose";
+import mongoose from "mongoose";
 import supertest, { Response } from "supertest";
 import { Application } from "express";
 import Server from "../../server/server";
 import { Gender } from "../../helpers/typescript-helpers/enums";
 import {
-  IParentPopulated,
+  IChild,
   IChildPopulated,
+  IParent,
+  IParentPopulated,
+  IHabit,
+  ITask,
+  IGift,
 } from "../../helpers/typescript-helpers/interfaces";
 import UserModel from "./user.model";
 import SessionModel from "../session/session.model";
@@ -26,7 +31,7 @@ describe("Child router test suite", () => {
     email: string;
     username: string;
     id: string;
-    children: object[];
+    children: IChildPopulated[];
   };
 
   beforeAll(async () => {
@@ -158,11 +163,11 @@ describe("Child router test suite", () => {
 
   describe("DELETE /user", () => {
     let response: Response;
-    let deletedUser: Document | null;
-    let deletedChild: Document | null;
-    let deletedHabit: Document | null;
-    let deletedTask: Document | null;
-    let deletedGift: Document | null;
+    let deletedUser: IParent | IParentPopulated | null;
+    let deletedChild: IChild | IChildPopulated | null;
+    let deletedHabit: IHabit | null;
+    let deletedTask: ITask | null;
+    let deletedGift: IGift | null;
 
     const validReqBody = {
       email: "test@email.com",

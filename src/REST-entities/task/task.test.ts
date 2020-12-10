@@ -1,8 +1,12 @@
-import mongoose, { Document } from "mongoose";
+import mongoose from "mongoose";
 import supertest, { Response } from "supertest";
 import { Application } from "express";
 import Server from "../../server/server";
-import { IChild, ITask } from "../../helpers/typescript-helpers/interfaces";
+import {
+  IChild,
+  IChildPopulated,
+  ITask,
+} from "../../helpers/typescript-helpers/interfaces";
 import { Gender } from "../../helpers/typescript-helpers/enums";
 import UserModel from "../user/user.model";
 import SessionModel from "../session/session.model";
@@ -12,18 +16,18 @@ import { TaskStatus } from "../../helpers/typescript-helpers/enums";
 
 describe("Task router test suite", () => {
   let app: Application;
-  let createdChild: Document | null;
-  let secondCreatedChild: Document | null;
+  let createdChild: IChild | IChildPopulated | null;
+  let secondCreatedChild: IChild | IChildPopulated | null;
   let response: Response;
   let secondResponse: Response;
   let thirdResponse: Response;
   let fourthResponse: Response;
   let accessToken: string;
   let secondAccessToken: string;
-  let createdTask: Document | null;
-  let secondCreatedTask: Document | null;
-  let updatedChild: Document | null;
-  let confirmedTask: Document | null;
+  let createdTask: ITask | null;
+  let secondCreatedTask: ITask | null;
+  let updatedChild: IChild | IChildPopulated | null;
+  let confirmedTask: ITask | null;
 
   beforeAll(async () => {
     app = new Server().startForTesting();
@@ -392,7 +396,7 @@ describe("Task router test suite", () => {
 
   describe("PATCH /task/{taskId}", () => {
     let response: Response;
-    let updatedTask: Document | null;
+    let updatedTask: ITask | null;
 
     const validReqBody = {
       name: "Test2",
@@ -806,8 +810,8 @@ describe("Task router test suite", () => {
 
   describe("PATCH /task/cancel/{taskId}", () => {
     let response: Response;
-    let canceledTask: Document | null;
-    let secondTask: Document | null;
+    let canceledTask: ITask | null;
+    let secondTask: ITask | null;
 
     it("Init endpoint testing", () => {
       expect(true).toBe(true);
@@ -931,7 +935,7 @@ describe("Task router test suite", () => {
 
   describe("PATCH /task/reset/{taskId}", () => {
     let response: Response;
-    let unknownTask: Document | null;
+    let unknownTask: ITask | null;
 
     it("Init endpoint testing", () => {
       expect(true).toBe(true);
@@ -1052,8 +1056,8 @@ describe("Task router test suite", () => {
 
   describe("DELETE /task/{taskId}", () => {
     let response: Response;
-    let secondTask: Document | null;
-    let deletedTask: Document | null;
+    let secondTask: ITask | null;
+    let deletedTask: ITask | null;
 
     it("Init endpoint testing", () => {
       expect(true).toBe(true);

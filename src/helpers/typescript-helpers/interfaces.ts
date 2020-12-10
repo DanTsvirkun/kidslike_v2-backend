@@ -6,7 +6,7 @@ export interface IParent extends Document {
   email: string;
   passwordHash: string;
   username: string;
-  originUrl: string;
+  originUrl: string | undefined;
   children: MongoDBObjectId[];
 }
 
@@ -14,7 +14,7 @@ export interface IParentPopulated extends Document {
   email: string;
   passwordHash: string;
   username: string;
-  originUrl: string;
+  originUrl: string | undefined;
   children: IChildPopulated[];
 }
 

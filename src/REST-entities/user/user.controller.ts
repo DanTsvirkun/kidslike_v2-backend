@@ -2,11 +2,7 @@ import { Request, Response, NextFunction } from "express";
 import bcrypt from "bcryptjs";
 import {
   IParent,
-  IHabit,
-  ITask,
-  IGift,
   IParentPopulated,
-  IChildPopulated,
 } from "../../helpers/typescript-helpers/interfaces";
 import UserModel from "./user.model";
 import ChildModel from "../child/child.model";
@@ -55,10 +51,7 @@ export const clearAllInfo = async (
       .status(403)
       .send({ message: `User with ${email} email doesn't exist` });
   }
-  const isPasswordCorrect = await bcrypt.compare(
-    password,
-    (user as IParent).passwordHash
-  );
+  const isPasswordCorrect = await bcrypt.compare(password, user.passwordHash);
   if (!isPasswordCorrect) {
     return res.status(403).send({ message: "Password is wrong" });
   }
@@ -77,22 +70,22 @@ export const clearAllInfo = async (
         next(err);
       }
       (data as IParentPopulated).children.forEach(async (child) => {
-        (child as IChildPopulated).habits.forEach(async (habit) => {
+        child.habits.forEach(async (habit) => {
           await HabitModel.deleteOne({
-            _id: (habit as IHabit)._id,
+            _id: habit._id,
           });
         });
-        (child as IChildPopulated).tasks.forEach(async (task) => {
+        child.tasks.forEach(async (task) => {
           await TaskModel.deleteOne({
-            _id: (task as ITask)._id,
+            _id: task._id,
           });
         });
-        (child as IChildPopulated).gifts.forEach(async (gift) => {
+        child.gifts.forEach(async (gift) => {
           await GiftModel.deleteOne({
-            _id: (gift as IGift)._id,
+            _id: gift._id,
           });
         });
-        await ChildModel.deleteOne({ _id: (child as IChildPopulated)._id });
+        await ChildModel.deleteOne({ _id: child._id });
       });
     });
   await UserModel.deleteOne({ email });

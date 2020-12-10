@@ -1,4 +1,5 @@
 import mongoose, { Schema } from "mongoose";
+import { ITask } from "../../helpers/typescript-helpers/interfaces";
 
 const taskSchema = new Schema({
   name: String,
@@ -10,4 +11,4 @@ const taskSchema = new Schema({
   childId: mongoose.Types.ObjectId,
 });
 
-export default mongoose.model("Task", taskSchema);
+export default mongoose.model<ITask>("Task", taskSchema);

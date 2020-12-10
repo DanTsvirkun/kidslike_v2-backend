@@ -1,7 +1,11 @@
-import mongoose, { Document } from "mongoose";
+import mongoose from "mongoose";
 import supertest, { Response } from "supertest";
 import { Application } from "express";
-import { IParent, ISession } from "../helpers/typescript-helpers/interfaces";
+import {
+  IParent,
+  IParentPopulated,
+  ISession,
+} from "../helpers/typescript-helpers/interfaces";
 import Server from "../server/server";
 import UserModel from "../REST-entities/user/user.model";
 import SessionModel from "../REST-entities/session/session.model";
@@ -30,7 +34,7 @@ describe("Auth router test suite", () => {
 
   describe("POST /auth/register", () => {
     let response: Response;
-    let createdUser: Document | null;
+    let createdUser: IParent | IParentPopulated | null;
 
     const validReqBody = {
       username: "Test",
@@ -61,7 +65,7 @@ describe("Auth router test suite", () => {
 
       it("Should return an expected result", () => {
         expect(response.body).toEqual({
-          id: (createdUser as Document)._id.toString(),
+          id: (createdUser as IParent)._id.toString(),
           email: validReqBody.email,
           username: validReqBody.username,
         });
@@ -109,8 +113,8 @@ describe("Auth router test suite", () => {
 
   describe("POST /auth/login", () => {
     let response: Response;
-    let createdSession: Document | null;
-    let user: Document | null;
+    let createdSession: ISession | null;
+    let user: IParent | IParentPopulated | null;
 
     const validReqBody = {
       email: "test@email.com",
@@ -229,8 +233,8 @@ describe("Auth router test suite", () => {
 
   describe("GET /auth/refresh", () => {
     let response: Response;
-    let createdSession: Document | null;
-    let session: Document | null;
+    let createdSession: ISession | null;
+    let session: ISession | null;
 
     const validReqBody = {
       sid,

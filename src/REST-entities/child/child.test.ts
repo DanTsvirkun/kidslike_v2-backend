@@ -1,8 +1,13 @@
-import mongoose, { Document } from "mongoose";
+import mongoose from "mongoose";
 import supertest, { Response } from "supertest";
 import { Application } from "express";
 import Server from "../../server/server";
-import { IParent, IChild } from "../../helpers/typescript-helpers/interfaces";
+import {
+  IParent,
+  IChild,
+  IChildPopulated,
+  IParentPopulated,
+} from "../../helpers/typescript-helpers/interfaces";
 import { Gender } from "../../helpers/typescript-helpers/enums";
 import UserModel from "../user/user.model";
 import SessionModel from "../session/session.model";
@@ -12,7 +17,7 @@ describe("Child router test suite", () => {
   let app: Application;
   let response: Response;
   let accessToken: string;
-  let createdChild: Document | null;
+  let createdChild: IChild | IChildPopulated | null;
 
   beforeAll(async () => {
     app = new Server().startForTesting();
@@ -43,7 +48,7 @@ describe("Child router test suite", () => {
 
   describe("POST /child", () => {
     let response: Response;
-    let updatedParent: Document | null;
+    let updatedParent: IParent | IParentPopulated | null;
 
     const validReqBody = {
       name: "Test",
