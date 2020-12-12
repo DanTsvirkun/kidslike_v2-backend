@@ -1,7 +1,11 @@
-import mongoose, { Document } from "mongoose";
+import mongoose from "mongoose";
 import supertest, { Response } from "supertest";
 import { Application } from "express";
-import { IParent, ISession } from "../helpers/typescript-helpers/interfaces";
+import {
+  IParent,
+  IParentPopulated,
+  ISession,
+} from "../helpers/typescript-helpers/interfaces";
 import Server from "../server/server";
 import UserModel from "../REST-entities/user/user.model";
 import SessionModel from "../REST-entities/session/session.model";
@@ -30,7 +34,7 @@ describe("Auth router test suite", () => {
 
   describe("POST /auth/register", () => {
     let response: Response;
-    let createdUser: Document | null;
+    let createdUser: IParent | IParentPopulated | null;
 
     const validReqBody = {
       username: "Test",
@@ -154,7 +158,7 @@ describe("Auth router test suite", () => {
           data: {
             children: [],
             id: (user as IParent)._id.toString(),
-            email: "test@email.com",
+            email: validReqBody.email,
             username: "Test",
           },
           accessToken,

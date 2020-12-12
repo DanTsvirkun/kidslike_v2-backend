@@ -85,7 +85,7 @@ describe("Child router test suite", () => {
           tasks: [],
           gifts: [],
           id: (createdChild as IChild)._id.toString(),
-          name: "Test",
+          name: validReqBody.name,
           gender: Gender.MALE,
         });
       });

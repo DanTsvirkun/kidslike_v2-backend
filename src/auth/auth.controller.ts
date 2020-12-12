@@ -4,11 +4,11 @@ import jwt from "jsonwebtoken";
 import * as queryString from "query-string";
 import axios from "axios";
 import { URL } from "url";
-import { Document } from "mongoose";
 import {
   IParent,
   IParentPopulated,
   IJWTPayload,
+  ISession,
 } from "../helpers/typescript-helpers/interfaces";
 import UserModel from "../REST-entities/user/user.model";
 import SessionModel from "../REST-entities/session/session.model";
@@ -185,7 +185,7 @@ export const refreshTokens = async (req: Request, res: Response) => {
 
 export const logout = async (req: Request, res: Response) => {
   const currentSession = req.session;
-  await SessionModel.deleteOne({ _id: (currentSession as Document)._id });
+  await SessionModel.deleteOne({ _id: (currentSession as ISession)._id });
   req.user = null;
   req.session = null;
   return res.status(204).end();

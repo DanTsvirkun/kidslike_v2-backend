@@ -12,7 +12,7 @@ const clearAllInfoSchema = Joi.object({
 
 const router = Router();
 
-router.get("/", authorize, tryCatchWrapper(getAllInfo));
+router.get("/", tryCatchWrapper(authorize), tryCatchWrapper(getAllInfo));
 router.delete("/", validate(clearAllInfoSchema), tryCatchWrapper(clearAllInfo));
 
 export default router;

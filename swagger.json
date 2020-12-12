@@ -437,6 +437,17 @@
             "type": "string"
           }
         ],
+        "requestBody": {
+          "description": "Object with date of the day you want to confirm",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DateObject"
+              }
+            }
+          }
+        },
         "responses": {
           "200": {
             "description": "Successful operation",
@@ -481,6 +492,17 @@
             "type": "string"
           }
         ],
+        "requestBody": {
+          "description": "Object with date of the day you want to cancel",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DateObject"
+              }
+            }
+          }
+        },
         "responses": {
           "200": {
             "description": "Successful operation",
@@ -891,7 +913,7 @@
           "description": "Gift's object",
           "required": true,
           "content": {
-            "application/json": {
+            "multipart/form-data": {
               "schema": {
                 "$ref": "#/components/schemas/PostGiftRequest"
               }
@@ -946,7 +968,7 @@
           "description": "Gift's object. At least one field is required",
           "required": true,
           "content": {
-            "application/json": {
+            "multipart/form-data": {
               "schema": {
                 "$ref": "#/components/schemas/PatchGiftRequest"
               }
@@ -1926,6 +1948,17 @@
           }
         }
       },
+      "DateObject": {
+        "type": "object",
+        "description": "Object with date of the habit's day of you want to confirm/cancel",
+        "properties": {
+          "date": {
+            "type": "string",
+            "description": "Day's date",
+            "example": "2020-12-31"
+          }
+        }
+      },
       "PostTaskRequest": {
         "required": ["name", "reward"],
         "type": "object",
@@ -2290,8 +2323,9 @@
             "example": 1
           },
           "file": {
-            "type": "file",
-            "description": "Gift's image ('file' field in multipart/form-data content-type, optional)"
+            "type": "string",
+            "format": "binary",
+            "description": "Gift's image"
           }
         }
       },
@@ -2345,8 +2379,9 @@
             "example": 1
           },
           "file": {
-            "type": "file",
-            "description": "Gift's image ('file' field in multipart/form-data content-type, optional)"
+            "type": "string",
+            "format": "binary",
+            "description": "Gift's image"
           }
         }
       },

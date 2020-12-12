@@ -110,7 +110,7 @@ export const habitDayConfirmed = async (req: Request, res: Response) => {
   const childToUpdate = await ChildModel.findById(
     (habitToEdit as IHabit).childId
   );
-  const date = DateTime.local().toLocaleString();
+  const date = req.body.date;
   const completedDay = (habitToEdit as IHabit).days.find(
     (day) => day.date === date
   );
@@ -182,7 +182,7 @@ export const habitDayCanceled = async (req: Request, res: Response) => {
   if (!childToUpdateId) {
     return res.status(404).send({ message: "Child not found" });
   }
-  const date = DateTime.local().toLocaleString();
+  const date = req.body.date;
   const completedDay = (habitToEdit as IHabit).days.find(
     (day) => day.date === date
   );

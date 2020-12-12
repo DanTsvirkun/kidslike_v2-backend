@@ -57,7 +57,7 @@ const router = Router();
 router.get("/", authorize, tryCatchWrapper(getGifts));
 router.post(
   "/:childId",
-  authorize,
+  tryCatchWrapper(authorize),
   multerMid.single("file"),
   validate(addGiftIdSchema, "params"),
   validate(addGiftSchema),
@@ -65,7 +65,7 @@ router.post(
 );
 router.patch(
   "/:giftId",
-  authorize,
+  tryCatchWrapper(authorize),
   multerMid.single("file"),
   validate(editOrDeleteGiftIdSchema, "params"),
   validate(editGiftSchema),
@@ -73,19 +73,19 @@ router.patch(
 );
 router.delete(
   "/:giftId",
-  authorize,
+  tryCatchWrapper(authorize),
   validate(editOrDeleteGiftIdSchema, "params"),
   tryCatchWrapper(deleteGift)
 );
 router.patch(
   "/buy/:giftId",
-  authorize,
+  tryCatchWrapper(authorize),
   validate(editOrDeleteGiftIdSchema, "params"),
   tryCatchWrapper(buyGift)
 );
 router.patch(
   "/reset/:giftId",
-  authorize,
+  tryCatchWrapper(authorize),
   validate(editOrDeleteGiftIdSchema, "params"),
   tryCatchWrapper(resetGift)
 );

@@ -60,45 +60,45 @@ const router = Router();
 router.get("/", authorize, tryCatchWrapper(getTasks));
 router.post(
   "/:childId",
-  authorize,
+  tryCatchWrapper(authorize),
   validate(addOrGetTaskIdSchema, "params"),
   validate(addTaskSchema),
   tryCatchWrapper(addTask)
 );
 router.patch(
   "/:taskId",
-  authorize,
+  tryCatchWrapper(authorize),
   validate(editOrDeleteTaskIdSchema, "params"),
   validate(editTaskSchema),
   tryCatchWrapper(editTask)
 );
 router.delete(
   "/:taskId",
-  authorize,
+  tryCatchWrapper(authorize),
   validate(editOrDeleteTaskIdSchema, "params"),
   tryCatchWrapper(deleteTask)
 );
 router.patch(
   "/confirm/:taskId",
-  authorize,
+  tryCatchWrapper(authorize),
   validate(editOrDeleteTaskIdSchema, "params"),
   tryCatchWrapper(confirmTask)
 );
 router.patch(
   "/cancel/:taskId",
-  authorize,
+  tryCatchWrapper(authorize),
   validate(editOrDeleteTaskIdSchema, "params"),
   tryCatchWrapper(cancelTask)
 );
 router.patch(
   "/reset/:taskId",
-  authorize,
+  tryCatchWrapper(authorize),
   validate(editOrDeleteTaskIdSchema, "params"),
   tryCatchWrapper(resetTask)
 );
 router.get(
   "/finished/:childId",
-  authorize,
+  tryCatchWrapper(authorize),
   validate(addOrGetTaskIdSchema, "params"),
   tryCatchWrapper(getFinishedTasks)
 );

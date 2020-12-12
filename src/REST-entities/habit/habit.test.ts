@@ -1,6 +1,7 @@
 import mongoose, { Document } from "mongoose";
 import supertest, { Response } from "supertest";
 import { Application } from "express";
+import { DateTime } from "luxon";
 import Server from "../../server/server";
 import { IChild, IHabit } from "../../helpers/typescript-helpers/interfaces";
 import { Gender } from "../../helpers/typescript-helpers/enums";
@@ -468,6 +469,25 @@ describe("Habit router test suite", () => {
     let updatedHabit: Document | null;
     let secondHabit: Document | null;
 
+    const validReqBody = {
+      date: DateTime.local().plus({ days: 1 }).toLocaleString(),
+    };
+
+    const invalidReqBody = {};
+
+    const secondInvalidReqBody = {
+      date: DateTime.local().toLocaleString(),
+      extra: "",
+    };
+
+    const thirdInvalidReqBody = {
+      date: {},
+    };
+
+    const fourthInvalidReqBody = {
+      date: "2020-13-31",
+    };
+
     it("Init endpoint testing", () => {
       expect(true).toBe(true);
     });
@@ -476,7 +496,8 @@ describe("Habit router test suite", () => {
       beforeAll(async () => {
         response = await supertest(app)
           .patch(`/habit/confirm/${(createdHabit as IHabit)._id}`)
-          .set("Authorization", `Bearer ${accessToken}`);
+          .set("Authorization", `Bearer ${accessToken}`)
+          .send(validReqBody);
         updatedHabit = await HabitModel.findById(
           (createdHabit as IHabit)._id
         ).lean();
@@ -500,15 +521,85 @@ describe("Habit router test suite", () => {
       });
 
       it("Should update a habit in DB", () => {
-        expect((updatedHabit as IHabit).days[0].isCompleted).toBe("confirmed");
+        expect((updatedHabit as IHabit).days[1].isCompleted).toBe("confirmed");
+      });
+    });
+
+    context("With invalidReqBody ('date' wasn't provided)", () => {
+      beforeAll(async () => {
+        response = await supertest(app)
+          .patch(`/habit/confirm/${(createdHabit as IHabit)._id}`)
+          .set("Authorization", `Bearer ${accessToken}`)
+          .send(invalidReqBody);
+      });
+
+      it("Should return a 400 status code", () => {
+        expect(response.status).toBe(400);
+      });
+
+      it("Should say that 'date' is required", () => {
+        expect(response.body.message).toBe('"date" is required');
+      });
+    });
+
+    context("With secondInvalidReqBody (extra field provided)", () => {
+      beforeAll(async () => {
+        response = await supertest(app)
+          .patch(`/habit/confirm/${(createdHabit as IHabit)._id}`)
+          .set("Authorization", `Bearer ${accessToken}`)
+          .send(secondInvalidReqBody);
+      });
+
+      it("Should return a 400 status code", () => {
+        expect(response.status).toBe(400);
+      });
+
+      it("Should say that 'extra' is not allowed", () => {
+        expect(response.body.message).toBe('"extra" is not allowed');
+      });
+    });
+
+    context("With thirdInvalidReqBody ('date' isn't a string)", () => {
+      beforeAll(async () => {
+        response = await supertest(app)
+          .patch(`/habit/confirm/${(createdHabit as IHabit)._id}`)
+          .set("Authorization", `Bearer ${accessToken}`)
+          .send(thirdInvalidReqBody);
+      });
+
+      it("Should return a 400 status code", () => {
+        expect(response.status).toBe(400);
+      });
+
+      it("Should say that 'date' must be a string", () => {
+        expect(response.body.message).toBe('"date" must be a string');
+      });
+    });
+
+    context("With fourthInvalidReqBody ('date' is invalid)", () => {
+      beforeAll(async () => {
+        response = await supertest(app)
+          .patch(`/habit/confirm/${(createdHabit as IHabit)._id}`)
+          .set("Authorization", `Bearer ${accessToken}`)
+          .send(fourthInvalidReqBody);
+      });
+
+      it("Should return a 400 status code", () => {
+        expect(response.status).toBe(400);
+      });
+
+      it("Should say that 'date' has invalid format", () => {
+        expect(response.body.message).toBe(
+          "Invalid 'date'. Please, use YYYY-MM-DD format"
+        );
       });
     });
 
     context("Without providing 'accessToken'", () => {
       beforeAll(async () => {
-        response = await supertest(app).patch(
-          `/habit/confirm/${(createdHabit as IHabit)._id}`
-        );
+        response = await supertest(app)
+          .patch(`/habit/confirm/${(createdHabit as IHabit)._id}`)
+          .send(validReqBody);
       });
 
       it("Should return a 400 status code", () => {
@@ -524,7 +615,8 @@ describe("Habit router test suite", () => {
       beforeAll(async () => {
         response = await supertest(app)
           .patch(`/habit/confirm/${(createdHabit as IHabit)._id}`)
-          .set("Authorization", `Bearer qwerty123`);
+          .set("Authorization", `Bearer qwerty123`)
+          .send(validReqBody);
       });
 
       it("Should return a 401 status code", () => {
@@ -540,7 +632,8 @@ describe("Habit router test suite", () => {
       beforeAll(async () => {
         response = await supertest(app)
           .patch(`/habit/confirm/${(createdHabit as IHabit)._id}`)
-          .set("Authorization", `Bearer ${accessToken}`);
+          .set("Authorization", `Bearer ${accessToken}`)
+          .send(validReqBody);
         secondHabit = await HabitModel.findOne({
           childId: (secondCreatedChild as IChild)._id,
         });
@@ -561,7 +654,8 @@ describe("Habit router test suite", () => {
       beforeAll(async () => {
         response = await supertest(app)
           .patch(`/habit/confirm/${(secondHabit as IHabit)._id}`)
-          .set("Authorization", `Bearer ${accessToken}`);
+          .set("Authorization", `Bearer ${accessToken}`)
+          .send(validReqBody);
       });
 
       it("Should return a 404 status code", () => {
@@ -577,7 +671,8 @@ describe("Habit router test suite", () => {
       beforeAll(async () => {
         response = await supertest(app)
           .patch("/habit/confirm/qwerty123")
-          .set("Authorization", `Bearer ${accessToken}`);
+          .set("Authorization", `Bearer ${accessToken}`)
+          .send(validReqBody);
       });
 
       it("Should return a 400 status code", () => {
@@ -597,6 +692,25 @@ describe("Habit router test suite", () => {
     let updatedHabit: Document | null;
     let secondHabit: Document | null;
 
+    const validReqBody = {
+      date: DateTime.local().plus({ days: 1 }).toLocaleString(),
+    };
+
+    const invalidReqBody = {};
+
+    const secondInvalidReqBody = {
+      date: DateTime.local().toLocaleString(),
+      extra: "",
+    };
+
+    const thirdInvalidReqBody = {
+      date: {},
+    };
+
+    const fourthInvalidReqBody = {
+      date: "2020-13-31",
+    };
+
     it("Init endpoint testing", () => {
       expect(true).toBe(true);
     });
@@ -608,7 +722,8 @@ describe("Habit router test suite", () => {
         });
         response = await supertest(app)
           .patch(`/habit/cancel/${(secondHabit as IHabit)._id}`)
-          .set("Authorization", `Bearer ${secondAccessToken}`);
+          .set("Authorization", `Bearer ${secondAccessToken}`)
+          .send(validReqBody);
         updatedHabit = await HabitModel.findById(
           (secondHabit as IHabit)._id
         ).lean();
@@ -629,15 +744,85 @@ describe("Habit router test suite", () => {
       });
 
       it("Should update a habit in DB", () => {
-        expect((updatedHabit as IHabit).days[0].isCompleted).toBe("canceled");
+        expect((updatedHabit as IHabit).days[1].isCompleted).toBe("canceled");
+      });
+    });
+
+    context("With invalidReqBody ('date' wasn't provided)", () => {
+      beforeAll(async () => {
+        response = await supertest(app)
+          .patch(`/habit/cancel/${(secondHabit as IHabit)._id}`)
+          .set("Authorization", `Bearer ${accessToken}`)
+          .send(invalidReqBody);
+      });
+
+      it("Should return a 400 status code", () => {
+        expect(response.status).toBe(400);
+      });
+
+      it("Should say that 'date' is required", () => {
+        expect(response.body.message).toBe('"date" is required');
+      });
+    });
+
+    context("With secondInvalidReqBody (extra field provided)", () => {
+      beforeAll(async () => {
+        response = await supertest(app)
+          .patch(`/habit/cancel/${(secondHabit as IHabit)._id}`)
+          .set("Authorization", `Bearer ${accessToken}`)
+          .send(secondInvalidReqBody);
+      });
+
+      it("Should return a 400 status code", () => {
+        expect(response.status).toBe(400);
+      });
+
+      it("Should say that 'extra' is not allowed", () => {
+        expect(response.body.message).toBe('"extra" is not allowed');
+      });
+    });
+
+    context("With thirdInvalidReqBody ('date' isn't a string)", () => {
+      beforeAll(async () => {
+        response = await supertest(app)
+          .patch(`/habit/cancel/${(secondHabit as IHabit)._id}`)
+          .set("Authorization", `Bearer ${accessToken}`)
+          .send(thirdInvalidReqBody);
+      });
+
+      it("Should return a 400 status code", () => {
+        expect(response.status).toBe(400);
+      });
+
+      it("Should say that 'date' must be a string", () => {
+        expect(response.body.message).toBe('"date" must be a string');
+      });
+    });
+
+    context("With fourthInvalidReqBody ('date' is invalid)", () => {
+      beforeAll(async () => {
+        response = await supertest(app)
+          .patch(`/habit/cancel/${(secondHabit as IHabit)._id}`)
+          .set("Authorization", `Bearer ${accessToken}`)
+          .send(fourthInvalidReqBody);
+      });
+
+      it("Should return a 400 status code", () => {
+        expect(response.status).toBe(400);
+      });
+
+      it("Should say that 'date' has invalid format", () => {
+        expect(response.body.message).toBe(
+          "Invalid 'date'. Please, use YYYY-MM-DD format"
+        );
       });
     });
 
     context("Without providing 'accessToken'", () => {
       beforeAll(async () => {
-        response = await supertest(app).patch(
-          `/habit/cancel/${(secondHabit as IHabit)._id}`
-        );
+        response = await supertest(app)
+          .patch(`/habit/cancel/${(secondHabit as IHabit)._id}`)
+          .send(validReqBody);
       });
 
       it("Should return a 400 status code", () => {
@@ -653,7 +838,8 @@ describe("Habit router test suite", () => {
       beforeAll(async () => {
         response = await supertest(app)
           .patch(`/habit/cancel/${(secondHabit as IHabit)._id}`)
-          .set("Authorization", `Bearer qwerty123`);
+          .set("Authorization", `Bearer qwerty123`)
+          .send(validReqBody);
       });
 
       it("Should return a 401 status code", () => {
@@ -669,7 +855,8 @@ describe("Habit router test suite", () => {
       beforeAll(async () => {
         response = await supertest(app)
           .patch(`/habit/cancel/${(secondHabit as IHabit)._id}`)
-          .set("Authorization", `Bearer ${secondAccessToken}`);
+          .set("Authorization", `Bearer ${secondAccessToken}`)
+          .send(validReqBody);
       });
 
       it("Should return a 403 status code", () => {
@@ -687,7 +874,8 @@ describe("Habit router test suite", () => {
       beforeAll(async () => {
         response = await supertest(app)
           .patch(`/habit/cancel/${(createdHabit as IHabit)._id}`)
-          .set("Authorization", `Bearer ${secondAccessToken}`);
+          .set("Authorization", `Bearer ${secondAccessToken}`)
+          .send(validReqBody);
       });
 
       it("Should return a 404 status code", () => {
@@ -703,7 +891,8 @@ describe("Habit router test suite", () => {
       beforeAll(async () => {
         response = await supertest(app)
           .patch("/habit/cancel/qwerty123")
-          .set("Authorization", `Bearer ${accessToken}`);
+          .set("Authorization", `Bearer ${accessToken}`)
+          .send(validReqBody);
       });
 
       it("Should return a 400 status code", () => {

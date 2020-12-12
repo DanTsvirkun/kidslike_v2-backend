@@ -44,7 +44,7 @@ const router = Router();
 
 router.post("/register", validate(signUpSchema), tryCatchWrapper(register));
 router.post("/login", validate(signInSchema), tryCatchWrapper(login));
-router.post("/logout", authorize, tryCatchWrapper(logout));
+router.post("/logout", tryCatchWrapper(authorize), tryCatchWrapper(logout));
 router.post(
   "/refresh",
   validate(refreshTokensSchema),

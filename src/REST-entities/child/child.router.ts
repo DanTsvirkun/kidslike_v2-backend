@@ -15,7 +15,7 @@ const router = Router();
 
 router.post(
   "/",
-  authorize,
+  tryCatchWrapper(authorize),
   validate(addChildSchema),
   tryCatchWrapper(addChild)
 );
