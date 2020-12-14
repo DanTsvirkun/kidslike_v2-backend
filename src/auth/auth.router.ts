@@ -32,7 +32,7 @@ const refreshTokensSchema = Joi.object({
       const isValidObjectId = mongoose.Types.ObjectId.isValid(value);
       if (!isValidObjectId) {
         return helpers.message({
-          custom: "Invalid 'sid'. Must be MongoDB ObjectId",
+          custom: "Invalid 'sid'. Must be a MongoDB ObjectId",
         });
       }
       return value;

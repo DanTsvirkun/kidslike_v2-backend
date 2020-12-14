@@ -1,9 +1,13 @@
-import mongoose, { Document } from "mongoose";
+import mongoose from "mongoose";
 import supertest, { Response } from "supertest";
 import { Application } from "express";
 import { DateTime } from "luxon";
 import Server from "../../server/server";
-import { IChild, IHabit } from "../../helpers/typescript-helpers/interfaces";
+import {
+  IChild,
+  IChildPopulated,
+  IHabit,
+} from "../../helpers/typescript-helpers/interfaces";
 import { Gender } from "../../helpers/typescript-helpers/enums";
 import UserModel from "../user/user.model";
 import SessionModel from "../session/session.model";
@@ -12,16 +16,16 @@ import HabitModel from "./habit.model";
 
 describe("Habit router test suite", () => {
   let app: Application;
-  let createdChild: Document | null;
-  let secondCreatedChild: Document | null;
+  let createdChild: IChild | IChildPopulated | null;
+  let secondCreatedChild: IChild | IChildPopulated | null;
   let response: Response;
   let secondResponse: Response;
   let thirdResponse: Response;
   let fourthResponse: Response;
   let accessToken: string;
   let secondAccessToken: string;
-  let createdHabit: Document | null;
-  let updatedChild: Document | null;
+  let createdHabit: IHabit | null;
+  let updatedChild: IChild | IChildPopulated | null;
 
   beforeAll(async () => {
     app = new Server().startForTesting();
@@ -63,8 +67,8 @@ describe("Habit router test suite", () => {
   });
 
   afterAll(async () => {
-    await UserModel.deleteOne({ email: "test@email.com" });
-    await UserModel.deleteOne({ email: "test2@email.com" });
+    await UserModel.deleteOne({ email: response.body.data.email });
+    await UserModel.deleteOne({ email: secondResponse.body.data.email });
     await SessionModel.deleteOne({ _id: response.body.sid });
     await SessionModel.deleteOne({ _id: secondResponse.body.sid });
     await ChildModel.deleteOne({ _id: (createdChild as IChild)._id });
@@ -121,8 +125,8 @@ describe("Habit router test suite", () => {
       it("Should return an expected result", () => {
         expect(response.body).toEqual({
           days: (createdHabit as IHabit).days,
-          name: "Test",
-          rewardPerDay: 1,
+          name: validReqBody.name,
+          rewardPerDay: validReqBody.rewardPerDay,
           childId: (createdChild as IChild)._id.toString(),
           id: (createdHabit as IHabit)._id.toString(),
         });
@@ -237,7 +241,7 @@ describe("Habit router test suite", () => {
 
       it("Should say that 'childId' is invalid", () => {
         expect(response.body.message).toBe(
-          "Invalid 'childId'. Must be MongoDB ObjectId"
+          "Invalid 'childId'. Must be a MongoDB ObjectId"
         );
       });
     });
@@ -307,8 +311,8 @@ describe("Habit router test suite", () => {
 
   describe("PATCH /habit/{habitId}", () => {
     let response: Response;
-    let updatedHabit: Document | null;
-    let secondHabit: Document | null;
+    let updatedHabit: IHabit | null;
+    let secondHabit: IHabit | null;
 
     const validReqBody = {
       name: "Test2",
@@ -343,7 +347,7 @@ describe("Habit router test suite", () => {
       it("Should return an expected result", () => {
         expect(response.body).toEqual({
           days: (updatedHabit as IHabit).days,
-          name: "Test2",
+          name: validReqBody.name,
           rewardPerDay: 1,
           childId: (createdChild as IChild)._id.toString(),
           id: (updatedHabit as IHabit)._id.toString(),
@@ -458,7 +462,7 @@ describe("Habit router test suite", () => {
 
       it("Should say that 'habitId' is invalid", () => {
         expect(response.body.message).toBe(
-          "Invalid 'habitId'. Must be MongoDB ObjectId"
+          "Invalid 'habitId'. Must be a MongoDB ObjectId"
         );
       });
     });
@@ -466,8 +470,8 @@ describe("Habit router test suite", () => {
 
   describe("PATCH /habit/confirm/{habitId}", () => {
     let response: Response;
-    let updatedHabit: Document | null;
-    let secondHabit: Document | null;
+    let updatedHabit: IHabit | null;
+    let secondHabit: IHabit | null;
 
     const validReqBody = {
       date: DateTime.local().plus({ days: 1 }).toLocaleString(),
@@ -681,7 +685,7 @@ describe("Habit router test suite", () => {
 
       it("Should say that 'habitId' is invalid", () => {
         expect(response.body.message).toBe(
-          "Invalid 'habitId'. Must be MongoDB ObjectId"
+          "Invalid 'habitId'. Must be a MongoDB ObjectId"
         );
       });
     });
@@ -689,8 +693,8 @@ describe("Habit router test suite", () => {
 
   describe("PATCH /habit/cancel/{habitId}", () => {
     let response: Response;
-    let updatedHabit: Document | null;
-    let secondHabit: Document | null;
+    let updatedHabit: IHabit | null;
+    let secondHabit: IHabit | null;
 
     const validReqBody = {
       date: DateTime.local().plus({ days: 1 }).toLocaleString(),
@@ -901,7 +905,7 @@ describe("Habit router test suite", () => {
 
       it("Should say that 'habitId' is invalid", () => {
         expect(response.body.message).toBe(
-          "Invalid 'habitId'. Must be MongoDB ObjectId"
+          "Invalid 'habitId'. Must be a MongoDB ObjectId"
         );
       });
     });
@@ -909,8 +913,8 @@ describe("Habit router test suite", () => {
 
   describe("DELETE /habit/{habitId}", () => {
     let response: Response;
-    let secondHabit: Document | null;
-    let deletedHabit: Document | null;
+    let secondHabit: IHabit | null;
+    let deletedHabit: IHabit | null;
 
     it("Init endpoint testing", () => {
       expect(true).toBe(true);
@@ -1005,7 +1009,7 @@ describe("Habit router test suite", () => {
 
       it("Should say that 'habitId' is invalid", () => {
         expect(response.body.message).toBe(
-          "Invalid 'habitId'. Must be MongoDB ObjectId"
+          "Invalid 'habitId'. Must be a MongoDB ObjectId"
         );
       });
     });

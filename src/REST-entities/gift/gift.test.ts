@@ -1,9 +1,13 @@
 import path from "path";
-import mongoose, { Document } from "mongoose";
+import mongoose from "mongoose";
 import supertest, { Response } from "supertest";
 import { Application } from "express";
 import Server from "../../server/server";
-import { IChild, IGift } from "../../helpers/typescript-helpers/interfaces";
+import {
+  IChild,
+  IChildPopulated,
+  IGift,
+} from "../../helpers/typescript-helpers/interfaces";
 import { Gender } from "../../helpers/typescript-helpers/enums";
 import UserModel from "../user/user.model";
 import SessionModel from "../session/session.model";
@@ -12,17 +16,17 @@ import GiftModel from "./gift.model";
 
 describe("Gift router test suite", () => {
   let app: Application;
-  let createdChild: Document | null;
-  let secondCreatedChild: Document | null;
+  let createdChild: IChild | IChildPopulated | null;
+  let secondCreatedChild: IChild | IChildPopulated | null;
   let response: Response;
   let secondResponse: Response;
   let thirdResponse: Response;
   let fourthResponse: Response;
   let accessToken: string;
   let secondAccessToken: string;
-  let createdGift: Document | null;
-  let secondCreatedGift: Document | null;
-  let updatedChild: Document | null;
+  let createdGift: IGift | null;
+  let secondCreatedGift: IGift | null;
+  let updatedChild: IChild | IChildPopulated | null;
 
   beforeAll(async () => {
     app = new Server().startForTesting();
@@ -64,8 +68,8 @@ describe("Gift router test suite", () => {
   });
 
   afterAll(async () => {
-    await UserModel.deleteOne({ email: "test@email.com" });
-    await UserModel.deleteOne({ email: "test2@email.com" });
+    await UserModel.deleteOne({ email: response.body.data.email });
+    await UserModel.deleteOne({ email: secondResponse.body.data.email });
     await SessionModel.deleteOne({ _id: response.body.sid });
     await SessionModel.deleteOne({ _id: secondResponse.body.sid });
     await ChildModel.deleteOne({ _id: (createdChild as IChild)._id });
@@ -254,7 +258,7 @@ describe("Gift router test suite", () => {
 
       it("Should say that 'childId' is invalid", () => {
         expect(response.body.message).toBe(
-          "Invalid 'childId'. Must be MongoDB ObjectId"
+          "Invalid 'childId'. Must be a MongoDB ObjectId"
         );
       });
     });
@@ -327,7 +331,7 @@ describe("Gift router test suite", () => {
 
   describe("PATCH /gift/{giftId}", () => {
     let response: Response;
-    let updatedGift: Document | null;
+    let updatedGift: IGift | null;
 
     it("Init endpoint testing", () => {
       expect(true).toBe(true);
@@ -461,7 +465,7 @@ describe("Gift router test suite", () => {
 
       it("Should say that 'giftId' is invalid", () => {
         expect(response.body.message).toBe(
-          "Invalid 'giftId'. Must be MongoDB ObjectId"
+          "Invalid 'giftId'. Must be a MongoDB ObjectId"
         );
       });
     });
@@ -469,7 +473,7 @@ describe("Gift router test suite", () => {
 
   describe("PATCH /gift/buy/{giftId}", () => {
     let response: Response;
-    let updatedGift: Document | null;
+    let updatedGift: IGift | null;
 
     it("Init endpoint testing", () => {
       expect(true).toBe(true);
@@ -605,7 +609,7 @@ describe("Gift router test suite", () => {
 
       it("Should say that 'giftId' is invalid", () => {
         expect(response.body.message).toBe(
-          "Invalid 'giftId'. Must be MongoDB ObjectId"
+          "Invalid 'giftId'. Must be a MongoDB ObjectId"
         );
       });
     });
@@ -613,7 +617,7 @@ describe("Gift router test suite", () => {
 
   describe("PATCH /gift/reset/{giftId}", () => {
     let response: Response;
-    let resetGift: Document | null;
+    let resetGift: IGift | null;
 
     it("Init endpoint testing", () => {
       expect(true).toBe(true);
@@ -726,7 +730,7 @@ describe("Gift router test suite", () => {
 
       it("Should say that 'giftId' is invalid", () => {
         expect(response.body.message).toBe(
-          "Invalid 'giftId'. Must be MongoDB ObjectId"
+          "Invalid 'giftId'. Must be a MongoDB ObjectId"
         );
       });
     });
@@ -734,7 +738,7 @@ describe("Gift router test suite", () => {
 
   describe("DELETE /gift/{giftId}", () => {
     let response: Response;
-    let updatedGift: Document | null;
+    let updatedGift: IGift | null;
 
     it("Init endpoint testing", () => {
       expect(true).toBe(true);
@@ -824,7 +828,7 @@ describe("Gift router test suite", () => {
 
       it("Should say that 'giftId' is invalid", () => {
         expect(response.body.message).toBe(
-          "Invalid 'giftId'. Must be MongoDB ObjectId"
+          "Invalid 'giftId'. Must be a MongoDB ObjectId"
         );
       });
     });

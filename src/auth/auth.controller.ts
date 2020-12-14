@@ -5,10 +5,9 @@ import * as queryString from "query-string";
 import axios from "axios";
 import { URL } from "url";
 import {
-  IParent,
   IParentPopulated,
-  IJWTPayload,
   ISession,
+  IJWTPayload,
 } from "../helpers/typescript-helpers/interfaces";
 import UserModel from "../REST-entities/user/user.model";
 import SessionModel from "../REST-entities/session/session.model";
@@ -33,7 +32,8 @@ export const register = async (req: Request, res: Response) => {
     email,
     passwordHash,
     username,
-    originUrl: req.headers.origin,
+    originUrl: req.headers.origin as string,
+    children: [],
   });
   return res.status(201).send({
     email,
@@ -54,13 +54,10 @@ export const login = async (
       .status(403)
       .send({ message: `User with ${email} email doesn't exist` });
   }
-  if (!(user as IParent).passwordHash) {
+  if (!user.passwordHash) {
     return res.status(403).send({ message: "Forbidden" });
   }
-  const isPasswordCorrect = await bcrypt.compare(
-    password,
-    (user as IParent).passwordHash
-  );
+  const isPasswordCorrect = await bcrypt.compare(password, user.passwordHash);
   if (!isPasswordCorrect) {
     return res.status(403).send({ message: "Password is wrong" });
   }
@@ -178,7 +175,7 @@ export const refreshTokens = async (req: Request, res: Response) => {
     );
     return res
       .status(200)
-      .send({ newAccessToken, newRefreshToken, sid: newSession._id });
+      .send({ newAccessToken, newRefreshToken, newSid: newSession._id });
   }
   return res.status(400).send({ message: "No token provided" });
 };
@@ -208,11 +205,7 @@ export const googleAuth = async (req: Request, res: Response) => {
   );
 };
 
-export const googleRedirect = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
+export const googleRedirect = async (req: Request, res: Response) => {
   const fullUrl = `${req.protocol}://${req.get("host")}${req.originalUrl}`;
   const urlObj = new URL(fullUrl);
   const urlParams = queryString.parse(urlObj.search);
@@ -236,35 +229,31 @@ export const googleRedirect = async (
     },
   });
   let existingParent = await UserModel.findOne({ email: userData.data.email });
-  if (!existingParent || !(existingParent as IParent).originUrl) {
+  if (!existingParent || !existingParent.originUrl) {
     return res.status(403).send({
       message:
         "You should register from front-end first (not postman). Google/Facebook are only for sign-in",
     });
   }
   const newSession = await SessionModel.create({
-    uid: (existingParent as IParent)._id,
+    uid: existingParent._id,
   });
   const accessToken = jwt.sign(
-    { uid: (existingParent as IParent)._id, sid: newSession._id },
+    { uid: existingParent._id, sid: newSession._id },
     process.env.JWT_SECRET as string,
     {
       expiresIn: process.env.JWT_ACCESS_EXPIRE_TIME,
     }
   );
   const refreshToken = jwt.sign(
-    { uid: (existingParent as IParent)._id, sid: newSession._id },
+    { uid: existingParent._id, sid: newSession._id },
     process.env.JWT_SECRET as string,
     {
       expiresIn: process.env.JWT_REFRESH_EXPIRE_TIME,
     }
   );
   return res.redirect(
-    `${
-      (existingParent as IParent).originUrl
-    }?accessToken=${accessToken}&refreshToken=${refreshToken}&sid=${
-      newSession._id
-    }`
+    `${existingParent.originUrl}?accessToken=${accessToken}&refreshToken=${refreshToken}&sid=${newSession._id}`
   );
 };
 
@@ -306,34 +295,30 @@ export const facebookRedirect = async (req: Request, res: Response) => {
     },
   });
   let existingParent = await UserModel.findOne({ email: userData.data.email });
-  if (!existingParent || !(existingParent as IParent).originUrl) {
+  if (!existingParent || !existingParent.originUrl) {
     return res.status(403).send({
       message:
         "You should register from front-end first (not postman). Google/Facebook are only for sign-in",
     });
   }
   const newSession = await SessionModel.create({
-    uid: (existingParent as IParent)._id,
+    uid: existingParent._id,
   });
   const accessToken = jwt.sign(
-    { uid: (existingParent as IParent)._id, sid: newSession._id },
+    { uid: existingParent._id, sid: newSession._id },
     process.env.JWT_SECRET as string,
     {
       expiresIn: process.env.JWT_ACCESS_EXPIRE_TIME,
     }
   );
   const refreshToken = jwt.sign(
-    { uid: (existingParent as IParent)._id, sid: newSession._id },
+    { uid: existingParent._id, sid: newSession._id },
     process.env.JWT_SECRET as string,
     {
       expiresIn: process.env.JWT_REFRESH_EXPIRE_TIME,
     }
   );
   return res.redirect(
-    `${
-      (existingParent as IParent).originUrl
-    }?accessToken=${accessToken}&refreshToken=${refreshToken}&sid=${
-      newSession._id
-    }`
+    `${existingParent.originUrl}?accessToken=${accessToken}&refreshToken=${refreshToken}&sid=${newSession._id}`
   );
 };

@@ -33,7 +33,7 @@ const addOrGetTaskIdSchema = Joi.object({
       const isValidObjectId = mongoose.Types.ObjectId.isValid(value);
       if (!isValidObjectId) {
         return helpers.message({
-          custom: "Invalid 'childId'. Must be MongoDB ObjectId",
+          custom: "Invalid 'childId'. Must be a MongoDB ObjectId",
         });
       }
       return value;
@@ -47,7 +47,7 @@ const editOrDeleteTaskIdSchema = Joi.object({
       const isValidObjectId = mongoose.Types.ObjectId.isValid(value);
       if (!isValidObjectId) {
         return helpers.message({
-          custom: "Invalid 'taskId'. Must be MongoDB ObjectId",
+          custom: "Invalid 'taskId'. Must be a MongoDB ObjectId",
         });
       }
       return value;

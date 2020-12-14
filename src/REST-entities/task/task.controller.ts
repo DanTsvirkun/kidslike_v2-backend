@@ -1,12 +1,11 @@
 import { Request, Response, NextFunction } from "express";
-import { Types } from "mongoose";
+import mongoose from "mongoose";
 import { DateTime } from "luxon";
 import {
   IParent,
   IChild,
   ITask,
   IParentPopulated,
-  IChildPopulated,
 } from "../../helpers/typescript-helpers/interfaces";
 import ChildModel from "../child/child.model";
 import TaskModel from "./task.model";
@@ -27,6 +26,7 @@ export const addTask = async (req: Request, res: Response) => {
     endDate = currentDate.plus({ days: req.body.daysToComplete });
     const task = await TaskModel.create({
       ...req.body,
+      isCompleted: TaskStatus.UNKNOWN,
       startDate: currentDate.toLocaleString(),
       endDate: endDate.toLocaleString(),
       childId: childToUpdateId,
@@ -35,29 +35,30 @@ export const addTask = async (req: Request, res: Response) => {
       $push: { tasks: task },
     });
     return res.status(201).send({
-      name: (task as ITask).name,
-      reward: (task as ITask).reward,
-      isCompleted: (task as ITask).isCompleted,
-      daysToComplete: (task as ITask).daysToComplete,
-      startDate: (task as ITask).startDate,
-      endDate: (task as ITask).endDate,
-      childId: (task as ITask).childId,
-      id: (task as ITask)._id,
+      name: task.name,
+      reward: task.reward,
+      isCompleted: task.isCompleted,
+      daysToComplete: task.daysToComplete,
+      startDate: task.startDate,
+      endDate: task.endDate,
+      childId: task.childId,
+      id: task._id,
     });
   }
   const task = await TaskModel.create({
     ...req.body,
+    isCompleted: TaskStatus.UNKNOWN,
     childId: childToUpdateId,
   });
   await ChildModel.findByIdAndUpdate(childToUpdateId, {
     $push: { tasks: task },
   });
   return res.status(201).send({
-    name: (task as ITask).name,
-    reward: (task as ITask).reward,
-    isCompleted: (task as ITask).isCompleted,
-    childId: (task as ITask).childId,
-    id: (task as ITask)._id,
+    name: task.name,
+    reward: task.reward,
+    isCompleted: task.isCompleted,
+    childId: task.childId,
+    id: task._id,
   });
 };
 
@@ -68,7 +69,7 @@ export const editTask = async (req: Request, res: Response) => {
     return res.status(404).send({ message: "Task not found" });
   }
   const childToUpdate = (parent as IParent).children.find(
-    (childId) => childId.toString() === (taskToEdit as ITask).childId.toString()
+    (childId) => childId.toString() === taskToEdit.childId.toString()
   );
   if (!childToUpdate) {
     return res.status(404).send({ message: "Child not found" });
@@ -77,13 +78,12 @@ export const editTask = async (req: Request, res: Response) => {
   let endDate: string;
   let startDate: DateTime | string;
   if (req.body.daysToComplete) {
-    if (!(taskToEdit as ITask).startDate) {
+    if (!taskToEdit.startDate) {
       endDate = currentDate
         .plus({ days: req.body.daysToComplete })
         .toLocaleString();
       startDate = currentDate.toLocaleString();
     } else {
-      // @ts-ignore
       startDate = taskToEdit.startDate;
       endDate = DateTime.fromISO(startDate as string)
         .plus({
@@ -145,15 +145,14 @@ export const deleteTask = async (req: Request, res: Response) => {
     return res.status(404).send({ message: "Task not found" });
   }
   const childToUpdate = (parent as IParent).children.find(
-    (childId) =>
-      childId.toString() === (taskToDelete as ITask).childId.toString()
+    (childId) => childId.toString() === taskToDelete.childId.toString()
   );
   if (!childToUpdate) {
     return res.status(404).send({ message: "Child not found" });
   }
   const deletedTask = await TaskModel.findByIdAndDelete(req.params.taskId);
   await ChildModel.findByIdAndUpdate((deletedTask as ITask).childId, {
-    $pull: { tasks: Types.ObjectId((deletedTask as ITask)._id) },
+    $pull: { tasks: mongoose.Types.ObjectId((deletedTask as ITask)._id) },
   });
   return res.status(204).end();
 };
@@ -165,16 +164,15 @@ export const confirmTask = async (req: Request, res: Response) => {
     return res.status(404).send({ message: "Task not found" });
   }
   const childToUpdateId = (parent as IParent).children.find(
-    (childId) =>
-      childId.toString() === (taskToConfirm as ITask).childId.toString()
+    (childId) => childId.toString() === taskToConfirm.childId.toString()
   );
   if (!childToUpdateId) {
     return res.status(404).send({ message: "Child not found" });
   }
-  if ((taskToConfirm as ITask).isCompleted === TaskStatus.CONFIRMED) {
+  if (taskToConfirm.isCompleted === TaskStatus.CONFIRMED) {
     return res.status(403).send({ message: "Task is already confirmed" });
   }
-  if ((taskToConfirm as ITask).isCompleted === TaskStatus.CANCELED) {
+  if (taskToConfirm.isCompleted === TaskStatus.CANCELED) {
     return res.status(403).send({ message: "Task is already canceled" });
   }
   const confirmedTask = await TaskModel.findByIdAndUpdate(
@@ -226,16 +224,15 @@ export const cancelTask = async (req: Request, res: Response) => {
     return res.status(404).send({ message: "Task not found" });
   }
   const childToUpdateId = (parent as IParent).children.find(
-    (childId) =>
-      childId.toString() === (taskToDecline as ITask).childId.toString()
+    (childId) => childId.toString() === taskToDecline.childId.toString()
   );
   if (!childToUpdateId) {
     return res.status(404).send({ message: "Child not found" });
   }
-  if ((taskToDecline as ITask).isCompleted === TaskStatus.CANCELED) {
+  if (taskToDecline.isCompleted === TaskStatus.CANCELED) {
     return res.status(403).send({ message: "Task is already canceled" });
   }
-  if ((taskToDecline as ITask).isCompleted === TaskStatus.CONFIRMED) {
+  if (taskToDecline.isCompleted === TaskStatus.CONFIRMED) {
     return res.status(403).send({ message: "Task is already confirmed" });
   }
   const canceledTask = await TaskModel.findByIdAndUpdate(
@@ -279,7 +276,7 @@ export const resetTask = async (req: Request, res: Response) => {
   if (!taskToReset) {
     return res.status(404).send({ message: "Task not found" });
   }
-  if ((taskToReset as ITask).isCompleted === TaskStatus.UNKNOWN) {
+  if (taskToReset.isCompleted === TaskStatus.UNKNOWN) {
     return res.status(403).send({ message: "Task has been already reset" });
   }
   const unknownTask = await TaskModel.findByIdAndUpdate(
@@ -327,28 +324,28 @@ export const getTasks = async (
         next(err);
       }
       const dataToEdit = (data as IParentPopulated).children.map(
-        (child) => (child as IChildPopulated).tasks
+        (child) => child.tasks
       );
       const dataToSend = dataToEdit.map((childArray) => {
         return childArray.map((childTask) => {
-          if ((childTask as ITask).startDate) {
+          if (childTask.startDate) {
             return {
-              name: (childTask as ITask).name,
-              reward: (childTask as ITask).reward,
-              isCompleted: (childTask as ITask).isCompleted,
-              daysToComplete: (childTask as ITask).daysToComplete,
-              startDate: (childTask as ITask).startDate,
-              endDate: (childTask as ITask).endDate,
-              childId: (childTask as ITask).childId,
-              id: (childTask as ITask)._id,
+              name: childTask.name,
+              reward: childTask.reward,
+              isCompleted: childTask.isCompleted,
+              daysToComplete: childTask.daysToComplete,
+              startDate: childTask.startDate,
+              endDate: childTask.endDate,
+              childId: childTask.childId,
+              id: childTask._id,
             };
           }
           return {
-            name: (childTask as ITask).name,
-            reward: (childTask as ITask).reward,
-            isCompleted: (childTask as ITask).isCompleted,
-            childId: (childTask as ITask).childId,
-            id: (childTask as ITask)._id,
+            name: childTask.name,
+            reward: childTask.reward,
+            isCompleted: childTask.isCompleted,
+            childId: childTask.childId,
+            id: childTask._id,
           };
         });
       });
@@ -363,7 +360,10 @@ export const getFinishedTasks = async (req: Request, res: Response) => {
     return res.status(404).send({ message: "Child not found" });
   }
   const childFinishedTasks = await TaskModel.find({
-    $and: [{ childId }, { isCompleted: "confirmed" }],
+    $and: [
+      { childId: (childId as unknown) as mongoose.Types.ObjectId },
+      { isCompleted: TaskStatus.CONFIRMED },
+    ],
   });
   if (!childFinishedTasks.length) {
     return res
@@ -371,24 +371,24 @@ export const getFinishedTasks = async (req: Request, res: Response) => {
       .send({ message: "No finished tasks found for this child" });
   }
   const dataToSend = childFinishedTasks.map((finishedTask) => {
-    if ((finishedTask as ITask).startDate) {
+    if (finishedTask.startDate) {
       return {
-        name: (finishedTask as ITask).name,
-        reward: (finishedTask as ITask).reward,
-        isCompleted: (finishedTask as ITask).isCompleted,
-        daysToComplete: (finishedTask as ITask).daysToComplete,
-        startDate: (finishedTask as ITask).startDate,
-        endDate: (finishedTask as ITask).endDate,
-        childId: (finishedTask as ITask).childId,
-        id: (finishedTask as ITask)._id,
+        name: finishedTask.name,
+        reward: finishedTask.reward,
+        isCompleted: finishedTask.isCompleted,
+        daysToComplete: finishedTask.daysToComplete,
+        startDate: finishedTask.startDate,
+        endDate: finishedTask.endDate,
+        childId: finishedTask.childId,
+        id: finishedTask._id,
       };
     }
     return {
-      name: (finishedTask as ITask).name,
-      reward: (finishedTask as ITask).reward,
-      isCompleted: (finishedTask as ITask).isCompleted,
-      childId: (finishedTask as ITask).childId,
-      id: (finishedTask as ITask)._id,
+      name: finishedTask.name,
+      reward: finishedTask.reward,
+      isCompleted: finishedTask.isCompleted,
+      childId: finishedTask.childId,
+      id: finishedTask._id,
     };
   });
   return res.status(200).send(dataToSend);

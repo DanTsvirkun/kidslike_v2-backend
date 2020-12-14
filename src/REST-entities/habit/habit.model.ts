@@ -1,4 +1,5 @@
 import mongoose, { Schema } from "mongoose";
+import { IHabit } from "../../helpers/typescript-helpers/interfaces";
 
 const habitSchema = new Schema({
   name: String,
@@ -7,4 +8,4 @@ const habitSchema = new Schema({
   childId: mongoose.Types.ObjectId,
 });
 
-export default mongoose.model("Habit", habitSchema);
+export default mongoose.model<IHabit>("Habit", habitSchema);

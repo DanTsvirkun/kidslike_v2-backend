@@ -65,7 +65,7 @@ describe("Auth router test suite", () => {
 
       it("Should return an expected result", () => {
         expect(response.body).toEqual({
-          id: (createdUser as Document)._id.toString(),
+          id: (createdUser as IParent)._id.toString(),
           email: validReqBody.email,
           username: validReqBody.username,
         });
@@ -113,8 +113,8 @@ describe("Auth router test suite", () => {
 
   describe("POST /auth/login", () => {
     let response: Response;
-    let createdSession: Document | null;
-    let user: Document | null;
+    let createdSession: ISession | null;
+    let user: IParent | IParentPopulated | null;
 
     const validReqBody = {
       email: "test@email.com",
@@ -233,8 +233,8 @@ describe("Auth router test suite", () => {
 
   describe("GET /auth/refresh", () => {
     let response: Response;
-    let createdSession: Document | null;
-    let session: Document | null;
+    let createdSession: ISession | null;
+    let session: ISession | null;
 
     const validReqBody = {
       sid,
@@ -331,7 +331,7 @@ describe("Auth router test suite", () => {
 
       it("Should say that 'sid' is invalid", () => {
         expect(response.body.message).toBe(
-          "Invalid 'sid'. Must be MongoDB ObjectId"
+          "Invalid 'sid'. Must be a MongoDB ObjectId"
         );
       });
     });
@@ -355,7 +355,7 @@ describe("Auth router test suite", () => {
         expect(response.body).toEqual({
           newAccessToken: response.body.newAccessToken,
           newRefreshToken: response.body.newRefreshToken,
-          sid: (createdSession as ISession)._id.toString(),
+          newSid: (createdSession as ISession)._id.toString(),
         });
       });
 

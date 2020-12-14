@@ -1,4 +1,9 @@
 import mongoose, { Schema } from "mongoose";
+import {
+  IParent,
+  IParentPopulated,
+} from "../../helpers/typescript-helpers/interfaces";
+import { MongoDBObjectId } from "../../helpers/typescript-helpers/types";
 
 const userSchema = new Schema({
   email: String,
@@ -8,4 +13,4 @@ const userSchema = new Schema({
   originUrl: String,
 });
 
-export default mongoose.model("User", userSchema);
+export default mongoose.model<IParent | IParentPopulated>("User", userSchema);

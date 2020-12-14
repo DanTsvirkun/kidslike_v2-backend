@@ -30,7 +30,7 @@ const addGiftIdSchema = Joi.object({
       const isValidObjectId = mongoose.Types.ObjectId.isValid(value);
       if (!isValidObjectId) {
         return helpers.message({
-          custom: "Invalid 'childId'. Must be MongoDB ObjectId",
+          custom: "Invalid 'childId'. Must be a MongoDB ObjectId",
         });
       }
       return value;
@@ -44,7 +44,7 @@ const editOrDeleteGiftIdSchema = Joi.object({
       const isValidObjectId = mongoose.Types.ObjectId.isValid(value);
       if (!isValidObjectId) {
         return helpers.message({
-          custom: "Invalid 'giftId'. Must be MongoDB ObjectId",
+          custom: "Invalid 'giftId'. Must be a MongoDB ObjectId",
         });
       }
       return value;

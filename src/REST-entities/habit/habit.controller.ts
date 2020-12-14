@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import { DateTime } from "luxon";
-import { Document, Types } from "mongoose";
+import mongoose from "mongoose";
 import {
   IParent,
   IChild,
@@ -39,11 +39,11 @@ export const addHabit = async (req: Request, res: Response) => {
     $push: { habits: habit },
   });
   return res.status(201).send({
-    days: (habit as IHabit).days,
-    name: (habit as IHabit).name,
-    rewardPerDay: (habit as IHabit).rewardPerDay,
-    childId: (habit as IHabit).childId,
-    id: (habit as IHabit).id,
+    days: habit.days,
+    name: habit.name,
+    rewardPerDay: habit.rewardPerDay,
+    childId: habit.childId,
+    id: habit._id,
   });
 };
 
@@ -54,8 +54,7 @@ export const editHabit = async (req: Request, res: Response) => {
     return res.status(404).send({ message: "Habit not found" });
   }
   const childToUpdate = (parent as IParent).children.find(
-    (childId) =>
-      childId.toString() === (habitToEdit as IHabit).childId.toString()
+    (childId) => childId.toString() === habitToEdit.childId.toString()
   );
   if (!childToUpdate) {
     return res.status(404).send({ message: "Child not found" });
@@ -66,11 +65,11 @@ export const editHabit = async (req: Request, res: Response) => {
     overwrite: true,
   });
   return res.status(200).send({
-    days: (newHabit as IHabit).days,
-    name: (newHabit as IHabit).name,
-    rewardPerDay: (newHabit as IHabit).rewardPerDay,
-    childId: (newHabit as IHabit).childId,
-    id: (newHabit as IHabit)._id,
+    days: newHabit.days,
+    name: newHabit.name,
+    rewardPerDay: newHabit.rewardPerDay,
+    childId: newHabit.childId,
+    id: newHabit._id,
   });
 };
 
@@ -81,15 +80,14 @@ export const deleteHabit = async (req: Request, res: Response) => {
     return res.status(404).send({ message: "Habit not found" });
   }
   const childToUpdate = (parent as IParent).children.find(
-    (childId) =>
-      childId.toString() === (habitToDelete as IHabit).childId.toString()
+    (childId) => childId.toString() === habitToDelete.childId.toString()
   );
   if (!childToUpdate) {
     return res.status(404).send({ message: "Child not found" });
   }
   const deletedHabit = await HabitModel.findByIdAndDelete(req.params.habitId);
   await ChildModel.findByIdAndUpdate((deletedHabit as IHabit).childId, {
-    $pull: { habits: Types.ObjectId((deletedHabit as IHabit)._id) },
+    $pull: { habits: mongoose.Types.ObjectId((deletedHabit as IHabit)._id) },
   });
   return res.status(204).end();
 };
@@ -101,8 +99,7 @@ export const habitDayConfirmed = async (req: Request, res: Response) => {
     return res.status(404).send({ message: "Habit not found" });
   }
   const childToUpdateId = (parent as IParent).children.find(
-    (childId) =>
-      childId.toString() === (habitToEdit as IHabit).childId.toString()
+    (childId) => childId.toString() === habitToEdit.childId.toString()
   );
   if (!childToUpdateId) {
     return res.status(404).send({ message: "Child not found" });
@@ -143,9 +140,9 @@ export const habitDayConfirmed = async (req: Request, res: Response) => {
   ) {
     updatedRewards =
       (childToUpdate as IChild).rewards +
-      (habitToEdit as IHabit).rewardPerDay +
-      (habitToEdit as IHabit).rewardPerDay * 10 * 0.5;
-    await ChildModel.findByIdAndUpdate((childToUpdate as Document)._id, {
+      habitToEdit.rewardPerDay +
+      habitToEdit.rewardPerDay * 10 * 0.5;
+    await ChildModel.findByIdAndUpdate((childToUpdate as IChild)._id, {
       $set: {
         rewards: updatedRewards,
       },
@@ -153,7 +150,7 @@ export const habitDayConfirmed = async (req: Request, res: Response) => {
   } else {
     updatedRewards =
       (childToUpdate as IChild).rewards + (habitToEdit as IHabit).rewardPerDay;
-    await ChildModel.findByIdAndUpdate((childToUpdate as Document)._id, {
+    await ChildModel.findByIdAndUpdate((childToUpdate as IChild)._id, {
       $set: { rewards: updatedRewards },
     });
   }
@@ -176,8 +173,7 @@ export const habitDayCanceled = async (req: Request, res: Response) => {
     return res.status(404).send({ message: "Habit not found" });
   }
   const childToUpdateId = (parent as IParent).children.find(
-    (childId) =>
-      childId.toString() === (habitToEdit as IHabit).childId.toString()
+    (childId) => childId.toString() === habitToEdit.childId.toString()
   );
   if (!childToUpdateId) {
     return res.status(404).send({ message: "Child not found" });
@@ -233,15 +229,15 @@ export const getHabits = async (
         next(err);
       }
       const dataToEdit = (data as IParentPopulated).children.map(
-        (child) => (child as IChildPopulated).habits
+        (child) => child.habits
       );
       const dataToSend = dataToEdit.map((childArray) => {
         return childArray.map((childHabit) => ({
-          days: (childHabit as IHabit).days,
-          name: (childHabit as IHabit).name,
-          rewardPerDay: (childHabit as IHabit).rewardPerDay,
-          childId: (childHabit as IHabit).childId,
-          id: (childHabit as IHabit)._id,
+          days: childHabit.days,
+          name: childHabit.name,
+          rewardPerDay: childHabit.rewardPerDay,
+          childId: childHabit.childId,
+          id: childHabit._id,
         }));
       });
       return res.status(200).send(dataToSend);

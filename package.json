@@ -7,8 +7,7 @@
     "start": "node dist/server/start.js",
     "test": "jest",
     "postinstall": "tsc",
-    "dev": "nodemon --files src/server/start.ts",
-    "deploy": "git add . && git commit -m Heroku && git push heroku HEAD:master"
+    "dev": "nodemon --files src/server/start.ts"
   },
   "engines": {
     "node": "12.18.0"
