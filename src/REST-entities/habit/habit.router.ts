@@ -58,7 +58,7 @@ const dateHabitSchema = Joi.object({
       const isValidDate = dateRegex.test(value);
       if (!isValidDate) {
         return helpers.message({
-          custom: "Invalid 'date'. Use YYYY-MM-DD string format",
+          custom: "Invalid 'date'. Please, use YYYY-MM-DD string format",
         });
       }
       return value;

@@ -6,7 +6,7 @@ import {
 import ChildModel from "./child.model";
 
 export const addChild = async (req: Request, res: Response) => {
-  const newChild = await ChildModel.create(req.body);
+  const newChild = await ChildModel.create({ ...req.body, rewards: 0 });
   const parent = req.user;
   (parent as IParentPopulated).children.push(newChild as IChildPopulated);
   await (parent as IParentPopulated).save();

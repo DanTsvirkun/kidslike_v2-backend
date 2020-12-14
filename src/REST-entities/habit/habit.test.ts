@@ -71,8 +71,8 @@ describe("Habit router test suite", () => {
     await UserModel.deleteOne({ email: secondResponse.body.data.email });
     await SessionModel.deleteOne({ _id: response.body.sid });
     await SessionModel.deleteOne({ _id: secondResponse.body.sid });
-    await ChildModel.deleteOne({ _id: (createdChild as IChild)._id });
-    await ChildModel.deleteOne({ _id: (secondCreatedChild as IChild)._id });
+    await ChildModel.deleteOne({ _id: thirdResponse.body.id });
+    await ChildModel.deleteOne({ _id: fourthResponse.body.id });
     await mongoose.connection.close();
   });
 
@@ -338,6 +338,9 @@ describe("Habit router test suite", () => {
         updatedHabit = await HabitModel.findById(
           (createdHabit as IHabit)._id
         ).lean();
+        createdChild = await ChildModel.findById((createdChild as IChild)._id)
+          .populate("habits")
+          .lean();
       });
 
       it("Should return a 200 status code", () => {
@@ -356,6 +359,10 @@ describe("Habit router test suite", () => {
 
       it("Should update a habit in DB", () => {
         expect((updatedHabit as IHabit).name).toBe("Test2");
+      });
+
+      it("Should update a habit in DB", () => {
+        expect((createdChild as IChild).habits[0]).toEqual(updatedHabit);
       });
     });
 
@@ -505,6 +512,9 @@ describe("Habit router test suite", () => {
         updatedHabit = await HabitModel.findById(
           (createdHabit as IHabit)._id
         ).lean();
+        createdChild = await ChildModel.findById((createdChild as IChild)._id)
+          .populate("habits")
+          .lean();
       });
 
       it("Should return a 200 status code", () => {
@@ -526,6 +536,10 @@ describe("Habit router test suite", () => {
 
       it("Should update a habit in DB", () => {
         expect((updatedHabit as IHabit).days[1].isCompleted).toBe("confirmed");
+      });
+
+      it("Should update a child in DB", () => {
+        expect((createdChild as IChild).habits[0]).toEqual(updatedHabit);
       });
     });
 
@@ -594,7 +608,7 @@ describe("Habit router test suite", () => {
 
       it("Should say that 'date' has invalid format", () => {
         expect(response.body.message).toBe(
-          "Invalid 'date'. Please, use YYYY-MM-DD format"
+          "Invalid 'date'. Please, use YYYY-MM-DD string format"
         );
       });
     });
@@ -731,6 +745,11 @@ describe("Habit router test suite", () => {
         updatedHabit = await HabitModel.findById(
           (secondHabit as IHabit)._id
         ).lean();
+        createdChild = await ChildModel.findById(
+          (secondCreatedChild as IChild)._id
+        )
+          .populate("habits")
+          .lean();
       });
 
       it("Should return a 200 status code", () => {
@@ -749,6 +768,10 @@ describe("Habit router test suite", () => {
 
       it("Should update a habit in DB", () => {
         expect((updatedHabit as IHabit).days[1].isCompleted).toBe("canceled");
+      });
+
+      it("Should update a child in DB", () => {
+        expect((createdChild as IChild).habits[0]).toEqual(updatedHabit);
       });
     });
 
@@ -817,7 +840,7 @@ describe("Habit router test suite", () => {
 
       it("Should say that 'date' has invalid format", () => {
         expect(response.body.message).toBe(
-          "Invalid 'date'. Please, use YYYY-MM-DD format"
+          "Invalid 'date'. Please, use YYYY-MM-DD string format"
         );
       });
     });
@@ -926,14 +949,31 @@ describe("Habit router test suite", () => {
         .set("Authorization", `Bearer ${secondAccessToken}`);
     });
 
+    context("With another account", () => {
+      beforeAll(async () => {
+        secondHabit = await HabitModel.findOne({
+          childId: (secondCreatedChild as IChild)._id,
+        });
+        response = await supertest(app)
+          .delete(`/habit/${(secondHabit as IHabit)._id}`)
+          .set("Authorization", `Bearer ${accessToken}`);
+      });
+
+      it("Should return a 404 status code", () => {
+        expect(response.status).toBe(404);
+      });
+
+      it("Should say that child wasn't found", () => {
+        expect(response.body.message).toBe("Child not found");
+      });
+    });
+
     context("Valid request", () => {
       beforeAll(async () => {
         response = await supertest(app)
           .delete(`/habit/${(createdHabit as IHabit)._id}`)
           .set("Authorization", `Bearer ${accessToken}`);
-        deletedHabit = await HabitModel.findOne({
-          childId: (createdChild as IChild)._id,
-        });
+        deletedHabit = await HabitModel.findById((createdHabit as IHabit)._id);
       });
 
       it("Should return a 204 status code", () => {
@@ -974,25 +1014,6 @@ describe("Habit router test suite", () => {
 
       it("Should return an unauthorized status", () => {
         expect(response.body.message).toBe("Unauthorized");
-      });
-    });
-
-    context("With another account", () => {
-      beforeAll(async () => {
-        secondHabit = await HabitModel.findOne({
-          childId: (secondCreatedChild as IChild)._id,
-        });
-        response = await supertest(app)
-          .delete(`/habit/${(secondHabit as IHabit)._id}`)
-          .set("Authorization", `Bearer ${accessToken}`);
-      });
-
-      it("Should return a 404 status code", () => {
-        expect(response.status).toBe(404);
-      });
-
-      it("Should say that child wasn't found", () => {
-        expect(response.body.message).toBe("Child not found");
       });
     });
 

@@ -424,7 +424,12 @@ describe("Task router test suite", () => {
           .patch(`/task/${(createdTask as ITask)._id}`)
           .set("Authorization", `Bearer ${accessToken}`)
           .send(validReqBody);
-        updatedTask = await TaskModel.findById((createdTask as ITask)._id);
+        updatedTask = await TaskModel.findById(
+          (createdTask as ITask)._id
+        ).lean();
+        createdChild = await ChildModel.findById((createdChild as IChild)._id)
+          .populate("tasks")
+          .lean();
       });
 
       it("Should return a 200 status code", () => {
@@ -446,6 +451,10 @@ describe("Task router test suite", () => {
 
       it("Should update a task in DB", () => {
         expect((updatedTask as ITask).name).toBe("Test2");
+      });
+
+      it("Should update a child in DB", () => {
+        expect((createdChild as IChild).tasks[0]).toEqual(updatedTask);
       });
     });
 
@@ -616,7 +625,12 @@ describe("Task router test suite", () => {
         response = await supertest(app)
           .patch(`/task/confirm/${(createdTask as ITask)._id}`)
           .set("Authorization", `Bearer ${accessToken}`);
-        confirmedTask = await TaskModel.findById((createdTask as ITask)._id);
+        confirmedTask = await TaskModel.findById(
+          (createdTask as ITask)._id
+        ).lean();
+        createdChild = await ChildModel.findById((createdChild as IChild)._id)
+          .populate("tasks")
+          .lean();
       });
 
       it("Should return a 200 status code", () => {
@@ -641,6 +655,10 @@ describe("Task router test suite", () => {
 
       it("Should confirm a task in DB", () => {
         expect((confirmedTask as ITask).isCompleted).toBe(TaskStatus.CONFIRMED);
+      });
+
+      it("Should update a child in DB", () => {
+        expect((createdChild as IChild).tasks[0]).toEqual(confirmedTask);
       });
     });
 
@@ -825,7 +843,12 @@ describe("Task router test suite", () => {
         response = await supertest(app)
           .patch(`/task/cancel/${(secondTask as ITask)._id}`)
           .set("Authorization", `Bearer ${secondAccessToken}`);
-        canceledTask = await TaskModel.findById((secondTask as ITask)._id);
+        canceledTask = await TaskModel.findById(
+          (secondTask as ITask)._id
+        ).lean();
+        updatedChild = await ChildModel.findById((secondCreatedChild as IChild)._id)
+          .populate("tasks")
+          .lean();
       });
 
       it("Should return a 200 status code", () => {
@@ -847,6 +870,10 @@ describe("Task router test suite", () => {
 
       it("Should cancel a task in DB", () => {
         expect((canceledTask as ITask).isCompleted).toBe(TaskStatus.CANCELED);
+      });
+
+      it("Should update a child in DB", () => {
+        expect((updatedChild as IChild).tasks[0]).toEqual(canceledTask);
       });
     });
 
@@ -946,7 +973,12 @@ describe("Task router test suite", () => {
         response = await supertest(app)
           .patch(`/task/reset/${(createdTask as ITask)._id}`)
           .set("Authorization", `Bearer ${accessToken}`);
-        unknownTask = await TaskModel.findById((createdTask as ITask)._id);
+        unknownTask = await TaskModel.findById(
+          (createdTask as ITask)._id
+        ).lean();
+        createdChild = await ChildModel.findById((createdChild as IChild)._id)
+          .populate("tasks")
+          .lean();
       });
 
       it("Should return a 200 status code", () => {
@@ -968,6 +1000,10 @@ describe("Task router test suite", () => {
 
       it("Should update a task in DB", () => {
         expect((unknownTask as ITask).isCompleted).toBe(TaskStatus.UNKNOWN);
+      });
+
+      it("Should update a child in DB", () => {
+        expect((createdChild as IChild).tasks[0]).toEqual(unknownTask);
       });
     });
 
@@ -1072,6 +1108,25 @@ describe("Task router test suite", () => {
         .set("Authorization", `Bearer ${accessToken}`);
     });
 
+    context("With another account", () => {
+      beforeAll(async () => {
+        secondTask = await TaskModel.findOne({
+          childId: (secondCreatedChild as IChild)._id,
+        });
+        response = await supertest(app)
+          .delete(`/task/${(secondTask as ITask)._id}`)
+          .set("Authorization", `Bearer ${accessToken}`);
+      });
+
+      it("Should return a 404 status code", () => {
+        expect(response.status).toBe(404);
+      });
+
+      it("Should say that child wasn't found", () => {
+        expect(response.body.message).toBe("Child not found");
+      });
+    });
+
     context("Valid request", () => {
       beforeAll(async () => {
         response = await supertest(app)
@@ -1118,25 +1173,6 @@ describe("Task router test suite", () => {
 
       it("Should return an unauthorized status", () => {
         expect(response.body.message).toBe("Unauthorized");
-      });
-    });
-
-    context("With another account", () => {
-      beforeAll(async () => {
-        secondTask = await TaskModel.findOne({
-          childId: (secondCreatedChild as IChild)._id,
-        });
-        response = await supertest(app)
-          .delete(`/task/${(secondTask as ITask)._id}`)
-          .set("Authorization", `Bearer ${accessToken}`);
-      });
-
-      it("Should return a 404 status code", () => {
-        expect(response.status).toBe(404);
-      });
-
-      it("Should say that child wasn't found", () => {
-        expect(response.body.message).toBe("Child not found");
       });
     });
 

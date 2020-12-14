@@ -125,12 +125,8 @@ describe("Gift router test suite", () => {
         });
       });
 
-      it("Should add a new gift to child document in DB", () => {
-        expect(
-          (updatedChild as IChild).gifts.find(
-            (giftId) => giftId.toString() === response.body.id.toString()
-          )
-        ).toBeTruthy();
+      it("Should return a valid id", () => {
+        expect(mongoose.Types.ObjectId.isValid(response.body.id)).toBeTruthy();
       });
     });
 
@@ -344,7 +340,12 @@ describe("Gift router test suite", () => {
           .set("Authorization", `Bearer ${accessToken}`)
           .field("name", "Test2")
           .attach("file", path.join(__dirname, "./test-files/test.jpg"));
-        updatedGift = await GiftModel.findById((createdGift as IGift)._id);
+        updatedGift = await GiftModel.findById(
+          (createdGift as IGift)._id
+        ).lean();
+        createdChild = await ChildModel.findById(
+          (createdChild as IChild)._id
+        ).populate("gifts");
       });
 
       it("Should return a 200 status code", () => {
@@ -364,6 +365,12 @@ describe("Gift router test suite", () => {
 
       it("Should update a gift in DB", () => {
         expect((updatedGift as IGift).name).toBe("Test2");
+      });
+
+      it("Should update a child in DB", () => {
+        expect((createdChild as IChildPopulated).gifts[0].toObject()).toEqual(
+          updatedGift
+        );
       });
     });
 
@@ -486,7 +493,12 @@ describe("Gift router test suite", () => {
         response = await supertest(app)
           .patch(`/gift/buy/${(createdGift as IGift)._id}`)
           .set("Authorization", `Bearer ${accessToken}`);
-        updatedGift = await GiftModel.findById((createdGift as IGift)._id);
+        updatedGift = await GiftModel.findById(
+          (createdGift as IGift)._id
+        ).lean();
+        createdChild = await ChildModel.findById(
+          (createdChild as IChild)._id
+        ).populate("gifts");
       });
 
       it("Should return a 200 status code", () => {
@@ -509,6 +521,12 @@ describe("Gift router test suite", () => {
 
       it("Should update a gift in DB", () => {
         expect((updatedGift as IGift).isPurchased).toBeTruthy();
+      });
+
+      it("Should update a child in DB", () => {
+        expect((createdChild as IChild).toObject().gifts[0]).toEqual(
+          updatedGift
+        );
       });
     });
 
@@ -630,7 +648,10 @@ describe("Gift router test suite", () => {
         response = await supertest(app)
           .patch(`/gift/reset/${(createdGift as IGift)._id}`)
           .set("Authorization", `Bearer ${accessToken}`);
-        resetGift = await GiftModel.findById((createdGift as IGift)._id);
+        resetGift = await GiftModel.findById((createdGift as IGift)._id).lean();
+        createdChild = await ChildModel.findById((createdChild as IChild)._id)
+          .populate("gifts")
+          .lean();
       });
 
       it("Should return a 200 status code", () => {
@@ -650,6 +671,10 @@ describe("Gift router test suite", () => {
 
       it("Should update a gift in DB", () => {
         expect((resetGift as IGift).isPurchased).toBeFalsy();
+      });
+
+      it("Should update a child in DB", () => {
+        expect((createdChild as IChild).gifts[0]).toEqual(resetGift);
       });
     });
 
@@ -750,6 +775,22 @@ describe("Gift router test suite", () => {
         .set("Authorization", `Bearer ${secondAccessToken}`);
     });
 
+    context("With another account", () => {
+      beforeAll(async () => {
+        response = await supertest(app)
+          .delete(`/gift/${(secondCreatedGift as IGift)._id}`)
+          .set("Authorization", `Bearer ${accessToken}`);
+      });
+
+      it("Should return a 404 status code", () => {
+        expect(response.status).toBe(404);
+      });
+
+      it("Should say that child wasn't found", () => {
+        expect(response.body.message).toBe("Child not found");
+      });
+    });
+
     context("Valid request", () => {
       beforeAll(async () => {
         response = await supertest(app)
@@ -796,22 +837,6 @@ describe("Gift router test suite", () => {
 
       it("Should return an unauthorized status", () => {
         expect(response.body.message).toBe("Unauthorized");
-      });
-    });
-
-    context("With another account", () => {
-      beforeAll(async () => {
-        response = await supertest(app)
-          .delete(`/gift/${(secondCreatedGift as IGift)._id}`)
-          .set("Authorization", `Bearer ${accessToken}`);
-      });
-
-      it("Should return a 404 status code", () => {
-        expect(response.status).toBe(404);
-      });
-
-      it("Should say that child wasn't found", () => {
-        expect(response.body.message).toBe("Child not found");
       });
     });
 
