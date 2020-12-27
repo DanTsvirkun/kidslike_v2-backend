@@ -26,7 +26,7 @@ export const addHabit = async (req: Request, res: Response) => {
   const date = DateTime.local();
   for (let i = 0; i < 10; i++) {
     habitDays.push({
-      date: date.plus({ days: i }).toLocaleString(),
+      date: date.plus({ days: i }).toFormat("yyyy-MM-dd"),
       isCompleted: TaskStatus.UNKNOWN,
     });
   }

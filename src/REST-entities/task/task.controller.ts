@@ -27,8 +27,8 @@ export const addTask = async (req: Request, res: Response) => {
     const task = await TaskModel.create({
       ...req.body,
       isCompleted: TaskStatus.UNKNOWN,
-      startDate: currentDate.toLocaleString(),
-      endDate: endDate.toLocaleString(),
+      startDate: currentDate.toFormat("yyyy-MM-dd"),
+      endDate: endDate.toFormat("yyyy-MM-dd"),
       childId: childToUpdateId,
     });
     await ChildModel.findByIdAndUpdate(childToUpdateId, {
@@ -81,15 +81,15 @@ export const editTask = async (req: Request, res: Response) => {
     if (!taskToEdit.startDate) {
       endDate = currentDate
         .plus({ days: req.body.daysToComplete })
-        .toLocaleString();
-      startDate = currentDate.toLocaleString();
+        .toFormat("yyyy-MM-dd");
+      startDate = currentDate.toFormat("yyyy-MM-dd");
     } else {
       startDate = taskToEdit.startDate;
       endDate = DateTime.fromISO(startDate as string)
         .plus({
           days: req.body.daysToComplete,
         })
-        .toLocaleString();
+        .toFormat("yyyy-MM-dd");
     }
     const newTask: ITask = {
       ...taskToEdit.toObject(),
