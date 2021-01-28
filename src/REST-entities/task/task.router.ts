@@ -65,19 +65,19 @@ router.post(
   validate(addTaskSchema),
   tryCatchWrapper(addTask)
 );
-router.patch(
-  "/:taskId",
-  tryCatchWrapper(authorize),
-  validate(editOrDeleteTaskIdSchema, "params"),
-  validate(editTaskSchema),
-  tryCatchWrapper(editTask)
-);
-router.delete(
-  "/:taskId",
-  tryCatchWrapper(authorize),
-  validate(editOrDeleteTaskIdSchema, "params"),
-  tryCatchWrapper(deleteTask)
-);
+router
+  .route("/:taskId")
+  .patch(
+    tryCatchWrapper(authorize),
+    validate(editOrDeleteTaskIdSchema, "params"),
+    validate(editTaskSchema),
+    tryCatchWrapper(editTask)
+  )
+  .delete(
+    tryCatchWrapper(authorize),
+    validate(editOrDeleteTaskIdSchema, "params"),
+    tryCatchWrapper(deleteTask)
+  );
 router.patch(
   "/confirm/:taskId",
   tryCatchWrapper(authorize),

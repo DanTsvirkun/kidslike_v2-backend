@@ -76,19 +76,19 @@ router.post(
   validate(addHabitSchema),
   tryCatchWrapper(addHabit)
 );
-router.patch(
-  "/:habitId",
-  tryCatchWrapper(authorize),
-  validate(editOrDeleteHabitIdSchema, "params"),
-  validate(editHabitSchema),
-  tryCatchWrapper(editHabit)
-);
-router.delete(
-  "/:habitId",
-  tryCatchWrapper(authorize),
-  validate(editOrDeleteHabitIdSchema, "params"),
-  tryCatchWrapper(deleteHabit)
-);
+router
+  .route("/:habitId")
+  .patch(
+    tryCatchWrapper(authorize),
+    validate(editOrDeleteHabitIdSchema, "params"),
+    validate(editHabitSchema),
+    tryCatchWrapper(editHabit)
+  )
+  .delete(
+    tryCatchWrapper(authorize),
+    validate(editOrDeleteHabitIdSchema, "params"),
+    tryCatchWrapper(deleteHabit)
+  );
 router.patch(
   "/confirm/:habitId",
   tryCatchWrapper(authorize),

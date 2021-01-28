@@ -11,7 +11,10 @@
   },
   "consumes": ["application/json"],
   "produces": ["application/json"],
-  "servers": [{ "url": "https://kidslikev2.herokuapp.com" }],
+  "servers": [
+    { "url": "https://kidslikev2.herokuapp.com" },
+    { "url": "https://kidslike-backend.goit.global/api-docs" }
+  ],
   "tags": [
     {
       "name": "Auth",
