@@ -481,13 +481,13 @@ describe("Habit router test suite", () => {
     let secondHabit: IHabit | null;
 
     const validReqBody = {
-      date: DateTime.local().plus({ days: 1 }).toLocaleString(),
+      date: DateTime.local().plus({ days: 1 }).toFormat("yyyy-MM-dd"),
     };
 
     const invalidReqBody = {};
 
     const secondInvalidReqBody = {
-      date: DateTime.local().toLocaleString(),
+      date: DateTime.local().toFormat("yyyy-MM-dd"),
       extra: "",
     };
 
@@ -711,13 +711,13 @@ describe("Habit router test suite", () => {
     let secondHabit: IHabit | null;
 
     const validReqBody = {
-      date: DateTime.local().plus({ days: 1 }).toLocaleString(),
+      date: DateTime.local().plus({ days: 1 }).toFormat("yyyy-MM-dd"),
     };
 
     const invalidReqBody = {};
 
     const secondInvalidReqBody = {
-      date: DateTime.local().toLocaleString(),
+      date: DateTime.local().toFormat("yyyy-MM-dd"),
       extra: "",
     };
 
