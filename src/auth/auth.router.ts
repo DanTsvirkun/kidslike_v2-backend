@@ -16,14 +16,14 @@ import {
 import validate from "../helpers/function-helpers/validate";
 
 const signUpSchema = Joi.object({
-  email: Joi.string().required(),
-  password: Joi.string().required(),
-  username: Joi.string().required(),
+  email: Joi.string().min(3).max(254).required(),
+  password: Joi.string().min(8).max(100).required(),
+  username: Joi.string().min(2).max(100).required(),
 });
 
 const signInSchema = Joi.object({
-  email: Joi.string().required(),
-  password: Joi.string().required(),
+  email: Joi.string().min(3).max(254).required(),
+  password: Joi.string().min(8).max(100).required(),
 });
 
 const refreshTokensSchema = Joi.object({

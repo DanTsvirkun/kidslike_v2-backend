@@ -14,13 +14,13 @@ import {
 } from "./habit.controller";
 
 const addHabitSchema = Joi.object({
-  name: Joi.string().required(),
-  rewardPerDay: Joi.number().required().min(1),
+  name: Joi.string().min(2).max(100).required(),
+  rewardPerDay: Joi.number().required().min(1).max(10000),
 });
 
 const editHabitSchema = Joi.object({
-  name: Joi.string(),
-  rewardPerDay: Joi.number().min(1),
+  name: Joi.string().min(2).max(100),
+  rewardPerDay: Joi.number().min(1).max(10000),
 }).min(1);
 
 const addHabitIdSchema = Joi.object({

@@ -12,7 +12,6 @@
   "consumes": ["application/json"],
   "produces": ["application/json"],
   "servers": [
-    { "url": "https://kidslikev2.herokuapp.com" },
     { "url": "https://kidslike-backend.goit.global/api-docs" }
   ],
   "tags": [
@@ -292,9 +291,7 @@
             "content": {}
           }
         }
-      }
-    },
-    "/habit/{childId}": {
+      },
       "post": {
         "tags": ["Habit"],
         "summary": "Add habit for the child",
@@ -343,9 +340,7 @@
             "content": {}
           }
         }
-      }
-    },
-    "/habit/{habitId}": {
+      },
       "patch": {
         "tags": ["Habit"],
         "summary": "Edit habit",
@@ -426,7 +421,7 @@
         }
       }
     },
-    "/habit/confirm/{habitId}": {
+    "/habit/confirm": {
       "patch": {
         "tags": ["Habit"],
         "summary": "Set habit's current day status to confirmed",
@@ -481,7 +476,7 @@
         }
       }
     },
-    "/habit/cancel/{habitId}": {
+    "/habit/cancel": {
       "patch": {
         "tags": ["Habit"],
         "summary": "Set habit's current day to canceled (child did not fulfill his task)",
@@ -566,9 +561,7 @@
             "content": {}
           }
         }
-      }
-    },
-    "/task/{childId}": {
+      },
       "post": {
         "tags": ["Task"],
         "summary": "Add task for the child",
@@ -617,9 +610,7 @@
             "content": {}
           }
         }
-      }
-    },
-    "/task/{taskId}": {
+      },
       "patch": {
         "tags": ["Task"],
         "summary": "Edit task",
@@ -700,7 +691,7 @@
         }
       }
     },
-    "/task/confirm/{taskId}": {
+    "/task/confirm": {
       "patch": {
         "tags": ["Task"],
         "summary": "Set task's status to confirmed",
@@ -742,7 +733,7 @@
         }
       }
     },
-    "/task/cancel/{taskId}": {
+    "/task/cancel": {
       "patch": {
         "tags": ["Task"],
         "summary": "Set task's status to canceled",
@@ -784,7 +775,7 @@
         }
       }
     },
-    "/task/reset/{taskId}": {
+    "/task/reset": {
       "patch": {
         "tags": ["Task"],
         "summary": "Reset task's status",
@@ -826,7 +817,7 @@
         }
       }
     },
-    "/task/finished/{childId}": {
+    "/task/finished": {
       "get": {
         "tags": ["Task"],
         "summary": "Get finished tasks from one child",
@@ -896,9 +887,7 @@
             "content": {}
           }
         }
-      }
-    },
-    "/gift/{childId}": {
+      },
       "post": {
         "tags": ["Gift"],
         "summary": "Add gift for the child",
@@ -951,9 +940,7 @@
             "content": {}
           }
         }
-      }
-    },
-    "/gift/{giftId}": {
+      },
       "patch": {
         "tags": ["Gift"],
         "summary": "Edit gift",
@@ -1038,7 +1025,7 @@
         }
       }
     },
-    "/gift/buy/{giftId}": {
+    "/gift/buy": {
       "patch": {
         "tags": ["Gift"],
         "summary": "Buy gift for the child",
@@ -1086,7 +1073,7 @@
         }
       }
     },
-    "/gift/reset/{giftId}": {
+    "/gift/reset": {
       "patch": {
         "tags": ["Gift"],
         "summary": "Reset gift if it's purchased",
@@ -1194,16 +1181,22 @@
           "email": {
             "type": "string",
             "description": "User's email",
-            "format": "email"
+            "format": "email",
+            "minLength": 3,
+            "maxLength": 254
           },
           "password": {
             "type": "string",
             "description": "User's password",
-            "example": "qwerty123"
+            "example": "qwerty123",
+            "minLength": 8,
+            "maxLength": 100
           },
           "username": {
             "type": "string",
             "description": "User's name",
+            "minLength": 2,
+            "maxLength": 100,
             "example": "Adam"
           }
         }
@@ -1235,11 +1228,15 @@
           "email": {
             "type": "string",
             "description": "User's email",
-            "format": "email"
+            "format": "email",
+            "minLength": 3,
+            "maxLength": 254
           },
           "password": {
             "type": "string",
             "description": "User's password",
+            "minLength": 8,
+            "maxLength": 100,
             "example": "qwerty123"
           }
         }
@@ -1328,7 +1325,6 @@
                           "rewardPerDay": {
                             "type": "integer",
                             "description": "Habit's reward for a single day",
-                            "minimum": 1,
                             "example": 1
                           },
                           "childId": {
@@ -1362,7 +1358,6 @@
                           "reward": {
                             "type": "string",
                             "description": "Task's reward",
-                            "minimum": 1,
                             "example": 1
                           },
                           "isCompleted": {
@@ -1374,6 +1369,11 @@
                             "type": "string",
                             "description": "Id of the child whose task it is",
                             "example": "507f1f77bcf86cd799439011"
+                          },
+                          "daysToComplete": {
+                            "type": "integer",
+                            "description": "Amount of days to complete this task (optional)",
+                            "example": 1
                           },
                           "__v": {
                             "type": "integer",
@@ -1547,7 +1547,6 @@
                       "rewardPerDay": {
                         "type": "integer",
                         "description": "Habit's reward for a single day",
-                        "minimum": 1,
                         "example": 1
                       },
                       "childId": {
@@ -1581,7 +1580,6 @@
                       "reward": {
                         "type": "string",
                         "description": "Task's reward",
-                        "minimum": 1,
                         "example": 1
                       },
                       "isCompleted": {
@@ -1593,6 +1591,11 @@
                         "type": "string",
                         "description": "Id of the child whose task it is",
                         "example": "507f1f77bcf86cd799439011"
+                      },
+                      "daysToComplete": {
+                        "type": "integer",
+                        "description": "Amount of days to complete this task (optional)",
+                        "example": 1
                       },
                       "__v": {
                         "type": "integer",
@@ -1674,6 +1677,8 @@
           "name": {
             "type": "string",
             "description": "Child's name",
+            "minLength": 2,
+            "maxLength": 100,
             "example": "Adam"
           },
           "gender": {
@@ -1729,12 +1734,15 @@
           "name": {
             "type": "string",
             "description": "Habit's name",
+            "minLength": 2,
+            "maxLength": 100,
             "example": "Name of the habit"
           },
           "rewardPerDay": {
             "type": "integer",
-            "minimum": 1,
             "description": "Habit's reward for a single day",
+            "minimum": 1,
+            "maximum": 10000,
             "example": 1
           }
         }
@@ -1795,12 +1803,15 @@
           "name": {
             "type": "string",
             "description": "Habit's name",
+            "minLength": 2,
+            "maxLength": 100,
             "example": "Name of the habit"
           },
           "rewardPerDay": {
             "type": "integer",
-            "minimum": 1,
             "description": "Habit's reward for a single day",
+            "minimum": 1,
+            "maximum": 10000,
             "example": 1
           }
         }
@@ -1883,7 +1894,6 @@
               "rewardPerDay": {
                 "type": "integer",
                 "description": "Habit's reward for a single day",
-                "minimum": 1,
                 "example": 1
               },
               "childId": {
@@ -1936,7 +1946,6 @@
           "rewardPerDay": {
             "type": "integer",
             "description": "Habit's reward for a single day",
-            "minimum": 1,
             "example": 1
           },
           "childId": {
@@ -1969,17 +1978,21 @@
           "name": {
             "type": "string",
             "description": "Task's name",
+            "minLength": 2,
+            "maxLength": 100,
             "example": "Name of the task"
           },
           "reward": {
             "type": "integer",
             "description": "Task's reward",
             "minimum": 1,
+            "maximum": 10000,
             "example": 1
           },
           "daysToComplete": {
             "type": "integer",
             "minimum": 1,
+            "maximum": 10000,
             "description": "Days for a task to be completed (optional)",
             "example": 1
           }
@@ -1991,17 +2004,21 @@
           "name": {
             "type": "string",
             "description": "Task's name",
+            "minLength": 2,
+            "maxLength": 100,
             "example": "Name of the task"
           },
           "reward": {
             "type": "integer",
             "description": "Task's reward",
             "minimum": 1,
+            "maximum": 10000,
             "example": 1
           },
           "daysToComplete": {
             "type": "integer",
             "minimum": 1,
+            "maximum": 10000,
             "description": "Days for a task to be completed (optional)",
             "example": 1
           }
@@ -2018,7 +2035,6 @@
           "reward": {
             "type": "string",
             "description": "Task's reward",
-            "minimum": 1,
             "example": 1
           },
           "isCompleted": {
@@ -2029,7 +2045,6 @@
           "daysToComplete": {
             "type": "integer",
             "description": "Amount of days to complete this task (optional)",
-            "minimum": 1,
             "example": 1
           },
           "startDate": {
@@ -2068,7 +2083,6 @@
               "reward": {
                 "type": "string",
                 "description": "Task's reward",
-                "minimum": 1,
                 "example": 1
               },
               "isCompleted": {
@@ -2079,7 +2093,6 @@
               "daysToComplete": {
                 "type": "integer",
                 "description": "Amount of days to complete this task (might not be here)",
-                "minimum": 1,
                 "example": 1
               },
               "startDate": {
@@ -2123,7 +2136,6 @@
           "reward": {
             "type": "string",
             "description": "Task's reward",
-            "minimum": 1,
             "example": 1
           },
           "isCompleted": {
@@ -2134,7 +2146,6 @@
           "daysToComplete": {
             "type": "integer",
             "description": "Amount of days to complete this task (might not be here)",
-            "minimum": 1,
             "example": 1
           },
           "startDate": {
@@ -2170,7 +2181,6 @@
           "reward": {
             "type": "string",
             "description": "Task's reward",
-            "minimum": 1,
             "example": 1
           },
           "isCompleted": {
@@ -2181,7 +2191,6 @@
           "daysToComplete": {
             "type": "integer",
             "description": "Amount of days to complete this task (might not be here)",
-            "minimum": 1,
             "example": 1
           },
           "startDate": {
@@ -2221,7 +2230,6 @@
               "reward": {
                 "type": "string",
                 "description": "Task's reward",
-                "minimum": 1,
                 "example": 1
               },
               "isCompleted": {
@@ -2232,7 +2240,6 @@
               "daysToComplete": {
                 "type": "integer",
                 "description": "Amount of days to complete this task (optional)",
-                "minimum": 1,
                 "example": 1
               },
               "startDate": {
@@ -2272,7 +2279,6 @@
             "reward": {
               "type": "string",
               "description": "Task's reward",
-              "minimum": 1,
               "example": 1
             },
             "isCompleted": {
@@ -2284,7 +2290,6 @@
             "daysToComplete": {
               "type": "integer",
               "description": "Amount of days to complete this task (optional)",
-              "minimum": 1,
               "example": 1
             },
             "startDate": {
@@ -2317,12 +2322,15 @@
           "name": {
             "type": "string",
             "description": "Gift's name",
+            "minLength": 2,
+            "maxLength": 100,
             "example": "Name of the gift"
           },
           "price": {
             "type": "integer",
             "description": "Gift's price",
             "minimum": 1,
+            "maximum": 10000,
             "example": 1
           },
           "file": {
@@ -2344,6 +2352,7 @@
             "type": "integer",
             "description": "Gift's price",
             "minimum": 1,
+            "maximum": 10000,
             "example": 1
           },
           "isPurchased": {
@@ -2373,12 +2382,15 @@
           "name": {
             "type": "string",
             "description": "Gift's name",
+            "minLength": 2,
+            "maxLength": 100,
             "example": "Name of the gift"
           },
           "price": {
             "type": "integer",
             "description": "Gift's price",
             "minimum": 1,
+            "maximum": 10000,
             "example": 1
           },
           "file": {
