@@ -12,7 +12,7 @@
   "consumes": ["application/json"],
   "produces": ["application/json"],
   "servers": [
-    { "url": "https://kidslike-backend.goit.global/api-docs" }
+    { "url": "https://kidslike-backend.goit.global" }
   ],
   "tags": [
     {
